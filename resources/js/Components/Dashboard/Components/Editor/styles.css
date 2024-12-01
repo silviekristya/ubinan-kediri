@@ -1,0 +1,15 @@
+/* Base theme */
+.bn-container[data-theming-css-bps-kab-kediri][data-color-scheme] {
+    --bn-colors-editor-text: var(--black-bps);
+    --bn-colors-editor-background: var(--white-bps);
+    --bn-colors-hovered-text: var(--black-bps);
+    --bn-colors-hovered-background: var(--blue-bps-very-light);
+    --bn-colors-selected-text: var(--white-bps-dark);
+    --bn-colors-selected-background: var(--blue-bps-very-light);
+    --bn-colors-disabled-text: var(--blue-bps-very-light);
+    --bn-color-highlight-colors: var(--white-bps-dark);
+    --bn-border-radius: 6px;
+    --bn-colors-border: var(--black-bps);
+    --bn-font-family: Helvetica Neue, sans-serif;
+
+  }

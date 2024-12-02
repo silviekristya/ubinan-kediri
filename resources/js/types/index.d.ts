@@ -13,6 +13,7 @@ export interface Pegawai {
     no_telepon?: string
     role: 'ADMIN' | 'PEGAWAI'
     is_pml: boolean
+    user?: User
 }
 
 export interface Mitra {

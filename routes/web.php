@@ -10,6 +10,7 @@ use App\Http\Controllers\Dashboard\Admin\User\UserStore;
 use App\Http\Controllers\Dashboard\Admin\User\UserDelete;
 use App\Http\Controllers\Dashboard\Admin\User\UserUpdate;
 use App\Http\Controllers\Dashboard\Profil\ProfilController;
+use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiList;
 use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 
 Route::get('/', [HomeBerandaList::class, 'index'])->name('beranda.index');
@@ -39,6 +40,24 @@ Route::middleware('auth')
                 Route::delete('delete/{user}', [UserDelete::class, 'destroy'])->name('delete');
             });
             // End: User
+
+            // Start: Pegawai
+            Route::prefix('pegawai')->name('pegawai.')->group(function () {
+                Route::get('', [PegawaiList::class, 'index'])->name('index');
+                Route::post('create', [UserStore::class, 'store']);
+                Route::post('update/{user}', [UserUpdate::class, 'update']);
+                Route::delete('delete/{user}', [UserDelete::class, 'destroy'])->name('delete');
+            });
+            // End: Pegawai
+
+            // Start: Mitra
+            Route::prefix('mitra')->name('mitra.')->group(function () {
+                Route::get('', [UserList::class, 'index'])->name('index');
+                Route::post('create', [UserStore::class, 'store']);
+                Route::post('update/{user}', [UserUpdate::class, 'update']);
+                Route::delete('delete/{user}', [UserDelete::class, 'destroy'])->name('delete');
+            });
+            // End: Mitra
         });
         // End: Admin
 });

@@ -28,11 +28,9 @@ class UserSeeder extends Seeder
             while (($row = fgetcsv($csvFile)) !== false) {
                 // Use create() to automatically generate UUID for 'id'
                 User::create([
-                    'nama' => $row[0],
+                    'username' => $row[0],
                     'email' => $row[1],
-                    'role' => $row[2],
-                    'no_telepon' => $row[3],
-                    'password'=> bcrypt($row[4]),
+                    'password'=> bcrypt($row[2]),
                 ]);
             }
 

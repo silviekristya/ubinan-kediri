@@ -26,10 +26,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'nama',
+        'id',
         'email',
-        'password',
+        'username',
         'no_telepon',
+        'password',
     ];
 
     /**
@@ -53,5 +54,18 @@ class User extends Authenticatable
             'id' => 'string',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relationships.
+     */
+    public function pegawai()
+    {
+        return $this->hasOne(Pegawai::class);
+    }
+
+    public function mitra()
+    {
+        return $this->hasOne(Mitra::class);
     }
 }

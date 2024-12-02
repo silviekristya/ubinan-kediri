@@ -17,7 +17,7 @@ export function Menu({ isOpen, userRole }: MenuProps) {
   const menuList = getMenuList(pathname, userRole);
 
   return (
-    // <ScrollArea className="[&>div>div[style]]:!block">
+    <ScrollArea className="[&>div>div[style]]:!block">
       <nav className="mt-8 h-full w-full">
         <ul className="flex flex-col min-h-[calc(100vh-48px-36px-16px-32px)] lg:min-h-[calc(100vh-32px-40px-32px)] items-start space-y-1 px-2">
           {menuList.map(({ groupLabel, menus }, index) => (
@@ -96,8 +96,8 @@ export function Menu({ isOpen, userRole }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={50}>
                 <TooltipTrigger asChild>
-                    <Link href={route('logout')} method="post" as="button" className="cursor-pointer text-red-500 hover:!text-red-400 w-full justify-center h-10 mt-5">
-                      <div className="flex">
+                    <Link href={route('logout')} method="post" as="button" className="flex cursor-pointer text-red-500 hover:!text-red-400 w-full justify-center h-10 mt-5">
+                      <div className="flex w-full items-center p-1.5 justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent duration-300">
                         <span className={cn(isOpen === false ? "" : "mr-4")}>
                           <FaRightFromBracket size={18} />
                         </span>
@@ -120,6 +120,6 @@ export function Menu({ isOpen, userRole }: MenuProps) {
           </li>
         </ul>
       </nav>
-    // </ScrollArea>
+    </ScrollArea>
   );
 }

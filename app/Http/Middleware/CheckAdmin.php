@@ -16,12 +16,15 @@ class CheckAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Periksa apakah pengguna terautentikasi dan memiliki peran 'ADMIN'
-        if (Auth::check() && Auth::user()->role === 'ADMIN') {
-            return $next($request);
+        // Periksa apakah pengguna terautentikasi
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if ($user->pegawai && $user->pegawai->role === 'ADMIN') {
+                return $next($request);
+            }
         }
 
-        // Jika tidak, redirect atau kembalikan response yang sesuai
         return redirect()->route('dashboard.beranda')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
     }
 }

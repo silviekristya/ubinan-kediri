@@ -71,7 +71,7 @@ export const DataTable = ({
 
   return (
     <div className="space-y-4 w-full overflow-x-auto p-2">
-      <DataTableToolbar table={table} columnTitleMap={columnTitleMap} data={data} name={name} />
+      <DataTableToolbar table={table} columnTitleMap={columnTitleMap} name={name} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

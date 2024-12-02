@@ -18,7 +18,9 @@ class UserUpdate extends Controller
     {
         // Validasi input yang masuk
         $validated = Validator::make($request->all(), [
-            'role' => ['required', 'string', 'max:20'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $user->id],
+            'email'=> ['required', 'string','email','max:255', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'string', 'min:6'],
         ]);
 
         if ($validated->fails()) {
@@ -29,9 +31,18 @@ class UserUpdate extends Controller
             ], 422);
         }
 
-        $user->update([
-            'role' => $request->role,
-        ]);
+
+        // Update user data
+        $user->username = $request->input('username');
+        $user->email = $request->input('email');
+
+        // Update password hanya jika diisi
+        if (!empty($request->input('password'))) {
+            $user->password = bcrypt($request->input('password'));
+        }
+
+        $user->save();
+
 
         // Kembalikan response JSON dengan status sukses
         return response()->json([

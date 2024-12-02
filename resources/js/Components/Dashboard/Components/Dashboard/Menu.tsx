@@ -9,12 +9,11 @@ import { getMenuList } from "@/lib/menu-list";
 
 interface MenuProps {
   isOpen: boolean | undefined;
-  userRole: string;
 }
 
-export function Menu({ isOpen, userRole }: MenuProps) {
+export function Menu({ isOpen }: MenuProps) {
   const pathname = window.location.pathname;
-  const menuList = getMenuList(pathname, userRole);
+  const menuList = getMenuList(pathname);
 
   return (
     <>

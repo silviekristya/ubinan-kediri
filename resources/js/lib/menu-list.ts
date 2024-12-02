@@ -1,30 +1,40 @@
 import {
     LuUsers,
     LuLayoutPanelLeft
-  } from "react-icons/lu";
+} from "react-icons/lu";
 
+import { usePage } from '@inertiajs/react';
 
-  type Submenu = {
+type Submenu = {
     href: string;
     label: string;
     iconSubmenu: React.ElementType;
     active: boolean;
-  };
+};
 
-  type Menu = {
+type Menu = {
     href: string;
     label: string;
     active: boolean;
     icon: React.ElementType;
     submenus: Submenu[];
-  };
+};
 
-  type Group = {
+type Group = {
     groupLabel: string;
     menus: Menu[];
-  };
+};
 
-  export function getMenuList(pathname: string, userRole: string | undefined): Group[] {
+import { useEffect } from 'react';
+
+  export function getMenuList(pathname: string): Group[] {
+    const { auth } = usePage().props;
+
+    const userRole: string = auth.user.pegawai?.role ?? '';
+
+    useEffect(() => {
+        console.log("User role in frontend Menu List:", userRole);
+    }, [userRole]);
     return [
       {
         groupLabel: "",

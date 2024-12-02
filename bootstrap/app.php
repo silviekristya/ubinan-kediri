@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         // Menambahkan alias middleware
         $middleware->alias([
-            'admin' => CheckAdmin::class,
+            'check.admin' => CheckAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

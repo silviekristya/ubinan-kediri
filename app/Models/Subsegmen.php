@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Subsegmen extends Model
 {
     use HasFactory;
-
+    protected $table = 'subsegmen';
     protected $fillable = [
         'segmen_id',
         'nama',

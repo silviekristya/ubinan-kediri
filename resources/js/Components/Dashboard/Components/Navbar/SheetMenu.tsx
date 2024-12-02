@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { FaBars } from "react-icons/fa6";
 import { Button } from "@/Components/ui/button";
 import { Menu } from "@/Components/Dashboard/Components/Dashboard/Menu";
@@ -9,13 +9,9 @@ import {
   SheetTrigger,
   SheetTitle
 } from "@/Components/ui/sheet";
+import { useEffect } from 'react';
 
 export function SheetMenu() {
-    const { auth } = usePage().props;
-
-    let userRole: string = auth?.user?.role ?? '';
-
-
     return (
         <Sheet>
             <SheetTrigger className="lg:hidden" asChild>
@@ -44,7 +40,7 @@ export function SheetMenu() {
                         </SheetTitle>
                         </Link>
                     </Button>
-                    <Menu isOpen userRole={userRole} />
+                    <Menu isOpen={true} />
                 </SheetHeader>
             </SheetContent>
         </Sheet>

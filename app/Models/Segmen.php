@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Segmen extends Model
 {
     use HasFactory;
-
+    protected $table = 'segmen';
     protected $fillable = [
         'nama',
     ];

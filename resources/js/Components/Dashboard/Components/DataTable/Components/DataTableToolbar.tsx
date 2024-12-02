@@ -10,18 +10,16 @@ import { DataTableViewOptions } from "@/Components/Dashboard/Components/DataTabl
 import { roleUsers } from "@/Components/Dashboard/Components/Admin/User/DataTableFilterUser"
 import { DataTableFacetedFilter } from "@/Components/Dashboard/Components/DataTable/Components/DataTableFacetedFilter"
 import { downloadToExcel } from "@/lib/xlsxDownload"
-
+import { Download } from 'lucide-react';
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   columnTitleMap: { [key: string]: string };
-  data: TData[];
   name: string;
 }
 
 export function DataTableToolbar<TData>({
   table,
   columnTitleMap,
-  data,
   name,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
@@ -68,12 +66,13 @@ export function DataTableToolbar<TData>({
           onChange={(event) => table.setGlobalFilter(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        <Button onClick={handleDownload}>
-          Download Excel
+        <Button onClick={handleDownload} className="gap-1 flex items-center justify-center">
+            <Download className="h-4 w-4"/>
+            Excel
         </Button>
 
         {/* Filter Tabel User */}
-        {name === "User" && table.getColumn("role") && (
+        {name === "Pegawai" && table.getColumn("role") && (
           <DataTableFacetedFilter
             column={table.getColumn("role")}
             title="Role"

@@ -27,13 +27,38 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    // public function store(LoginRequest $request): RedirectResponse
+    // {
+    //     $request->authenticate();
+
+    //     $request->session()->regenerate();
+
+    //     return redirect()->intended(route('dashboard.beranda', absolute: false));
+    // }
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard.beranda', absolute: false));
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->load(['pegawai', 'mitra']);
+
+        // Serialisasi dengan relasi
+        $userArray = $user->toArray();
+        $userArray['pegawai'] = $user->pegawai ? $user->pegawai->toArray() : null;
+        $userArray['mitra'] = $user->mitra ? $user->mitra->toArray() : null;
+
+        logger()->debug('User logged in', [
+            'user' => $userArray,
+        ]);
+
+        return redirect()->intended(route('dashboard.beranda'))->with([
+            'auth' => [
+                'user' => $userArray,
+            ],
+        ]);
     }
 
     /**

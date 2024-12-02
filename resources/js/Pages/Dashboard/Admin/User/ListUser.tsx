@@ -7,20 +7,24 @@ import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { toast } from 'react-toastify';
 import { EditUserDialog } from '@/Components/Dashboard/Components/Admin/User/EditUserDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/Components/ui/alert-dialog";
-import { PageProps, User } from '@/types';
+import { PageProps, User, WithCsrf } from '@/types';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
 import axios from 'axios';
+import { CirclePlus } from 'lucide-react';
+import AddUserDialog from '@/Components/Dashboard/Components/Admin/User/AddUserDialog';
 
 interface UserPageProps extends PageProps, Record<string, unknown> {
     user: User[];
 }
 
 const columnTitleMap: { [key: string]: string } = {
-    nama: "Nama",
+    username: "Username",
     email: "Email",
-    no_telepon: "No. Telepon",
-    role: "Role",
 };
+
+interface UserFormData extends Omit<User, 'id'>, WithCsrf {
+    password: string;
+  }
 
 const UserPage = () => {
     const { user } = usePage<UserPageProps>().props;
@@ -29,7 +33,24 @@ const UserPage = () => {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
+    const handleAddUser = async (formData: UserFormData) => {
+        try {
+            const response = await axios.post("/dashboard/admin/user/create", formData);
+
+            if (response.data.status === "success") {
+                setData((prevData) => [...prevData, response.data.user]);
+                toast.success(response.data.message);
+                setIsAddDialogOpen(false);
+            } else {
+                toast.error(response.data.message || "Terjadi kesalahan.");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Gagal menambahkan user.");
+        }
+    };
 
     const handleEdit = (id: string, data: User) => {
       setEditData(data);
@@ -38,7 +59,7 @@ const UserPage = () => {
 
     const handleDelete = (id: string) => {
       const user = data.find((item) => item.id === id);
-      setDeleteData({ id, nama: user?.nama });
+      setDeleteData({ id, nama: user?.username });
       setIsDeleteDialogOpen(true);
     };
 
@@ -95,20 +116,20 @@ const UserPage = () => {
     };
 
     const handleCopy = (data: any) => {
+        // Hilangkan properti id, created_at, dan updated_at
         const { id, created_at, updated_at, ...dataWithoutId } = data;
 
         toast.promise(
-          // Fungsi yang mengembalikan promise
-          () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
-          {
-            pending: 'Menyalin data ke clipboard...',
-            success: 'Data berhasil disalin ke clipboard',
-            error: {
-              render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
-            },
-          }
+            () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
+            {
+                pending: 'Menyalin data ke clipboard...',
+                success: 'Data berhasil disalin ke clipboard',
+                error: {
+                    render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
+                },
+            }
         );
-      };
+    };
 
     const columns = generateColumns<User>(
         'user',
@@ -128,14 +149,29 @@ const UserPage = () => {
           <h2>Daftar User</h2>
         </CardHeader>
         <CardContent className="space-y-4">
-          <DataTable
-            data={data}
-            columns={columns}
-            columnTitleMap={columnTitleMap}
-            name="User"
-        />
+            <div className="flex justify-end">
+                <Button
+                    className="gap-1 flex items-center justify-center"
+                    onClick={() => setIsAddDialogOpen(true)}
+                >
+                    <CirclePlus className="h-4 w-4" />
+                </Button>
+            </div>
+
+            <DataTable
+                data={data}
+                columns={columns}
+                columnTitleMap={columnTitleMap}
+                name="User"
+            />
         </CardContent>
       </Card>
+
+      <AddUserDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSave={handleAddUser}
+    />
 
       {editData && (
         <EditUserDialog

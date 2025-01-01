@@ -1,0 +1,11 @@
+.sticky-column {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: white;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .sticky-column + .sticky-column {
+    left: 80px; /* Sesuaikan dengan lebar kolom pertama */
+  }

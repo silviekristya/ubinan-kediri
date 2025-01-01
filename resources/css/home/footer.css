@@ -1,0 +1,54 @@
+#social-media-container ul li a svg {
+    @apply min-w-6;
+}
+
+.text-footer-home {
+    @apply text-black-bps hover:text-orange-bps-dark transition duration-300 ease-in-out font-medium text-xs sm:text-[13px] lg:text-sm gap-1 flex flex-row items-center;
+}
+
+.font-text-footer-home {
+    @apply text-xs min-[480px]:text-sm;
+}
+
+.font-text-medium-footer-home {
+    @apply text-xs min-[480px]:text-sm sm:text-[15px] lg:text-base font-medium;
+}
+
+.font-text-large-footer-home {
+    @apply text-[13px] min-[480px]:text-[15px] sm:text-base lg:text-base py-1;
+}
+
+.font-text-title-footer-home {
+    @apply text-sm min-[480px]:text-base sm:text-[17px] lg:text-lg;
+}
+
+.back-to-top {
+    position: fixed;
+    visibility: hidden;
+    opacity: 0;
+    right: 15px;
+    bottom: 15px;
+    z-index: 99999;
+    background: var(--blue-bps-light);
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    transition: all 0.4s;
+    cursor: pointer;
+}
+
+.back-to-top svg {
+    font-size: 18px;
+    color: var(--white-bps);
+    line-height: 0;
+}
+
+.back-to-top:hover {
+    background: var(--orange-bps-light);
+    color: var(--blue-bps-light);
+}
+
+.back-to-top.active {
+    visibility: visible;
+    opacity: 1;
+}

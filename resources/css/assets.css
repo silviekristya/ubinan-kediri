@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+
+:root {
+    --white-bps: #ffffff;
+    --white-bps-dark: #f1f5f9;
+
+    --gray-bps-dark: #71717a;
+    --gray-bps-light: #f4f4f5;
+
+    --black-bps: #2b3440;
+    --black-bps-dark: #000000;
+
+    /* Logo BPS Mosaic */
+    --orange-bps-dark: #e98877;
+    --orange-bps-medium: #ec967b;
+    --orange-bps-light: #efa37d;
+    --orange-bps-very-light: #f3bd81;
+
+    --blue-bps-dark: #0e5faa;
+    --blue-bps-medium: #2877b9;
+    --blue-bps-light: #4890ca;
+    --blue-bps-very-light: #89c0e8;
+
+    --green-bps-dark: #1e5d58;
+    --green-bps-medium: #30765e;
+    --green-bps-light: #55a668;
+    --green-bps-very-light: #69bf6e;
+
+    --youtube-red: #ff0000;
+    --youtube-dark: #282828;
+}

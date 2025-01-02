@@ -18,11 +18,11 @@ class PegawaiList extends Controller
     {
         $pegawai = Pegawai::with('user')->get(); // Ambil pegawai dengan data user terkait
         // Ambil user yang tidak memiliki pegawai
-        $users = User::whereDoesntHave('pegawai')->get();
+        // $users = User::whereDoesntHave('pegawai')->whereDoesntHave('mitra')->get();
 
         return Inertia::render('Dashboard/Admin/Pegawai/ListPegawai', [
             'pegawai' => $pegawai,
-            'users' => $users,
+            // 'users' => $users,
         ]);
     }
 }

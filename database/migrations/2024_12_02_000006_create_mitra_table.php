@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('no_telepon')->nullable();
             $table->string('identitas')->nullable();
+            $table->foreignId('tim_id')->nullable()->constrained('tim')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -26,4 +26,10 @@ class Pegawai extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function tim()
+    {
+        return $this->hasOne(Tim::class, 'pml_id'); // Satu PML hanya memiliki satu tim
+    }
+
 }

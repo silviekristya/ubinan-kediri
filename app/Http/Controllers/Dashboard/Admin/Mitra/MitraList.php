@@ -18,11 +18,11 @@ class MitraList extends Controller
     {
         $mitra = Mitra::with('user')->get(); // Ambil Mitra dengan data user terkait
         // Ambil user yang tidak memiliki Mitra
-        $users = User::whereDoesntHave('Mitra')->get();
+        // $users = User::whereDoesntHave('pegawai')->whereDoesntHave('mitra')->get();
 
         return Inertia::render('Dashboard/Admin/Mitra/ListMitra', [
-            'Mitra' => $mitra,
-            'users' => $users,
+            'mitra' => $mitra,
+            // 'users' => $users,
         ]);
     }
 }

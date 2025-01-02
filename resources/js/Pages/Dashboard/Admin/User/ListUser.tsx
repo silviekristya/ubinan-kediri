@@ -37,7 +37,7 @@ const UserPage = () => {
 
     const handleAddUser = async (formData: UserFormData) => {
         try {
-            const response = await axios.post("/dashboard/admin/user/create", formData);
+            const response = await axios.post("/dashboard/admin/user/store", formData);
 
             if (response.data.status === "success") {
                 setData((prevData) => [...prevData, response.data.user]);

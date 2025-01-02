@@ -5,7 +5,6 @@ import { DataTable } from "@/Components/Dashboard/Components/DataTable/DataTable
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { toast } from 'react-toastify';
-import { EditUserDialog } from '@/Components/Dashboard/Components/Admin/User/EditUserDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/Components/ui/alert-dialog";
 import { PageProps, Mitra, User } from '@/types';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
@@ -13,7 +12,7 @@ import axios from 'axios';
 import { CirclePlus, TriangleAlert } from 'lucide-react';
 import { AddMitraDialog } from '@/Components/Dashboard/Components/Admin/Mitra/AddMitraDialog';
 import { useEffect } from 'react';
-import { EditMitraDialog } from '@/Components/Dashboard/Components/Admin/Mitra/EditPegawaiDialog';
+import { EditMitraDialog } from '@/Components/Dashboard/Components/Admin/Mitra/EditMitraDialog';
 
 interface MitraPageProps extends PageProps {
     mitra: Mitra[];
@@ -22,11 +21,9 @@ interface MitraPageProps extends PageProps {
 
 const columnTitleMap: { [key: string]: string } = {
     nama: "Nama",
-    role: "Role",
     no_telepon: "No Telepon",
     email: "Email",
-    username: "Username",
-    is_pml: "PML",
+    identitas: "Identitas",
 };
 
 const MitraPage = () => {
@@ -53,22 +50,22 @@ const MitraPage = () => {
     }, [mitra]);
 
     // Fungsi Tambah mitra
-    const handleAddPegawai = async (formData: any) => {
+    const handleAddMitra = async (formData: any) => {
         try {
-            const response = await axios.post("/dashboard/admin/mitra/create", formData);
+            const response = await axios.post("/dashboard/admin/mitra/store", formData);
 
             // Jika sukses
             if (response.data.status === "success") {
-                const newPegawai = {
+                const newMitra = {
                     ...response.data.mitra,
                     email: response.data.mitra.user?.email || "-",
                     username: response.data.mitra.user?.username || "-",
                     no_telepon: response.data.mitra.no_telepon || "-", // Placeholder jika kosong
-                    is_pml: response.data.mitra.is_pml ? "Ya" : "Tidak", // Format boolean ke teks
+                    identitas: response.data.mitra.identitas || "-", // Placeholder jika kosong
                 };
 
                 // Update data mitra tanpa refresh halaman
-                setData((prevData) => [...prevData, newPegawai]);
+                setData((prevData) => [...prevData, newMitra]);
 
                 // Hapus user dari dropdown yang sudah dipilih
                 setFilteredUsers((prevUsers) =>
@@ -103,6 +100,20 @@ const MitraPage = () => {
         setDeleteData({ id, nama: mitra?.nama });
         setIsDeleteDialogOpen(true);
     };
+
+    async function fetchUsers(setFilteredUsers: any) {
+        try {
+            const userResponse = await axios.get('/dashboard/admin/option/user-available-list');
+            setFilteredUsers(userResponse.data.users);
+        } catch (error: any) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    async function handleOpenAddDialog() {
+        await fetchUsers(setFilteredUsers);
+        setIsAddDialogOpen(true);
+    }
 
     const handleConfirmUpdate = async (id: number, formData: Partial<Mitra>): Promise<void> => {
         try {
@@ -196,7 +207,7 @@ const MitraPage = () => {
                     <div className="flex justify-end">
                         <Button
                             className="gap-1 flex items-center justify-center"
-                            onClick={() => setIsAddDialogOpen(true)}
+                            onClick={handleOpenAddDialog}
                         >
                             <CirclePlus className="h-4 w-4" />
                             {/* Tambah mitra */}
@@ -228,7 +239,6 @@ const MitraPage = () => {
                     data={editData}
                 />
             )}
-
 
             {isDeleteDialogOpen && deleteData && (
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

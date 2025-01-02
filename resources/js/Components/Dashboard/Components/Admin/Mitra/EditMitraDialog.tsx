@@ -5,31 +5,29 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { usePage, useForm } from '@inertiajs/react';
 import { Loader2 } from "lucide-react";
-import { Pegawai, WithCsrf, PageProps } from '@/types';
-import { rolePegawai } from "@/Components/Dashboard/Components/Admin/Pegawai/DataTableFilterPegawai";
+import { Mitra, WithCsrf, PageProps } from '@/types';
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Badge } from '@/Components/ui/badge';
 
-interface PegawaiFormData extends Pegawai, WithCsrf {}
+interface MitraFormData extends Mitra, WithCsrf {}
 
-interface EditPegawaiDialogProps {
+interface EditMitraDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (formData: PegawaiFormData) => Promise<void>;
-  data: Pegawai;
+  onSave: (formData: MitraFormData) => Promise<void>;
+  data: Mitra;
 }
 
-export const EditPegawaiDialog = ({ isOpen, onClose, onSave, data }: EditPegawaiDialogProps) => {
+export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDialogProps) => {
   const { csrf_token } = usePage<PageProps>().props;
 
   const [nama, setNama] = useState(data.nama);
   const [noTelepon, setNoTelepon] = useState(data.no_telepon || "");
-  const [role, setRole] = useState<'ADMIN' | 'PEGAWAI'>(data.role);
-  const [isPml, setIsPml] = useState(data.is_pml);
+  const [identitas, setIdentitas] = useState(data.identitas || "");
 
 
-  const { processing, errors } = useForm<PegawaiFormData>({
+  const { processing, errors } = useForm<MitraFormData>({
     ...data,
     _token: csrf_token,
   });
@@ -38,8 +36,7 @@ export const EditPegawaiDialog = ({ isOpen, onClose, onSave, data }: EditPegawai
     if (isOpen) {
         setNama(data.nama);
         setNoTelepon(data.no_telepon || "");
-        setRole(data.role);
-        setIsPml(data.is_pml);
+        setIdentitas(data.identitas || "");
     }
   }, [isOpen, data]);
 
@@ -51,8 +48,7 @@ export const EditPegawaiDialog = ({ isOpen, onClose, onSave, data }: EditPegawai
         user_id: data.user_id,
         nama,
         no_telepon: noTelepon,
-        role,
-        is_pml: isPml,
+        identitas,
         _token: csrf_token,
       });
       onClose();
@@ -98,43 +94,18 @@ export const EditPegawaiDialog = ({ isOpen, onClose, onSave, data }: EditPegawai
             {errors.no_telepon && <p className="text-red-500 text-sm">{errors.no_telepon}</p>}
           </div>
 
-          {/* Role */}
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select
-            value={role}
-            onValueChange={(value) => setRole(value as 'ADMIN' | 'PEGAWAI')}
-            >
-            <SelectTrigger className="w-full">
-                <SelectValue>
-                {rolePegawai.find((r) => r.value === role)?.label || "Pilih Role"}
-                </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-                {rolePegawai.map((roleItem) => (
-                <SelectItem key={roleItem.value} value={roleItem.value}>
-                    <Badge className={`text-xs ${roleItem.color}`}>{roleItem.label}</Badge>
-                </SelectItem>
-                ))}
-            </SelectContent>
-            </Select>
-            {errors.role && (
-                <p className="text-red-500 text-sm">
-                    {errors.role[0] || "Role harus valid. Pilih antara ADMIN atau PEGAWAI."}
-                </p>
-            )}
-          </div>
-
-          {/* PML */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isPml"
-              checked={Boolean(isPml)}
-              onCheckedChange={(checked) => setIsPml(!!checked)}
-              className='data-[state=checked]:bg-blue-bps-dark'
-            />
-            <Label htmlFor="isPml">PML</Label>
-          </div>
+          {/* Identitas */}
+            <div className="flex flex-col space-y-2">
+                <Label htmlFor="identitas">Identitas</Label>
+                <Input
+                id="identitas"
+                name="identitas"
+                placeholder="Masukkan Identitas"
+                value={identitas}
+                onChange={(e) => setIdentitas(e.target.value)}
+                />
+                {errors.identitas && <p className="text-red-500 text-sm">{errors.identitas}</p>}
+            </div>
 
 
           {/* Tombol Aksi */}

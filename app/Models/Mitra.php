@@ -12,7 +12,9 @@ class Mitra extends Model
     protected $fillable = [
         'user_id',
         'nama',
+        'no_telepon',
         'identitas',
+        'tim_id',
     ];
 
     /**
@@ -22,4 +24,10 @@ class Mitra extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function tim()
+{
+    return $this->belongsTo(Tim::class, 'tim_id'); // Setiap Mitra hanya memiliki satu Tim
+}
+
 }

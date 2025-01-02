@@ -40,13 +40,13 @@ type Group = {
             icon: LuLayoutPanelLeft,
             submenus: []
           },
-          {
-            href: route('dashboard.beranda'),
-            label: "Dashboard",
-            active: pathname.startsWith("/dashboard"),
-            icon: LuLayoutPanelLeft,
-            submenus: []
-          }
+        //   {
+        //     href: route('dashboard.menu1'),
+        //     label: "Menu 1",
+        //     active: pathname.startsWith("/dashboard/menu-1"),
+        //     icon: LuLayoutPanelLeft,
+        //     submenus: []
+        //   }
         ]
       },
       ...(userRole === 'ADMIN' ? [
@@ -71,6 +71,13 @@ type Group = {
                 href: route('dashboard.admin.mitra.index'),
                 label: "Mitra",
                 active: pathname.includes("/dashboard/admin/mitra"),
+                icon: LuUsers,
+                submenus: []
+            },
+            {
+                href: route('dashboard.admin.tim.index'),
+                label: "Tim",
+                active: pathname.includes("/dashboard/admin/tim"),
                 icon: LuUsers,
                 submenus: []
             },

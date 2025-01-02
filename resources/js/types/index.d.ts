@@ -36,6 +36,14 @@ export interface Subsegmen {
     nama: string
 }
 
+interface Tim {
+    id: number;
+    nama_tim: string;
+    pml?: Pegawai | null; // Ubah tipe di sini
+    ppl?: Mitra[];
+    pml_id: number;
+}
+
 
 export interface WithCsrf {
     _token: string;

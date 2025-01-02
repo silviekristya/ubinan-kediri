@@ -23,7 +23,7 @@ class MitraUpdate extends Controller
             // Validasi input
             $validated = Validator::make($request->all(), [
                 'nama' => ['required', 'string', 'max:255'],
-                'no_telepon' => ['nullable', 'string', 'max:15', 'unique:pegawai,no_telepon,' . $mitra->id],
+                'no_telepon' => ['nullable', 'string', 'max:15', 'unique:mitra,no_telepon,' . $mitra->id],
                 'identitas' => ['nullable', 'string', 'max:255'],
             ]);
 
@@ -33,9 +33,6 @@ class MitraUpdate extends Controller
                 $customErrors = [];
                 foreach ($validated->errors()->toArray() as $key => $error) {
                     $customErrors[$key] = $error;
-                    if ($key === 'role') {
-                        $customErrors[$key] = ['Role yang dipilih tidak valid. Pilih antara ADMIN atau PEGAWAI.'];
-                    }
                 }
 
                 return response()->json([

@@ -6,10 +6,6 @@ import { Label } from "@/Components/ui/label";
 import { usePage, useForm } from '@inertiajs/react';
 import { Loader2 } from "lucide-react";
 import { Mitra, WithCsrf, PageProps, User } from '@/types';
-import { Checkbox } from "@/Components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { Badge } from '@/Components/ui/badge';
-import { rolePegawai } from "@/Components/Dashboard/Components/Admin/Pegawai/DataTableFilterPegawai";
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -59,6 +55,7 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
         onClose();
         setNama("");
         setNoTelepon("");
+        setIdentitas("");
         setUserId(""); // Reset user_id
     } catch (error) {
         console.error(error);

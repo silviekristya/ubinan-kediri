@@ -5,7 +5,6 @@ import { DataTable } from "@/Components/Dashboard/Components/DataTable/DataTable
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { toast } from 'react-toastify';
-import { EditUserDialog } from '@/Components/Dashboard/Components/Admin/User/EditUserDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/Components/ui/alert-dialog";
 import { PageProps, Pegawai, User } from '@/types';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
@@ -52,10 +51,24 @@ const PegawaiPage = () => {
         setData(flattenedData);
     }, [pegawai]);
 
+    async function fetchUsers(setFilteredUsers: any) {
+        try {
+            const userResponse = await axios.get('/dashboard/admin/option/user-available-list');
+            setFilteredUsers(userResponse.data.users);
+        } catch (error: any) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    async function handleOpenAddDialog() {
+        await fetchUsers(setFilteredUsers);
+        setIsAddDialogOpen(true);
+    }
+
     // Fungsi Tambah Pegawai
     const handleAddPegawai = async (formData: any) => {
         try {
-            const response = await axios.post("/dashboard/admin/pegawai/create", formData);
+            const response = await axios.post("/dashboard/admin/pegawai/store", formData);
 
             // Jika sukses
             if (response.data.status === "success") {
@@ -64,7 +77,7 @@ const PegawaiPage = () => {
                     email: response.data.pegawai.user?.email || "-",
                     username: response.data.pegawai.user?.username || "-",
                     no_telepon: response.data.pegawai.no_telepon || "-", // Placeholder jika kosong
-                    is_pml: response.data.pegawai.is_pml ? "Ya" : "Tidak", // Format boolean ke teks
+                    is_pml: response.data.pegawai.is_pml || false, // Placeholder jika kosong
                 };
 
                 // Update data pegawai tanpa refresh halaman
@@ -196,7 +209,7 @@ const PegawaiPage = () => {
                     <div className="flex justify-end">
                         <Button
                             className="gap-1 flex items-center justify-center"
-                            onClick={() => setIsAddDialogOpen(true)}
+                            onClick={handleOpenAddDialog}
                         >
                             <CirclePlus className="h-4 w-4" />
                             {/* Tambah Pegawai */}

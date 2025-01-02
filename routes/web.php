@@ -28,7 +28,7 @@ use App\Http\Controllers\Dashboard\Admin\Option\PplAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
 
 
-Route::get('/', [HomeBerandaList::class, 'index'])->name('beranda.index');
+Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 
 Route::middleware('auth')
     ->prefix('dashboard')

@@ -17,16 +17,22 @@ class PplAvailableListOption extends Controller
         // Ambil tim_id dari request
         $timId = $request->query('tim_id');
 
-        $mitra = Mitra::query();
+        $mitraQuery = Mitra::query();
 
-        // Jika tim_id diberikan, ambil PPL yang terkait dengan tim tersebut
+        // Jika tim_id diberikan, ambil PPL yang terkait dengan tim tersebut atau yang belum terikat dengan tim
         if ($timId) {
-            $mitra->where('tim_id', $timId);
+            $mitraQuery->where(function ($query) use ($timId) {
+                $query->where('tim_id', $timId) // PPL yang terkait dengan tim
+                    ->orWhereNull('tim_id'); // Atau yang belum terikat dengan tim
+            });
         } else {
-            // Jika tidak, ambil yang belum terikat dengan tim
-            $mitra->whereDoesntHave('tim');
+            // Jika tidak ada tim_id, ambil hanya yang belum terikat dengan tim
+            $mitraQuery->whereNull('tim_id');
         }
 
-        return response()->json(['mitra' => $mitra->get()]);
+        // Eksekusi query dan kembalikan hasil dalam format JSON
+        $mitra = $mitraQuery->get();
+
+        return response()->json(['mitra' => $mitra]);
     }
 }

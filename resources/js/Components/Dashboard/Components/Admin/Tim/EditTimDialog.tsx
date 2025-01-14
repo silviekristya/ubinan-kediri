@@ -29,7 +29,9 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
 
     const [namaTim, setNamaTim] = useState(data.nama_tim);
     const [pmlId, setPmlId] = useState<number | null>(data.pml_id);
-    const [pplSelections, setPplSelections] = useState<number[]>((data.ppl ?? []).map(p => p.id));
+    const [pplSelections, setPplSelections] = useState<number[]>(
+        (data.ppl ?? []).map((p) => p.id)
+    );
     const [openPml, setOpenPml] = useState(false);
 
     const { processing, errors } = useForm<TimFormData>({
@@ -43,10 +45,17 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
     useEffect(() => {
         if (isOpen) {
             setNamaTim(data.nama_tim);
-            setPmlId(data.pml_id);
-            setPplSelections((data.ppl ?? []).map(p => p.id));
+            setPmlId(data.pml_id || pegawai[0]?.id); // Pilih default PML jika tidak ada
+
+            // Pastikan PPL dipilih otomatis berdasarkan tim_id
+            const initialPplSelections = mitra
+                .filter((m) => m.tim_id === data.id) // Ambil mitra yang tim_id-nya sesuai
+                .map((m) => m.id); // Ambil ID dari mitra
+
+            setPplSelections(initialPplSelections); // Set PPL berdasarkan hasil filter
         }
-    }, [isOpen, data]);
+    }, [isOpen, data, pegawai, mitra]);
+
 
     const handleSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
@@ -54,7 +63,7 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
             await onSave({
                 nama_tim: namaTim,
                 pml_id: Number(pmlId),
-                ppl_ids: pplSelections.map(id => Number(id)),
+                ppl_ids: pplSelections.map((id) => Number(id)),
                 _token: csrf_token,
             });
             onClose();
@@ -64,7 +73,8 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
     };
 
     const handleAddPpl = () => {
-        setPplSelections([...pplSelections, 0]);
+        // Tambahkan PPL baru (default ke ID pertama yang tersedia atau null)
+        setPplSelections([...pplSelections, 0]); // Tambahkan placeholder ID baru (default)
     };
 
     const handleRemovePpl = (index: number) => {
@@ -79,9 +89,12 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
         setPplSelections(updatedPpl);
     };
 
-    const getAvailableMitra = (selectedIds: number[]) => {
-        return mitra.filter((m) => !selectedIds.includes(m.id) || selectedIds.includes(m.id));
+    const getAvailableMitra = (selectedIds: number[], currentId: number) => {
+        // Sertakan currentId dan filter PPL lainnya yang belum dipilih
+        return mitra.filter((m) => m.id === currentId || !selectedIds.includes(m.id));
     };
+
+
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -111,7 +124,7 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
                         <Popover open={openPml} onOpenChange={setOpenPml}>
                             <PopoverTrigger asChild>
                                 <Button variant="outline" role="combobox" className="w-full justify-between">
-                                    {pegawai.find((p) => p.id === pmlId)?.nama || "Pilih PML"}
+                                    {pegawai.find((p) => p.id == pmlId)?.nama || "Pilih PML"}
                                     <ChevronsUpDown className="opacity-50" />
                                 </Button>
                             </PopoverTrigger>
@@ -140,6 +153,63 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
                             </PopoverContent>
                         </Popover>
                     </div>
+
+                    {/* PPL Selection */}
+                    <div className="flex flex-col space-y-2">
+                        <Label>PPL</Label>
+                        <div className="max-h-[400px] overflow-y-auto space-y-2">
+                            {pplSelections.map((pplId, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" role="combobox" className="w-full justify-between">
+                                                {mitra.find((m) => m.id === pplId)?.nama || "Pilih PPL"}
+                                                <ChevronsUpDown className="opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Cari PPL..." />
+                                                <CommandList>
+                                                    <CommandEmpty>Tidak ada PPL ditemukan.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {getAvailableMitra(pplSelections, pplId).map((m) => (
+                                                            <CommandItem
+                                                                key={m.id}
+                                                                value={String(m.id)}
+                                                                onSelect={() => handlePplChange(index, m.id)}
+                                                            >
+                                                                {m.nama}
+                                                                <Check
+                                                                    className={`ml-auto ${
+                                                                        pplId === m.id ? "opacity-100" : "opacity-0"
+                                                                    }`}
+                                                                />
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => handleRemovePpl(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+
+
+                    {/* Tambah PPL */}
+                    <Button type="button" onClick={handleAddPpl} className="mt-2 flex items-center gap-2">
+                        <Plus className="h-4 w-4" /> Tambah PPL
+                    </Button>
 
                     <div className="flex justify-end space-x-4">
                         <Button type="button" variant="outline" onClick={onClose}>Batal</Button>

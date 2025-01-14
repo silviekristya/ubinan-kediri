@@ -19,10 +19,12 @@ export interface Pegawai {
 export interface Mitra {
     id: number
     user_id: string
+    tim_id?: number
     nama: string
     no_telepon?: string
     identitas?: string
     user?: User
+    tim?: Tim
 }
 
 export interface Segmen {

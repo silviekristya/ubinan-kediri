@@ -17,19 +17,26 @@ class PmlAvailableListOption extends Controller
         // Ambil tim_id dari request
         $timId = $request->query('tim_id');
 
-        $pegawai = Pegawai::query()
+        $pegawaiQuery = Pegawai::query()
             ->where('is_pml', 1);
 
-        // Jika tim_id diberikan, ambil PML yang terkait dengan tim tersebut
+        // Jika tim_id diberikan, ambil PML terkait tim tersebut atau yang belum terikat tim
         if ($timId) {
-            $pegawai->whereHas('tim', function ($query) use ($timId) {
-                $query->where('id', $timId);
+            $pegawaiQuery->where(function ($query) use ($timId) {
+                $query->whereHas('tim', function ($subQuery) use ($timId) {
+                    $subQuery->where('id', $timId); // PML yang terkait dengan tim
+                })
+                ->orWhereDoesntHave('tim'); // Atau PML yang tidak terikat tim
             });
         } else {
-            // Jika tidak, ambil PML yang belum terikat dengan tim
-            $pegawai->whereDoesntHave('tim');
+            // Jika tim_id tidak diberikan, ambil PML yang belum terikat dengan tim
+            $pegawaiQuery->whereDoesntHave('tim');
         }
 
-        return response()->json(['pegawai' => $pegawai->get()]);
+        // Eksekusi query dan kembalikan hasil
+        $pegawai = $pegawaiQuery->get();
+
+
+        return response()->json(['pegawai' => $pegawai]);
     }
 }

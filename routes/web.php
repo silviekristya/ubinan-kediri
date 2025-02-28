@@ -87,7 +87,7 @@ Route::middleware('auth')
             Route::prefix('option')->name('option.')->group(function () {
                 Route::get('user-available-list', [UserAvailableListOption::class, 'v1'])->name('user-available');
                 Route::get('pml-available-list', [PmlAvailableListOption::class, 'v1'])->name('pml-available');
-                Route::get('ppl-available-list', [PplAvailableListOption::class, 'v1'])->name('mitra-available');
+                Route::get('ppl-available-list', [PplAvailableListOption::class, 'v1'])->name('ppl-available');
             });
             // End: Option
         });

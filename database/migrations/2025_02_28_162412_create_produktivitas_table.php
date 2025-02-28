@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subsegmen', function (Blueprint $table) {
+        Schema::create('produktivitas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('segmen_id')->constrained('segmen')->cascadeOnDelete();
-            $table->string('nama');
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subsegmen');
+        Schema::dropIfExists('produktivitas');
     }
 };

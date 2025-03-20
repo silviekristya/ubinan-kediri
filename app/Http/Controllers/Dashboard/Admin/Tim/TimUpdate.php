@@ -24,8 +24,8 @@ class TimUpdate extends Controller
             $validated = Validator::make($request->all(), [
                 'nama_tim' => ['required', 'string', 'max:255', 'unique:tim,nama_tim,' . $tim->id],
                 'pml_id' => ['required', 'exists:pegawai,id'],
-                'ppl_ids' => ['required', 'array'],
-                'ppl_ids.*' => ['exists:mitra,id', 'distinct', function ($attribute, $value, $fail) use ($tim) {
+                'pcl_ids' => ['required', 'array'],
+                'pcl_ids.*' => ['exists:mitra,id', 'distinct', function ($attribute, $value, $fail) use ($tim) {
                     // Periksa apakah mitra sudah memiliki tim lain kecuali tim ini sendiri
                     if (Mitra::where('id', $value)->where('tim_id', '!=', $tim->id)->exists()) {
                         $fail('Mitra dengan ID ' . $value . ' sudah terdaftar di tim lain.');

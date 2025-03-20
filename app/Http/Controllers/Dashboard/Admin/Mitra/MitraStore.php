@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class MitraStore extends Controller
 {
     /**
-     * Store a new Pegawai with User.
+     * Store a new Mitra with User.
      */
     public function v1(Request $request): JsonResponse
     {
@@ -27,14 +27,14 @@ class MitraStore extends Controller
                 [
                     'user_id' => ['required', 'exists:users,id'], // Pastikan user_id valid
                     'nama' => ['required', 'string', 'max:255'],
-                    'no_telepon' => ['nullable', 'string', 'max:15', 'unique:mitra,no_telepon'],
-                    'identitas' => ['nullable', 'string', 'max:255', 'unique:mitra,identitas'],
+                    'no_telepon' => ['required', 'string', 'max:15', 'unique:mitra,no_telepon'],
+                    'alamat' => ['nullable', 'string', 'max:255'], // Tidak perlu unique
                 ],
                 [
                     // Custom error message
                     'no_telepon.unique' => 'Nomor telepon sudah terdaftar. Silakan gunakan nomor yang lain.',
                     'user_id.exists' => 'User tidak ditemukan.',
-                    'identitas.unique' => 'Nomor identitas sudah terdaftar. Silakan gunakan identitas yang lain.',
+                    // 'alamat.unique' => 'Nomor alamat sudah terdaftar. Silakan gunakan alamat yang lain.',
                 ]
             );
 
@@ -65,12 +65,12 @@ class MitraStore extends Controller
                 ], 400);
             }
 
-            // Simpan data pegawai baru
+            // Simpan data mitra baru
             $mitra = Mitra::create([
                 'user_id' => $user->id,
                 'nama' => $request->input('nama'),
                 'no_telepon' => $request->input('no_telepon') ?? null, // Pastikan null jika kosong
-                'identitas' => $request->input('identitas') ?? null, // Pastikan null jika kosong
+                'alamat' => $request->input('alamat') ?? null, // Pastikan null jika kosong
             ]);
 
             // Commit transaksi

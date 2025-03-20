@@ -13,7 +13,7 @@ class Mitra extends Model
         'user_id',
         'nama',
         'no_telepon',
-        'identitas',
+        'alamat',
         'tim_id',
     ];
 

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('nama');
-            $table->string('no_telepon')->nullable();
-            $table->string('identitas')->nullable();
+            $table->string('no_telepon');
+            $table->text('alamat')->nullable();
             $table->foreignId('tim_id')->nullable()->constrained('tim')->cascadeOnDelete();
             $table->timestamps();
         });

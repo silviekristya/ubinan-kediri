@@ -23,7 +23,7 @@ const columnTitleMap: { [key: string]: string } = {
     nama: "Nama",
     no_telepon: "No Telepon",
     email: "Email",
-    identitas: "Identitas",
+    alamat: "Alamat",
 };
 
 const MitraPage = () => {
@@ -61,7 +61,7 @@ const MitraPage = () => {
                     email: response.data.mitra.user?.email || "-",
                     username: response.data.mitra.user?.username || "-",
                     no_telepon: response.data.mitra.no_telepon || "-", // Placeholder jika kosong
-                    identitas: response.data.mitra.identitas || "-", // Placeholder jika kosong
+                    alamat: response.data.mitra.alamat || "-", // Placeholder jika kosong
                 };
 
                 // Update data mitra tanpa refresh halaman

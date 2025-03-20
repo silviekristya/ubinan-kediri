@@ -9,15 +9,21 @@ class Segmen extends Model
 {
     use HasFactory;
     protected $table = 'segmen';
+    protected $primaryKey = 'id_segmen';
+    public $incrementing = false; // Karena id_segmen berupa string dan tidak auto-increment
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'nama',
+        'id_segmen',
+        'nama_segmen',
     ];
 
     /**
      * Relationships.
      */
-    public function subsegmen()
+    public function sampel()
     {
-        return $this->hasMany(Subsegmen::class);
-    }
+        return $this->hasMany(Sampel::class, 'segmen_id', 'id_segmen');    // Satu Segmen memiliki banyak Sampel
+    }   
+    
 }

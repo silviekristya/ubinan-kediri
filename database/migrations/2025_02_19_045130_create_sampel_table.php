@@ -23,20 +23,23 @@ return new class extends Migration
             $table->string('nama_kab');
             $table->string('nama_kec');
             $table->string('nama_lok');
-            $table->foreignId('segmen_id')->constrained('segmen')->onDelete('cascade');
-            $table->string('subsegmen', 5);
-            $table->string('strata', 5);
+            $table->foreignId('segmen_id', 20)->nullable()->constrained('segmen')->onDelete('cascade');
+            $table->string('subsegmen', 5)->nullable();
+            $table->string('strata', 5)->nullable();
             $table->string('bulan_listing');
             $table->string('tahun_listing');
             $table->string('fase_tanam')->nullable();
             $table->date('rilis');
-            $table->string('a_random')->nullable();
+            $table->string('a_random');
             $table->string('nks', 20);
             $table->string('long');
             $table->string('lat');
             $table->char('subround', 2);
             $table->foreignId('pcl_id')->nullable()->constrained('mitra')->onDelete('cascade');
             $table->foreignId('tim_id')->nullable()->constrained('tim')->onDelete('cascade');
+            $table->foreignId('id_sls')->nullable()->constrained('nama_sls')->cascadeOnDelete();
+            $table->string('nama_krt')->nullable();
+            $table->integer('perkiraan_minggu_panen')->nullable();
             $table->timestamps();
         });
     }

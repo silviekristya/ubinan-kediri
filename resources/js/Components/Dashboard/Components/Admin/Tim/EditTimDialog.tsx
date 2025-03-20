@@ -12,7 +12,7 @@ import { Button } from '@/Components/ui/button';
 interface TimFormData extends WithCsrf {
     nama_tim: string;
     pml_id: number;
-    ppl_ids: number[];
+    pcl_ids: number[];
 }
 
 interface EditTimDialogProps {
@@ -29,15 +29,15 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
 
     const [namaTim, setNamaTim] = useState(data.nama_tim);
     const [pmlId, setPmlId] = useState<number | null>(data.pml_id);
-    const [pplSelections, setPplSelections] = useState<number[]>(
-        (data.ppl ?? []).map((p) => p.id)
+    const [pclSelections, setPclSelections] = useState<number[]>(
+        (data.pcl ?? []).map((p) => p.id)
     );
     const [openPml, setOpenPml] = useState(false);
 
     const { processing, errors } = useForm<TimFormData>({
         nama_tim: data.nama_tim,
         pml_id: data.pml_id,
-        ppl_ids: pplSelections,
+        pcl_ids: pclSelections,
         _token: csrf_token,
     });
 
@@ -47,12 +47,12 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
             setNamaTim(data.nama_tim);
             setPmlId(data.pml_id || pegawai[0]?.id); // Pilih default PML jika tidak ada
 
-            // Pastikan PPL dipilih otomatis berdasarkan tim_id
-            const initialPplSelections = mitra
+            // Pastikan PCL dipilih otomatis berdasarkan tim_id
+            const initialPclSelections = mitra
                 .filter((m) => m.tim_id === data.id) // Ambil mitra yang tim_id-nya sesuai
                 .map((m) => m.id); // Ambil ID dari mitra
 
-            setPplSelections(initialPplSelections); // Set PPL berdasarkan hasil filter
+            setPclSelections(initialPclSelections); // Set PCL berdasarkan hasil filter
         }
     }, [isOpen, data, pegawai, mitra]);
 
@@ -63,7 +63,7 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
             await onSave({
                 nama_tim: namaTim,
                 pml_id: Number(pmlId),
-                ppl_ids: pplSelections.map((id) => Number(id)),
+                pcl_ids: pclSelections.map((id) => Number(id)),
                 _token: csrf_token,
             });
             onClose();
@@ -72,25 +72,25 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
         }
     };
 
-    const handleAddPpl = () => {
-        // Tambahkan PPL baru (default ke ID pertama yang tersedia atau null)
-        setPplSelections([...pplSelections, 0]); // Tambahkan placeholder ID baru (default)
+    const handleAddPcl = () => {
+        // Tambahkan PCL baru (default ke ID pertama yang tersedia atau null)
+        setPclSelections([...pclSelections, 0]); // Tambahkan placeholder ID baru (default)
     };
 
-    const handleRemovePpl = (index: number) => {
-        const updatedPpl = [...pplSelections];
-        updatedPpl.splice(index, 1);
-        setPplSelections(updatedPpl);
+    const handleRemovePcl = (index: number) => {
+        const updatedPcl = [...pclSelections];
+        updatedPcl.splice(index, 1);
+        setPclSelections(updatedPcl);
     };
 
-    const handlePplChange = (index: number, id: number) => {
-        const updatedPpl = [...pplSelections];
-        updatedPpl[index] = id;
-        setPplSelections(updatedPpl);
+    const handlePclChange = (index: number, id: number) => {
+        const updatedPcl = [...pclSelections];
+        updatedPcl[index] = id;
+        setPclSelections(updatedPcl);
     };
 
     const getAvailableMitra = (selectedIds: number[], currentId: number) => {
-        // Sertakan currentId dan filter PPL lainnya yang belum dipilih
+        // Sertakan currentId dan filter PCL lainnya yang belum dipilih
         return mitra.filter((m) => m.id === currentId || !selectedIds.includes(m.id));
     };
 
@@ -154,35 +154,35 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
                         </Popover>
                     </div>
 
-                    {/* PPL Selection */}
+                    {/* PCL Selection */}
                     <div className="flex flex-col space-y-2">
-                        <Label>PPL</Label>
+                        <Label>PCL</Label>
                         <div className="max-h-[400px] overflow-y-auto space-y-2">
-                            {pplSelections.map((pplId, index) => (
+                            {pclSelections.map((pclId, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button variant="outline" role="combobox" className="w-full justify-between">
-                                                {mitra.find((m) => m.id === pplId)?.nama || "Pilih PPL"}
+                                                {mitra.find((m) => m.id === pclId)?.nama || "Pilih PCL"}
                                                 <ChevronsUpDown className="opacity-50" />
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-full p-0">
                                             <Command>
-                                                <CommandInput placeholder="Cari PPL..." />
+                                                <CommandInput placeholder="Cari PCL..." />
                                                 <CommandList>
-                                                    <CommandEmpty>Tidak ada PPL ditemukan.</CommandEmpty>
+                                                    <CommandEmpty>Tidak ada PCL ditemukan.</CommandEmpty>
                                                     <CommandGroup>
-                                                        {getAvailableMitra(pplSelections, pplId).map((m) => (
+                                                        {getAvailableMitra(pclSelections, pclId).map((m) => (
                                                             <CommandItem
                                                                 key={m.id}
                                                                 value={String(m.id)}
-                                                                onSelect={() => handlePplChange(index, m.id)}
+                                                                onSelect={() => handlePclChange(index, m.id)}
                                                             >
                                                                 {m.nama}
                                                                 <Check
                                                                     className={`ml-auto ${
-                                                                        pplId === m.id ? "opacity-100" : "opacity-0"
+                                                                        pclId === m.id ? "opacity-100" : "opacity-0"
                                                                     }`}
                                                                 />
                                                             </CommandItem>
@@ -195,7 +195,7 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
                                     <Button
                                         variant="destructive"
                                         size="icon"
-                                        onClick={() => handleRemovePpl(index)}
+                                        onClick={() => handleRemovePcl(index)}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -206,9 +206,9 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
 
 
 
-                    {/* Tambah PPL */}
-                    <Button type="button" onClick={handleAddPpl} className="mt-2 flex items-center gap-2">
-                        <Plus className="h-4 w-4" /> Tambah PPL
+                    {/* Tambah PCL */}
+                    <Button type="button" onClick={handleAddPcl} className="mt-2 flex items-center gap-2">
+                        <Plus className="h-4 w-4" /> Tambah PCL
                     </Button>
 
                     <div className="flex justify-end space-x-4">

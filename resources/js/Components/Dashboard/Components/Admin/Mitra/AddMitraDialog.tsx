@@ -4,7 +4,7 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { usePage, useForm } from '@inertiajs/react';
-import { Loader2 } from "lucide-react";
+import { ALargeSmall, AlarmCheck, Loader2 } from "lucide-react";
 import { Mitra, WithCsrf, PageProps, User } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command";
@@ -26,14 +26,14 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
 
   const [nama, setNama] = useState("");
   const [noTelepon, setNoTelepon] = useState("");
-  const [identitas, setIdentitas] = useState("");
+  const [alamat, setAlamat] = useState("");
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState("");
 
   const { processing, errors } = useForm<MitraFormData>({
     nama: "",
     no_telepon: "",
-    identitas: "",
+    alamat: "",
     user_id: "",
     _token: csrf_token,
   });
@@ -46,7 +46,7 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
         await onSave({
             nama,
             no_telepon: noTelepon,
-            identitas,
+            alamat: alamat,
             user_id: userId, // Mengirimkan user_id yang dipilih
             _token: csrf_token,
         });
@@ -55,7 +55,7 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
         onClose();
         setNama("");
         setNoTelepon("");
-        setIdentitas("");
+        setAlamat("");
         setUserId(""); // Reset user_id
     } catch (error) {
         console.error(error);
@@ -145,17 +145,17 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
             {errors.no_telepon && <p className="text-red-500 text-sm">{errors.no_telepon}</p>}
           </div>
 
-          {/* Identitas */}
+          {/* Alamat */}
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="identitas">Identitas</Label>
+            <Label htmlFor="alamat">Alamat</Label>
             <Input
-              id="identitas"
-              name="identitas"
-              placeholder="Masukkan Identitas"
-              value={identitas}
-              onChange={(e) => setIdentitas(e.target.value)}
+              id="alamat"
+              name="alamat"
+              placeholder="Masukkan Alamat"
+              value={alamat}
+              onChange={(e) => setAlamat(e.target.value)}
             />
-            {errors.identitas && <p className="text-red-500 text-sm">{errors.identitas}</p>}
+            {errors.alamat && <p className="text-red-500 text-sm">{errors.alamat}</p>}
           </div>
 
           {/* Tombol Aksi */}
@@ -171,4 +171,4 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -24,8 +24,8 @@ class TimStore extends Controller
             $validated = Validator::make($request->all(), [
                 'nama_tim' => ['required', 'string', 'max:255', 'unique:tim,nama_tim'],
                 'pml_id' => ['required', 'exists:pegawai,id'], // Validasi PML
-                'ppl_ids' => ['required', 'array'], // Daftar PPL
-                'ppl_ids.*' => ['exists:mitra,id', 'distinct', function ($attribute, $value, $fail) {
+                'pcl_ids' => ['required', 'array'], // Daftar PCL
+                'pcl_ids.*' => ['exists:mitra,id', 'distinct', function ($attribute, $value, $fail) {
                     if (Mitra::where('id', $value)->whereNotNull('tim_id')->exists()) {
                         $fail('Mitra dengan ID ' . $value . ' sudah terdaftar di tim lain.');
                     }
@@ -37,14 +37,21 @@ class TimStore extends Controller
                 return response()->json(['status' => 'error', 'errors' => $validated->errors()], 422);
             }
 
+            // Ambil data yang sudah ter-validasi
+            $data = $validated->validated();
+
             // Buat tim baru
             $tim = Tim::create([
-                'nama_tim' => $request->nama_tim,
-                'pml_id' => $request->pml_id,
+                'nama_tim' => $data['nama_tim'],
+                'pml_id' => $data['pml_id'],
             ]);
 
+            // Update tim_id di tabel mitra secara batch
+            Mitra::whereIn('id', $data['pcl_ids'])->update(['tim_id' => $tim->id]);
+
+
             // Update tim_id di tabel mitra secara batch (lebih cepat dan efisien)
-            Mitra::whereIn('id', $request->ppl_ids)->update(['tim_id' => $tim->id]);
+            // Mitra::whereIn('id', $request->pcl_ids)->update(['tim_id' => $tim->id]);
 
             DB::commit();
 
@@ -52,7 +59,7 @@ class TimStore extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tim berhasil dibuat.',
-                'tim' => $tim->load(['pml', 'ppl']),
+                'tim' => $tim->load(['pml', 'pcl']),
             ]);
         } catch (\Exception $e) {
             // Rollback jika terjadi kesalahan

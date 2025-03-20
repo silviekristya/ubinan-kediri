@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('pml_id')->constrained('pegawai')->onDelete('cascade');
             $table->foreignId('pcl_id')->constrained('mitra')->onDelete('cascade');
             $table->string('email');
-            $table->string('no_wa');
+            $table->string('no_wa', 20);
             $table->foreignId('sampel_id')->constrained('sampel')->onDelete('cascade');
             $table->foreignId('pengecekan_id')->constrained('pengecekan')->onDelete('cascade');
             $table->foreignId('template_pesan_id')->constrained('template_pesan')->onDelete('cascade');

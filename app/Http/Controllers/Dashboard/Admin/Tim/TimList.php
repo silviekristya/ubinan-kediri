@@ -11,11 +11,11 @@ use App\Http\Controllers\Controller;
 class TimList extends Controller
 {
     /**
-     * Tampilkan daftar Tim dengan data PML dan PPL.
+     * Tampilkan daftar Tim dengan data PML dan PCL.
      */
     public function v1(Request $request): Response
     {
-        $tim = Tim::with(['pml.user', 'ppl'])->get(); // Ambil relasi PML dan PPL
+        $tim = Tim::with(['pml.user', 'pcl'])->get(); // Ambil relasi PML dan PCL
 
         // Flatten data
         $tim = $tim->map(function ($item) {
@@ -23,7 +23,7 @@ class TimList extends Controller
                 'id' => $item->id,
                 'nama_tim' => $item->nama_tim,
                 'pml' => $item->pml ? $item->pml->nama : '-', // Ambil nama dari PML
-                'ppl_count' => $item->ppl ? $item->ppl->count() : 0, // Hitung jumlah PPL
+                'pcl_count' => $item->pcl ? $item->pcl->count() : 0, // Hitung jumlah PCL
             ];
         });
 

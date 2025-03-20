@@ -13,7 +13,7 @@ import { Button } from '@/Components/ui/button';
 interface TimFormData extends WithCsrf {
     nama_tim: string;
     pml_id: number;
-    ppl_ids: number[];
+    pcl_ids: number[];
 }
 
 interface AddTimDialogProps {
@@ -29,7 +29,7 @@ export const AddTimDialog = ({ isOpen, onClose, onSave, pegawai = [], mitra = []
 
     const [namaTim, setNamaTim] = useState("");
     const [pmlId, setPmlId] = useState<number | null>(null);
-    const [pplSelections, setPplSelections] = useState<number[]>([]);
+    const [pclSelections, setPclSelections] = useState<number[]>([]);
     const [openPml, setOpenPml] = useState(false);
 
     useEffect(() => {
@@ -37,58 +37,63 @@ export const AddTimDialog = ({ isOpen, onClose, onSave, pegawai = [], mitra = []
         console.log("Mitra:", mitra);
     }, [pegawai, mitra]);
 
+    // Gunakan useForm untuk mendapatkan processing dan errors jika diperlukan
     const { processing, errors } = useForm<TimFormData>({
         nama_tim: "",
         pml_id: 0,
-        ppl_ids: [],
+        pcl_ids: [],
         _token: csrf_token,
     });
 
+    // Fungsi handleSubmit dipanggil saat form disubmit
     const handleSubmit: FormEventHandler = async (e) => {
-        e.preventDefault();
-        if (!namaTim || !pmlId || pplSelections.length === 0) {
+        e.preventDefault(); // Mencegah browser melakukan full reload
+        if (!namaTim || !pmlId || pclSelections.length === 0) {
             console.error("Semua kolom wajib diisi.");
             return;
         }
         try {
+            console.log("Submit form dengan data:", { nama_tim: namaTim, pml_id: pmlId, pcl_ids: pclSelections });
+            // Panggil onSave dan tunggu hasilnya
             await onSave({
                 nama_tim: namaTim,
                 pml_id: Number(pmlId),
-                ppl_ids: pplSelections.map(id => Number(id)),
+                pcl_ids: pclSelections.map((id) => Number(id)),
                 _token: csrf_token,
             });
-
+            console.log("Submit berhasil");
+            // Setelah berhasil, reset form dan tutup dialog
             onClose();
             setNamaTim("");
             setPmlId(null);
-            setPplSelections([]);
+            setPclSelections([]);
         } catch (error) {
-            console.error(error);
+            console.error("Error di handleSubmit:", error);
         }
     };
 
-    // Tambah PPL
-    const handleAddPpl = () => {
-        setPplSelections([...pplSelections, 0]);
+    // Fungsi untuk menambah PCL
+    const handleAddPcl = () => {
+        setPclSelections([...pclSelections, 0]);
     };
 
-    // Hapus PPL
-    const handleRemovePpl = (index: number) => {
-        const updatedPpl = [...pplSelections];
-        updatedPpl.splice(index, 1); // Hapus item pada index tertentu
-        setPplSelections(updatedPpl);
+    // Fungsi untuk menghapus PCL dari pilihan
+    const handleRemovePcl = (index: number) => {
+        const updatedPcl = [...pclSelections];
+        updatedPcl.splice(index, 1);
+        setPclSelections(updatedPcl);
     };
 
-    // Update PPL yang dipilih
-    const handlePplChange = (index: number, id: number) => {
-        const updatedPpl = [...pplSelections];
-        updatedPpl[index] = id;
-        setPplSelections(updatedPpl);
+    // Fungsi untuk memperbarui pilihan PCL di index tertentu
+    const handlePclChange = (index: number, id: number) => {
+        const updatedPcl = [...pclSelections];
+        updatedPcl[index] = id;
+        setPclSelections(updatedPcl);
     };
 
-    // Filter PPL yang belum dipilih
+    // Fungsi untuk memfilter Mitra yang belum dipilih
     const getAvailableMitra = (selectedIds: number[]) => {
-        return mitra.filter((m) => !selectedIds.includes(m.id)); // Hapus yang sudah dipilih
+        return mitra.filter((m) => !selectedIds.includes(m.id));
     };
 
     return (
@@ -100,9 +105,10 @@ export const AddTimDialog = ({ isOpen, onClose, onSave, pegawai = [], mitra = []
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+                    {/* Input hidden untuk CSRF */}
                     <input type="hidden" name="_token" value={csrf_token} />
 
-                    {/* Nama Tim */}
+                    {/* Field Nama Tim */}
                     <div className="flex flex-col space-y-2">
                         <Label htmlFor="namaTim">Nama Tim</Label>
                         <Input
@@ -156,55 +162,55 @@ export const AddTimDialog = ({ isOpen, onClose, onSave, pegawai = [], mitra = []
                         </Popover>
                     </div>
 
-                    {/* PPL Selection */}
+                    {/* PCL Selection */}
                     <div className="flex flex-col space-y-2">
-                        <Label>PPL</Label>
+                        <Label>PCL</Label>
                         <div className='max-h-[400px] overflow-y-auto space-y-2'>
-                        {pplSelections.map((pplId, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                        >
-                                            {mitra.find((m) => m.id === pplId)?.nama || "Pilih PPL"}
-                                            <ChevronsUpDown className="opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Cari PPL..." />
-                                            <CommandList>
-                                                <CommandEmpty>Tidak ada PPL ditemukan.</CommandEmpty>
-                                                <CommandGroup>
-                                                    {getAvailableMitra(pplSelections).map((m) => (
-                                                        <CommandItem
-                                                            key={m.id}
-                                                            value={String(m.id)}
-                                                            onSelect={() => handlePplChange(index, m.id)}
-                                                        >
-                                                            {m.nama}
-                                                            <Check className={`ml-auto ${pplId === m.id ? 'opacity-100' : 'opacity-0'}`} />
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                                <Button variant="destructive" size="icon" onClick={() => handleRemovePpl(index)}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        ))}
+                            {pclSelections.map((pclId, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className="w-full justify-between"
+                                            >
+                                                {mitra.find((m) => m.id === pclId)?.nama || "Pilih PCL"}
+                                                <ChevronsUpDown className="opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Cari PCL..." />
+                                                <CommandList>
+                                                    <CommandEmpty>Tidak ada PCL ditemukan.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {getAvailableMitra(pclSelections).map((m) => (
+                                                            <CommandItem
+                                                                key={m.id}
+                                                                value={String(m.id)}
+                                                                onSelect={() => handlePclChange(index, m.id)}
+                                                            >
+                                                                {m.nama}
+                                                                <Check className={`ml-auto ${pclId === m.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Button variant="destructive" size="icon" onClick={() => handleRemovePcl(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Tambah PPL */}
-                    <Button type="button" onClick={handleAddPpl} className="mt-2 flex items-center gap-2">
-                        <Plus className="h-4 w-4" /> Tambah PPL
+                    {/* Tombol untuk Menambah PCL */}
+                    <Button type="button" onClick={handleAddPcl} className="mt-2 flex items-center gap-2">
+                        <Plus className="h-4 w-4" /> Tambah PCL
                     </Button>
 
                     {/* Tombol Aksi */}
@@ -215,6 +221,7 @@ export const AddTimDialog = ({ isOpen, onClose, onSave, pegawai = [], mitra = []
                         </Button>
                     </div>
                 </form>
+       
             </DialogContent>
         </Dialog>
     );

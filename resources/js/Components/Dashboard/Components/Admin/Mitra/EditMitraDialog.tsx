@@ -23,8 +23,8 @@ export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDial
   const { csrf_token } = usePage<PageProps>().props;
 
   const [nama, setNama] = useState(data.nama);
-  const [noTelepon, setNoTelepon] = useState(data.no_telepon || "");
-  const [identitas, setIdentitas] = useState(data.identitas || "");
+  const [noTelepon, setNoTelepon] = useState(data.no_telepon);
+  const [alamat, setAlamat] = useState(data.alamat || "");
 
 
   const { processing, errors } = useForm<MitraFormData>({
@@ -35,8 +35,8 @@ export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDial
   useEffect(() => {
     if (isOpen) {
         setNama(data.nama);
-        setNoTelepon(data.no_telepon || "");
-        setIdentitas(data.identitas || "");
+        setNoTelepon(data.no_telepon);
+        setAlamat(data.alamat || "");
     }
   }, [isOpen, data]);
 
@@ -48,7 +48,7 @@ export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDial
         user_id: data.user_id,
         nama,
         no_telepon: noTelepon,
-        identitas,
+        alamat,
         _token: csrf_token,
       });
       onClose();
@@ -61,8 +61,8 @@ export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDial
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Pegawai</DialogTitle>
-          <DialogDescription>Edit data pegawai</DialogDescription>
+          <DialogTitle>Edit Mitra</DialogTitle>
+          <DialogDescription>Edit data mitra</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -94,17 +94,17 @@ export const EditMitraDialog = ({ isOpen, onClose, onSave, data }: EditMitraDial
             {errors.no_telepon && <p className="text-red-500 text-sm">{errors.no_telepon}</p>}
           </div>
 
-          {/* Identitas */}
+          {/* Alamat */}
             <div className="flex flex-col space-y-2">
-                <Label htmlFor="identitas">Identitas</Label>
+                <Label htmlFor="alamat">Alamat</Label>
                 <Input
-                id="identitas"
-                name="identitas"
-                placeholder="Masukkan Identitas"
-                value={identitas}
-                onChange={(e) => setIdentitas(e.target.value)}
+                id="alamat"
+                name="alamat"
+                placeholder="Masukkan Alamat"
+                value={alamat}
+                onChange={(e) => setAlamat(e.target.value)}
                 />
-                {errors.identitas && <p className="text-red-500 text-sm">{errors.identitas}</p>}
+                {errors.alamat && <p className="text-red-500 text-sm">{errors.alamat}</p>}
             </div>
 
 

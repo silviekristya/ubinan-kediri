@@ -21,7 +21,7 @@ class Tim extends Model
         return $this->belongsTo(Pegawai::class, 'pml_id');
     }
 
-    public function ppl()
+    public function pcl()
     {
         return $this->hasMany(Mitra::class, 'tim_id'); // Satu tim memiliki banyak PPL
     }

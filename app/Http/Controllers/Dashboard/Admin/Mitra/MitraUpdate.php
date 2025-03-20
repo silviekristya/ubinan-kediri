@@ -23,8 +23,8 @@ class MitraUpdate extends Controller
             // Validasi input
             $validated = Validator::make($request->all(), [
                 'nama' => ['required', 'string', 'max:255'],
-                'no_telepon' => ['nullable', 'string', 'max:15', 'unique:mitra,no_telepon,' . $mitra->id],
-                'identitas' => ['nullable', 'string', 'max:255'],
+                'no_telepon' => ['required', 'string', 'max:15', 'unique:mitra,no_telepon,' . $mitra->id],
+                'alamat' => ['nullable', 'string', 'max:255'],
             ]);
 
             // Jika validasi gagal
@@ -46,7 +46,7 @@ class MitraUpdate extends Controller
             $mitra->update([
                 'nama' => $request->input('nama'),
                 'no_telepon' => $request->input('no_telepon'),
-                'identitas' => $request->input('identitas'),
+                'alamat' => $request->input('alamat'),
             ]);
 
             // Commit transaksi

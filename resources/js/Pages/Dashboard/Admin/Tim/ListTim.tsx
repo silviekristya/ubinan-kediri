@@ -23,7 +23,7 @@ interface TimPageProps extends PageProps {
 const columnTitleMap: { [key: string]: string } = {
     nama_tim: "Nama Tim",
     pml: "PML",
-    ppl_count: "Jumlah PPL",
+    pcl_count: "Jumlah PCL",
 };
 
 const TimPage = () => {
@@ -42,7 +42,7 @@ const TimPage = () => {
         const flattenedData: Tim[] = tim.map((item) => ({
             ...item,
             pml: item.pml || null, // Atasi undefined dengan null
-            ppl: item.ppl || [],   // Atasi undefined dengan array kosong
+            pcl: item.pcl || [],   // Atasi undefined dengan array kosong
         }));
         setData(flattenedData);
 
@@ -50,18 +50,18 @@ const TimPage = () => {
 
     async function fetchOptions(timId?: number) {
         try {
-            // Jika timId ada, gunakan untuk filter PML dan PPL berdasarkan tim tersebut
+            // Jika timId ada, gunakan untuk filter PML dan PCL berdasarkan tim tersebut
             const pmlResponse = await axios.get('/dashboard/admin/option/pml-available-list', {
                 params: timId ? { tim_id: timId } : {}, // Tambahkan tim_id jika ada
             });
 
-            const pplResponse = await axios.get('/dashboard/admin/option/ppl-available-list', {
+            const pclResponse = await axios.get('/dashboard/admin/option/pcl-available-list', {
                 params: timId ? { tim_id: timId } : {}, // Tambahkan tim_id jika ada
             });
 
             // Set data yang difilter
             setFilteredPegawai(pmlResponse.data.pegawai || []);
-            setFilteredMitra(pplResponse.data.mitra || []);
+            setFilteredMitra(pclResponse.data.mitra || []);
         } catch (error: any) {
             console.error('Error fetching options:', error);
             toast.error('Gagal mengambil data opsi.');
@@ -75,25 +75,35 @@ const TimPage = () => {
 
     const handleAddTim = async (formData: any) => {
         try {
-            const response = await axios.post("/dashboard/admin/tim/store", formData);
-
+            console.log("Mengirim data ke API:", formData); // Debug formData
+            const response = await axios.post("/api/admin/tim/store", formData,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                }
+            );
+            console.log("Response:", response.data); // Debug respons
             if (response.data.status === "success") {
                 const newTim: Tim = {
                     ...response.data.tim,
                     pml: response.data.tim.pml || null,
-                    ppl: response.data.tim.ppl || [],
+                    pcl: response.data.tim.pcl || [],
                 };
 
                 setData((prevData) => [...prevData, newTim]);
 
                 toast.success(response.data.message);
                 setIsAddDialogOpen(false);
+
+                await fetchOptions(); //panggil kembali fetchOptions untuk mengupdate opsi pml/pcl
             } else {
                 toast.error(response.data.message || "Terjadi kesalahan.");
             }
         } catch (error: any) {
             console.error(error);
             toast.error("Gagal menambahkan tim.");
+            throw error;
         }
     };
 
@@ -106,7 +116,13 @@ const TimPage = () => {
 
     const handleConfirmUpdate = async (id: number, formData: Partial<Tim>): Promise<void> => {
         try {
-            const response = await axios.post(`/dashboard/admin/tim/update/${id}`, formData);
+            const response = await axios.post(`/api/admin/tim/update/${id}`, formData,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                }
+            );
 
             if (response.data.status === 'success') {
                 setData((prevData) =>
@@ -116,7 +132,7 @@ const TimPage = () => {
                                 ...item,
                                 ...response.data.tim,
                                 pml: response.data.tim.pml || null,
-                                ppl: response.data.tim.ppl || [],
+                                pcl: response.data.tim.pcl || [],
                             };
                             return updatedTim;
                         }
@@ -125,6 +141,9 @@ const TimPage = () => {
                 );
                 setIsEditDialogOpen(false);
                 toast.success(response.data.message);
+
+                // Perbarui opsi setelah update tim jika diperlukan
+                await fetchOptions();
             } else {
                 toast.error(response.data.message || 'Terjadi kesalahan.');
             }
@@ -147,12 +166,21 @@ const TimPage = () => {
 
     const handleDeleteConfirm = async (id: string) => {
         try {
-            const response = await axios.delete(`/dashboard/admin/tim/delete/${id}`);
+            const response = await axios.delete(`/api/admin/tim/delete/${id}`,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                }
+            );
 
             if (response.data.status === 'success') {
                 setData((prevData) => prevData.filter((item) => item.id !== Number(id)));
                 setIsDeleteDialogOpen(false);
                 toast.success(response.data.message);
+
+                // Perbarui opsi setelah hapus tim jika diperlukan
+                await fetchOptions();
             } else {
                 toast.error(response.data.message || 'Terjadi kesalahan.');
             }

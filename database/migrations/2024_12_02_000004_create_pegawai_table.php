@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('nama');
-            $table->string('no_telepon')->nullable();
+            $table->string('no_telepon');
             $table->enum('role', ['ADMIN', 'PEGAWAI'])->default('PEGAWAI');
             $table->boolean('is_pml')->default(false);
             $table->timestamps();

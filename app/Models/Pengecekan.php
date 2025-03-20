@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Pengecekan extends Model
+{
+    use HasFactory;
+
+    protected $table = 'pengecekan';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'id_sampel',
+        'tanggal_pengecekan',
+        'nama_responden',
+        'alamat_responden',
+        'no_telepon_responden',
+        'tanggal_panen',
+        'keterangan',
+        'status_sampel',
+        'id_sampel_cadangan',
+    ];
+
+    // Relasi ke sampel: Pengecekan milik satu Sampel
+    public function sampel()
+    {
+        return $this->belongsTo(Sampel::class, 'id_sampel', 'id');
+    }
+
+    // Relasi ke hasil_ubinan (one-to-one?)
+    // Pengecekan.id -> hasil_ubinan.pengecekan_id: satu Pengecekan memiliki satu HasilUbinan
+    public function hasilUbinan()
+    {
+        return $this->hasOne(HasilUbinan::class, 'pengecekan_id', 'id');
+    }
+
+    // Relasi ke notifikasi : satu Pengecekan dapat memiliki banyak Notifikasi
+    public function notifikasi()
+    {
+        return $this->hasMany(Notifikasi::class, 'pengecekan_id', 'id');
+    }
+}

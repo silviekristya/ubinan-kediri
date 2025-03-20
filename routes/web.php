@@ -24,8 +24,25 @@ use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiDelete;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiUpdate;
 use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Option\PplAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList; 
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenList;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenDelete;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
+use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusList;
+use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
+use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
+use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusUpdate;
+use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsList;
+use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsStore;
+use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsDelete;
+use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsUpdate;
+use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
 
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
@@ -74,24 +91,70 @@ Route::middleware('auth')
             });
             // End: Mitra
 
-            // Start: Option
+            // Start: Tim
             Route::prefix('tim')->name('tim.')->group(function () {
                 Route::get('', [TimList::class, 'v1'])->name('index');
-                Route::post('store', [TimStore::class, 'v1']);
-                Route::post('update/{tim}', [TimUpdate::class, 'v1']);
-                Route::delete('delete/{tim}', [TimDelete::class, 'v1'])->name('delete');
+                // Route::post('store', [TimStore::class, 'v1']);
+                // Route::post('update/{tim}', [TimUpdate::class, 'v1']);
+                // Route::delete('delete/{tim}', [TimDelete::class, 'v1'])->name('delete');
             });
-            // End: Option
+            // End: Tim
 
-            // Start: Option
-            Route::prefix('option')->name('option.')->group(function () {
-                Route::get('user-available-list', [UserAvailableListOption::class, 'v1'])->name('user-available');
-                Route::get('pml-available-list', [PmlAvailableListOption::class, 'v1'])->name('pml-available');
-                Route::get('ppl-available-list', [PplAvailableListOption::class, 'v1'])->name('ppl-available');
+            // Start: Segmen & Blok Sensus
+            Route::prefix('segmen-blok-sensus')->name('segmen-blok-sensus.')->group(function () {
+                    
+                // Tambahkan route index untuk halaman utama
+                Route::get('', [SegmenBlokSensusController::class, 'index'])
+                    ->name('index');
+                
+                // Sub-route segmen
+                Route::prefix('segmen')->name('segmen.')->group(function () {
+                    Route::get('', [SegmenList::class, 'v1'])->name('index');
+                    Route::post('store', [SegmenStore::class, 'v1']);
+                    Route::post('update/{segmen}', [SegmenUpdate::class, 'v1']);
+                    Route::delete('delete/{segmen}', [SegmenDelete::class, 'v1'])->name('delete');
+                });
+                
+                // Sub-route blok-sensus
+                Route::prefix('blok-sensus')->name('blok-sensus.')->group(function () {
+                    Route::get('', [BlokSensusList::class, 'v1'])->name('index');
+                    Route::post('store', [BlokSensusStore::class, 'v1']);
+                    Route::post('update/{blokSensus}', [BlokSensusUpdate::class, 'v1']);
+                    Route::delete('delete/{blokSensus}', [BlokSensusDelete::class, 'v1'])->name('delete');
+                });
+                
+                // Sub-route nama-sls
+                Route::prefix('nama-sls')->name('nama-sls.')->group(function () {
+                    Route::get('', [NamaSlsList::class, 'v1'])->name('index');
+                    Route::post('store', [NamaSlsStore::class, 'v1']);
+                    Route::post('update/{namaSls}', [NamaSlsUpdate::class, 'v1']);
+                    Route::delete('delete/{namaSls}', [NamaSlsDelete::class, 'v1'])->name('delete');
+                });
             });
-            // End: Option
+             // End: Segmen & Blok Sensus
+
+            // Start: Sampel
+            Route::prefix('sampel')->name('sampel.')->group(function () {
+                Route::get('/', [SampelList::class, 'v1'])->name('index');
+                Route::post('store', [SampelStore::class, 'v1']);
+                Route::post('update/{sampel}', [SampelUpdate::class, 'v1']);
+                Route::delete('delete/{sampel}', [SampelDelete::class, 'v1'])->name('delete');
+            });
+            // End: Sampel  
+
         });
         // End: Admin
 });
+
+// Rute API khusus untuk operasi CRUD Tim (mengembalikan JSON)
+// Endpoint ini tidak diproses oleh middleware Inertia
+Route::middleware(['auth', 'check.admin'])
+    ->prefix('api/admin/tim')
+    ->name('api.admin.tim.')
+    ->group(function () {
+        Route::post('store', [TimStore::class, 'v1'])->name('store');
+        Route::post('update/{tim}', [TimUpdate::class, 'v1'])->name('update');
+        Route::delete('delete/{tim}', [TimDelete::class, 'v1'])->name('delete');
+    });
 
 require __DIR__.'/auth.php';

@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('tim', function (Blueprint $table) {
             $table->id();
             $table->string('nama_tim'); // Nama tim
-            $table->foreignId('pml_id')->constrained('pegawai')->cascadeOnDelete(); // PML sebagai leader
+            $table->unsignedBigInteger('pml_id')->nullable();
+            $table->foreign('pml_id')
+                  ->references('id')
+                  ->on('pegawai')
+                  ->onDelete('set null');
             $table->timestamps();
         });
     }

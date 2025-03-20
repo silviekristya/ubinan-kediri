@@ -81,6 +81,21 @@ type Group = {
                 icon: LuUsers,
                 submenus: []
             },
+            {
+              href: route('dashboard.admin.segmen-blok-sensus.index'),
+              label: "Segmen & Blok Sensus",
+              active: pathname.includes("/dashboard/admin/segmen-blok-sensus"),
+              icon: LuUsers,
+              submenus: []
+            },
+            {
+              href: route('dashboard.admin.sampel.index'),
+              label: "Sampel",
+              active: pathname.includes("/dashboard/admin/sampel"),
+              icon: LuUsers,
+              submenus: []
+            },
+            
           ]
         }
       ] : [])

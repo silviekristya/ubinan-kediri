@@ -13,7 +13,7 @@ class TimDelete extends Controller
      */
     public function v1(Tim $tim): JsonResponse
     {
-        $tim->ppl()->update(['tim_id' => null]); // Reset tim_id di mitra terkait
+        $tim->pcl()->update(['tim_id' => null]); // Reset tim_id di mitra terkait
         $tim->delete();
 
         return response()->json([

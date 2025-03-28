@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Input } from '@/Components/ui/input';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
-import { CirclePlus } from 'lucide-react';
+import { CirclePlus, TriangleAlert } from 'lucide-react';
 import { Segmen } from '@/types';
 import { AddSegmenDialog } from '@/Components/Dashboard/Components/Admin/Segmen/AddSegmenDialog';
 import { EditSegmenDialog } from '@/Components/Dashboard/Components/Admin/Segmen/EditSegmenDialog';
@@ -18,28 +17,35 @@ import {
 } from '@/Components/ui/alert-dialog';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 
 interface SegmenSectionProps {
   segmenData: Segmen[];
   setSegmenData: React.Dispatch<React.SetStateAction<Segmen[]>>;
-  canEditDelete: boolean; // Boleh edit/hapus?
+  canEditDelete: boolean;
 }
+
+const columnTitleMap: { [key: string]: string } = {
+  id_segmen: 'ID Segmen',
+  nama_segmen: 'Nama Segmen',
+};
 
 const SegmenSection: React.FC<SegmenSectionProps> = ({
   segmenData,
   setSegmenData,
   canEditDelete,
 }) => {
-  // Dialog Tambah/Edit
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [data, setData] = useState<Segmen[]>(segmenData);
+  const [editData, setEditData] = useState<Segmen | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editSegmen, setEditSegmen] = useState<Segmen | null>(null);
-
-  // Dialog Hapus
-  const [deleteData, setDeleteData] = useState<{ id_segmen: string; nama_segmen: string } | null>(null);
+  const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  // Handler CRUD
+  useEffect(() => {
+    setData(segmenData);
+  }, [segmenData]);
+
   const handleAddSegmen = async (formData: any) => {
     try {
       const response = await axios.post('/dashboard/admin/segmen-blok-sensus/segmen/store', formData);
@@ -56,145 +62,142 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     }
   };
 
-  const handleEditSegmen = (item: Segmen) => {
-    setEditSegmen(item);
+  const handleEdit = (id: string, data: Segmen) => {
+    // console.log("EDIT TRIGGERED", id); // ← DEBUG log
+    setEditData(data);
     setIsEditDialogOpen(true);
   };
 
-  const handleConfirmUpdateSegmen = async (id: string, formData: Partial<Segmen>) => {
-    try {
-      const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/segmen/update/${id}`, formData);
-      if (response.data.status === 'success') {
-        setSegmenData((prev) =>
-          prev.map((seg) => (seg.id_segmen === id ? { ...seg, ...formData } : seg))
-        );
-        toast.success('Berhasil memperbarui segmen!');
-        setIsEditDialogOpen(false);
-      } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('Gagal memperbarui segmen.');
-    }
-  };
-
-  const handleDeleteSegmen = (id: string) => {
-    const item = segmenData.find((s) => s.id_segmen === id);
-    if (item) {
-      setDeleteData({ id_segmen: item.id_segmen, nama_segmen: item.nama_segmen });
-    }
+  const handleDelete = (id: string) => {
+    const segmen = data.find((item) => item.id_segmen === id);
+    setDeleteData({ id, nama: segmen?.nama_segmen });
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDeleteSegmen = async (id: string) => {
+  const handleCopy = (data: any) => {
+    const { id_segmen, created_at, updated_at, ...copyData } = data;
+    toast.promise(
+      () => navigator.clipboard.writeText(JSON.stringify(copyData)),
+      {
+        pending: 'Menyalin data ke clipboard...',
+        success: 'Data berhasil disalin ke clipboard',
+        error: {
+          render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
+        },
+      }
+    );
+  };
+
+  const handleDeleteConfirm = async (id: string) => {
     try {
       const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/segmen/delete/${id}`);
       if (response.data.status === 'success') {
-        setSegmenData((prev) => prev.filter((seg) => seg.id_segmen !== id));
-        toast.success('Berhasil menghapus segmen!');
+        setSegmenData((prevData) => prevData.filter((item) => item.id_segmen !== id));
         setIsDeleteDialogOpen(false);
+        toast.success(response.data.message);
       } else {
         toast.error(response.data.message || 'Terjadi kesalahan.');
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Gagal menghapus segmen.');
+    } catch (error: any) {
+      if (error.response && error.response.data.errors) {
+        const errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+        toast.error(`Gagal: ${errorMessage}`);
+      } else {
+        toast.error('Gagal menghapus segmen.');
+      }
     }
   };
 
-  // Kolom DataTable
-  const segmenColumns = [
-    { accessorKey: 'id_segmen', header: 'ID Segmen' },
-    { accessorKey: 'nama_segmen', header: 'Nama Segmen' },
-    {
-      id: 'aksi',
-      header: 'Aksi',
-      cell: ({ row }: any) => {
-        const rowData = row.original as Segmen;
-        return (
-          <div className="flex space-x-2">
-            {canEditDelete ? (
-              <>
-                <Button variant="outline" size="sm" onClick={() => handleEditSegmen(rowData)}>
-                  Edit
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => handleDeleteSegmen(rowData.id_segmen)}>
-                  Hapus
-                </Button>
-              </>
-            ) : (
-              <span className="text-gray-400 text-sm">Tidak ada aksi</span>
-            )}
-          </div>
+  const handleConfirmUpdate = async (id: string, formData: Partial<Segmen>) => {
+    try {
+      const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/segmen/update/${id}`, formData);
+      if (response.data.status === 'success') {
+        setSegmenData((prevData) =>
+          prevData.map((item) => (item.id_segmen === id ? { ...item, ...formData } : item))
         );
-      },
-    },
-  ];
+        setIsEditDialogOpen(false);
+        toast.success(response.data.message);
+      } else {
+        toast.error(response.data.message || 'Terjadi kesalahan.');
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data.errors) {
+        const errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+        toast.error(`Gagal: ${errorMessage}`);
+      } else {
+        toast.error('Gagal memperbarui segmen.');
+      }
+    }
+  };
+
+  const columns = generateColumns(
+    'segmen',
+    columnTitleMap,
+    undefined,
+    undefined,
+    handleEdit,
+    handleCopy,
+    handleDelete,
+  );
 
   return (
-    <div>
-      {/* Bagian atas Tabel */}
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-        <Input type="search" placeholder="Cari..." className="sm:w-1/2" />
-        <div className="flex items-center gap-2">
-          <Button variant="outline">Unduh</Button>
-          <Button variant="outline">Unggah</Button>
-          {canEditDelete && (
-            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-1 flex items-center">
-              <CirclePlus className="h-4 w-4" />
-              Tambah
-            </Button>
-          )}
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        {canEditDelete && (
+          <Button className="gap-1 flex items-center justify-center" onClick={() => setIsAddDialogOpen(true)}>
+            <CirclePlus className="h-4 w-4" />
+            Tambah
+          </Button>
+        )}
       </div>
-
-      {/* Tabel Segmen */}
-      <DataTable 
-        data={segmenData} 
-        columns={segmenColumns} 
-        columnTitleMap={{ id_segmen: 'ID Segmen', nama_segmen: 'Nama Segmen', aksi: 'Aksi' }} 
-        name="segmen" 
+      <DataTable
+        key={data.length}
+        data={data.map(item => ({ ...item, id: item.id_segmen }))}
+        columns={columns}
+        columnTitleMap={columnTitleMap}
+        name="segmen"
       />
 
-      {/* Dialog Tambah */}
       <AddSegmenDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSegmen}
       />
 
-      {/* Dialog Edit */}
-      {editSegmen && (
+      {editData && (
         <EditSegmenDialog
           isOpen={isEditDialogOpen}
-          onClose={() => setIsEditDialogOpen(false)}
-          segmen={editSegmen}
-          onSave={(formData) => handleConfirmUpdateSegmen(editSegmen.id_segmen, formData)}
+          onClose={() => {setIsEditDialogOpen(false); setEditData(null);}}
+          segmen={editData!}
+          onSave={(formData) => handleConfirmUpdate(editData!.id_segmen, formData)}
         />
       )}
 
-      {/* Dialog Hapus */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader className="flex flex-col items-center">
-            <AlertDialogTitle className="text-center">
-              Hapus segmen {deleteData?.nama_segmen}?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteData && handleConfirmDeleteSegmen(deleteData.id_segmen)}
-            >
-              Lanjutkan
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {isDeleteDialogOpen && deleteData && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader className="flex flex-col items-center">
+              <AlertDialogTitle className="text-center">
+                Anda yakin ingin menghapus segmen {deleteData.nama}?
+              </AlertDialogTitle>
+              <div>
+                <TriangleAlert className="h-32 w-32 text-red-500" />
+              </div>
+              <AlertDialogDescription>
+                Tindakan ini tidak dapat dibatalkan. Ini akan menghapus segmen {deleteData.nama} secara permanen.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>
+                Batal
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => deleteData && handleDeleteConfirm(deleteData.id)}>
+                Lanjutkan
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };

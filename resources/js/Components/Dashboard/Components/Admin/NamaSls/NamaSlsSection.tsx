@@ -31,6 +31,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   canEditDelete,
 }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [filteredBlokSensus, setFilteredBlokSensus] = useState([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editSls, setEditSls] = useState<NamaSls | null>(null);
 
@@ -42,7 +43,12 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     try {
       const response = await axios.post('/dashboard/admin/segmen-blok-sensus/nama-sls/store', formData);
       if (response.data.status === 'success') {
-        setSlsData((prev) => [...prev, response.data.newNamaSls]);
+        // setSlsData((prev) => [...prev, response.data.newNamaSls]);
+        const newSls = response.data.newNamaSls;
+        if (!newSls.nomor_bs) {
+          console.warn("nomor_bs tidak tersedia pada response:", newSls);
+        }
+        setSlsData((prev) => [...prev, newSls]);
         toast.success('Berhasil menambah nama SLS!');
         setIsAddDialogOpen(false);
       } else {
@@ -63,7 +69,11 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     try {
       const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`, formData);
       if (response.data.status === 'success') {
-        setSlsData((prev) => prev.map((s) => (s.id === id ? { ...s, ...formData } : s)));
+        const updatedSls = response.data.updatedNamaSls;
+  
+        setSlsData((prev) => prev.map((s) =>
+          s.id === id ? { ...s, ...updatedSls } : s
+        ));
         toast.success('Berhasil memperbarui nama SLS!');
         setIsEditDialogOpen(false);
       } else {
@@ -74,6 +84,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
       toast.error('Gagal memperbarui nama SLS.');
     }
   };
+  
 
   const handleDeleteSls = (id: number) => {
     const item = slsData.find((s) => s.id === id);
@@ -97,8 +108,23 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     }
   };
 
+  async function fetchBlokSensus() {
+    try {
+      const { data } = await axios.get('/dashboard/admin/option/bs-available-list');
+      setFilteredBlokSensus(data.blok_sensus);
+    } catch (error) {
+      console.error('Error fetching blok sensus:', error);
+    }
+  }
+
+  async function handleOpenAddDialog() {
+    await fetchBlokSensus();
+    setIsAddDialogOpen(true);
+  }
+  
   // Kolom Tabel
   const slsColumns = [
+    { accessorKey: 'nomor_bs', header: 'Nomor Blok Sensus', cell: ({ row }: any) => row.original.nomor_bs || 'Tidak tersedia', },
     { accessorKey: 'nama_sls', header: 'Nama SLS' },
     {
       id: 'aksi',
@@ -128,14 +154,13 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-        <Input type="search" placeholder="Cari..." className="sm:w-1/2" />
         <div className="flex items-center gap-2">
           <Button variant="outline">Unduh</Button>
           <Button variant="outline">Unggah</Button>
           {canEditDelete && (
-            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-1 flex items-center">
-              <CirclePlus className="h-4 w-4" />
-              Tambah
+            <Button onClick={handleOpenAddDialog} className="gap-1 flex items-center">
+               <CirclePlus className="h-4 w-4" />
+               Tambah
             </Button>
           )}
         </div>
@@ -145,7 +170,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
         data={slsData} 
         columns={slsColumns} 
         name="namaSLS" 
-        columnTitleMap={{ nama_sls: 'Nama SLS', aksi: 'Aksi' }} 
+        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'Nama SLS', aksi: 'Aksi' }} 
       />
 
       {/* Dialog Tambah */}
@@ -153,7 +178,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSls}
-        blok_sensus={[]} // Pass the appropriate blok_sensus data here
+        blok_sensus={filteredBlokSensus}  // Pass the appropriate blok_sensus data here
       />
 
       {/* Dialog Edit */}
@@ -190,5 +215,6 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     </div>
   );
 };
-
 export default NamaSlsSection;
+
+

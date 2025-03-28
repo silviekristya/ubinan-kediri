@@ -53,8 +53,8 @@ export function DataTableRowActions<TData>({
   onRilis,
 }: DataTableRowActionsProps<TData>) {
   let data: TData = row.original;
-  let editBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel";
-  let deleteBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel";
+  let editBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel" || name === "segmen";
+  let deleteBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel" || name === "segmen";
   let detailBoolean = name === "name";
 
   const handleDetail = () => {

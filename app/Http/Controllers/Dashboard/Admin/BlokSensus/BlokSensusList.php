@@ -15,7 +15,7 @@ class BlokSensusList extends Controller
      */
     public function v1(Request $request): Response
     {
-        $blokSensus = BlokSensus::all(); // Ambil semua data Blok Sensus
+        $blokSensus = BlokSensus::with('namaSls')->get(); // Ambil semua data Blok Sensus
 
         return Inertia::render('Dashboard/Admin/BlokSensus/ListBlokSensus', [
             'blokSensus' => $blokSensus,

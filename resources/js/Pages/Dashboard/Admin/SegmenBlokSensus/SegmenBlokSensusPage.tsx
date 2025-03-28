@@ -43,16 +43,22 @@ const SegmenBlokSensusPage: React.FC = () => {
       <Head title="Segmen & Blok Sensus" />
 
       <Card className="w-full shadow-md overflow-x-auto">
-        <CardHeader className="flex flex-col items-center text-base sm:text-xl font-semibold justify-between">
-          <h2>Segmen & Blok Sensus</h2>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)}>
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 mt-2">
               <TabsTrigger value="segmen">Segmen</TabsTrigger>
               <TabsTrigger value="blokSensus">Nomor Blok Sensus</TabsTrigger>
-              <TabsTrigger value="namaSLS">Nama SLS</TabsTrigger>
+              <TabsTrigger value="namaSls">Nama SLS</TabsTrigger>
             </TabsList>
+
+          {/* Dynamics Header Card */} 
+            <CardHeader className="flex flex-col items-center text-base sm:text-xl font-semibold justify-between">
+              <h2>
+                {activeTab === 'segmen' && 'Daftar Segmen'}
+                {activeTab === 'blokSensus' && 'Daftar Nomor Blok Sensus'}
+                {activeTab === 'namaSls' && 'Daftar Nama SLS'}
+              </h2>
+            </CardHeader>
 
             {/* Tab Segmen */}
             <TabsContent value="segmen">
@@ -73,7 +79,7 @@ const SegmenBlokSensusPage: React.FC = () => {
             </TabsContent>
 
             {/* Tab Nama SLS */}
-            <TabsContent value="namaSLS">
+            <TabsContent value="namaSls">
               <NamaSlsSection
                 slsData={slsData}
                 setSlsData={setSlsData}

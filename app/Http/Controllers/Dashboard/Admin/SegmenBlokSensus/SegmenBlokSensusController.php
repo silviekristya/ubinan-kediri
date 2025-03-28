@@ -15,8 +15,18 @@ class SegmenBlokSensusController extends Controller
         // mengambil data segmen, blok sensus, dan nama sls
         $segmen = Segmen::all();
         $blokSensus = BlokSensus::all();
-        $namaSls = NamaSls::all();
+        // Tambahkan eager loading untuk relasi blokSensus
+        $namaSlsList = NamaSls::with('blokSensus')->get();
 
+        // Mapping agar nomor_bs ikut terkirim
+        $namaSls = $namaSlsList->map(function ($sls) {
+        return [
+            'id'        => $sls->id,
+            'nama_sls'  => $sls->nama_sls,
+            'id_bs'     => $sls->id_bs,
+            'nomor_bs'  => optional($sls->blokSensus)->nomor_bs,
+        ];
+        });
         // Lalu kirim ke page Inertia, misalnya SegmenBlokSensusPage
         return Inertia::render('Dashboard/Admin/SegmenBlokSensus/SegmenBlokSensusPage', [
             'segmen' => $segmen,

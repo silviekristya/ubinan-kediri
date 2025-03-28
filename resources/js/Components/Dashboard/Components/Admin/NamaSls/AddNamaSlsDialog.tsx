@@ -75,7 +75,7 @@ export const AddNamaSlsDialog = ({ isOpen, onClose, onSave, blok_sensus = [] }: 
                                     aria-expanded={open}
                                     className='w-full justify-between'
                                 >
-                                    {blok_sensus?.find(bs => bs.id === Number(idBs))?.nomor_bs || 'Pilih Blok Sensus'}
+                                    {blok_sensus?.find(bs => String(bs.id) === idBs)?.nomor_bs || 'Pilih Blok Sensus'}
                                     <ChevronsUpDown className='opacity-50'/>
                                 </Button>
                             </PopoverTrigger>
@@ -118,12 +118,14 @@ export const AddNamaSlsDialog = ({ isOpen, onClose, onSave, blok_sensus = [] }: 
                         />
                     </div>
 
-                    {/* Tombol Aksi */}
-                    <div className="flex justify-end space-x-2">
-                        <Button type="submit" disabled={processing}>
-                            {processing? <Loader2 /> : <AlarmCheck />} Simpan
+                   {/* Tombol Aksi */}
+                    <div className="flex justify-end space-x-4">
+                        <Button type="button" variant="outline" onClick={onClose}>
+                        Batal
                         </Button>
-                        <Button onClick={onClose}>Batal</Button>
+                        <Button type="submit" disabled={processing}>
+                        {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Simpan"}
+                        </Button>
                     </div>
                 </form>
                     

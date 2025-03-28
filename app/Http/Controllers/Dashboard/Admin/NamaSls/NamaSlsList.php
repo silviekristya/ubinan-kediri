@@ -15,12 +15,23 @@ class NamaSlsList extends Controller
      */
     public function v1(Request $request): Response
     {
-        // Ambil semua data NamaSls
-        $namaSls = NamaSls::all();
+        $namaSlsList = NamaSls::with('blokSensus')->get();
 
-        // Tampilkan data NamaSls ke dalam view
-        return inertia::render('Dashboard/Admin/NamaSls/ListNamaSls', [
-            'namaSls' => NamaSls::all(),
+        // Debug relasi blokSensus dan nomor_bs (sementara untuk cek)
+        // Hapus komentar ini setelah pengecekan
+        // dd($namaSlsList->toArray());
+
+        $data = $namaSlsList->map(function ($sls) {
+            return [
+                'id'        => $sls->id,
+                'nama_sls'  => $sls->nama_sls,
+                'id_bs'     => $sls->id_bs,
+                'nomor_bs'  => optional($sls->blokSensus)->nomor_bs,
+            ];
+        });
+
+        return Inertia::render('Dashboard/Admin/NamaSls/ListNamaSls', [
+            'namaSls' => $data, // pastikan disesuaikan dengan FE props
         ]);
     }
 }

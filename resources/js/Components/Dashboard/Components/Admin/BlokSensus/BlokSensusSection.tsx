@@ -33,7 +33,6 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editBlok, setEditBlok] = useState<BlokSensus | null>(null);
-
   const [deleteData, setDeleteData] = useState<{ id: number; nomor?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -99,8 +98,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
 
   // Kolom Tabel
   const blokColumns = [
-    { accessorKey: 'nomor_blok', header: 'Nomor Blok' },
-    { accessorKey: 'nama_sls', header: 'Nama SLS' },
+    { accessorKey: 'nomor_bs', header: 'Nomor Blok Sensus' },
     {
       id: 'aksi',
       header: 'Aksi',
@@ -129,14 +127,12 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-        <Input type="search" placeholder="Cari..." className="sm:w-1/2" />
         <div className="flex items-center gap-2">
           <Button variant="outline">Unduh</Button>
           <Button variant="outline">Unggah</Button>
           {canEditDelete && (
-            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-1 flex items-center">
-              <CirclePlus className="h-4 w-4" />
-              Tambah
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <CirclePlus size={16} /> Tambah
             </Button>
           )}
         </div>
@@ -146,7 +142,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
         data={blokData} 
         columns={blokColumns} 
         name="blokSensus" 
-        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'Nama SLS', aksi: 'Aksi' }} 
+        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', aksi: 'Aksi' }} 
       />
 
       {/* Dialog Tambah */}

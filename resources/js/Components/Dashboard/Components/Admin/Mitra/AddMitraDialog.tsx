@@ -117,7 +117,7 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
                     </Command>
                 </PopoverContent>
             </Popover>
-        </div>
+          </div>
 
           {/* Nama */}
           <div className="flex flex-col space-y-2">

@@ -18,13 +18,13 @@ class NamaSls extends Model
     ];
 
     // Relasi ke blok_sensus : Nama SLS milik satu Blok Sensus
-    public function blokSensus()
+    public function blok_sensus()
     {
         return $this->belongsTo(BlokSensus::class, 'id_bs', 'id');
     }
     // Relasi ke sampel : satu Nama SLS dapat memiliki banyak Sampel
     public function sampel()
     {
-        return $this->hasMany(Sampel::class, 'nama_sls_id', 'id');
+        return $this->hasMany(Sampel::class, 'id_sls', 'id');
     }
 }

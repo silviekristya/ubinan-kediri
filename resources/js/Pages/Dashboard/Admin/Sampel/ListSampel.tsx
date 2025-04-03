@@ -20,38 +20,8 @@ import {
 import { AddSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddSampelDialog';
 import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
-import { PageProps, Sampel, WithCsrf } from '@/types';
-
-/**
- * Interface untuk data tambah/edit sampel (sesuai AddSampelDialog dan EditSampelDialog).
- * Anda bisa menyesuaikan union type enum (Utama/Cadangan, Padi/Palawija) dengan database.
- */
-interface SampelFormData extends WithCsrf {
-  jenis_sampel: "Utama" | "Cadangan";
-  jenis_tanaman: "Padi" | "Palawija";
-  frame_ksa?: string;
-  prov: string;
-  kab: string;
-  kec: string;
-  nama_prov: string;
-  nama_kab: string;
-  nama_kec: string;
-  nama_lok: string;
-  segmen_id?: string;
-  subsegmen: string;
-  strata: string;
-  bulan_listing: string;
-  tahun_listing: string;
-  fase_tanam?: string;
-  rilis?: string;
-  a_random?: string;
-  nks: string;
-  long: string;
-  lat: string;
-  subround: string;
-  // pcl_id?: number;
-  // tim_id?: number;
-}
+import { PageProps, Sampel, Segmen, BlokSensus, NamaSls } from '@/types';
+import { SampelFormData } from "@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog";
 
 interface SampelPageProps extends PageProps {
   sampel: Sampel[];
@@ -60,6 +30,7 @@ interface SampelPageProps extends PageProps {
 const columnTitleMap: { [key: string]: string } = {
   jenis_sampel: "Jenis Sampel",
   jenis_tanaman: "Jenis Tanaman",
+  jenis_komoditas: "Jenis Komoditas",
   frame_ksa: "Frame KSA",
   prov: "Kode Provinsi",
   kab: "Kode Kabupaten",
@@ -70,6 +41,10 @@ const columnTitleMap: { [key: string]: string } = {
   nama_lok: "Nama Lokasi",
   segmen_id: "ID Segmen",
   subsegmen: "Subsegmen",
+  // Kolom nomor_bs dan nama_sls akan didapat melalui relasi:
+  // nomor_bs: "Nomor BS",
+  // nama_sls: "Nama SLS",
+  nama_krt: "Nama KRT",
   strata: "Strata",
   bulan_listing: "Bulan Listing",
   tahun_listing: "Tahun Listing",
@@ -80,35 +55,66 @@ const columnTitleMap: { [key: string]: string } = {
   long: "Longitude",
   lat: "Latitude",
   subround: "Subround",
-  // Jika ingin menampilkan pcl_id / tim_id, tambahkan di sini:
-  // pcl_id: "ID PCL",
-  // tim_id: "ID Tim",
+  perkiraan_minggu_panen: "Perkiraan Minggu Panen",
+  Alokasi: "Alokasi",
 };
 
 const SampelPage = () => {
   const { sampel } = usePage<SampelPageProps>().props;
 
-  // State data utama
+  // State utama
   const [data, setData] = useState<Sampel[]>(sampel);
-
-  // State untuk Edit Dialog
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editData, setEditData] = useState<Sampel | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  // State untuk Hapus Dialog
   const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // State untuk Tambah Dialog
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  // Opsi dropdown
+  const [segmenOptions, setSegmenOptions] = useState<Segmen[]>([]);
+  const [blokSensusOptions, setBlokSensusOptions] = useState<BlokSensus[]>([]);
+  const [slsOptions, setSlsOptions] = useState<NamaSls[]>([]);
 
-  // Flatten data jika perlu menambahkan field relasi
+  // Fetch opsi dropdown
+  const fetchSegmenOptions = async () => {
+    try {
+      const res = await axios.get("/dashboard/admin/option/segmen-available-list");
+      setSegmenOptions(res.data.segmen || []);
+    } catch (error) {
+      console.error("Gagal mengambil data segmen", error);
+    }
+  };
+
+  const fetchBlokSensusOptions = async () => {
+    try {
+      const res = await axios.get("/dashboard/admin/option/bs-available-list");
+      setBlokSensusOptions(res.data.blok_sensus || []);
+    } catch (error) {
+      console.error("Gagal mengambil data blok sensus", error);
+    }
+  };
+
+  // Jika diperlukan, fetch SLS options (meskipun untuk tampilan di dialog, biasanya diatur di dalam dialog)
+  const fetchSlsOptions = async (nomor_bs?: string) => {
+    try {
+      const res = await axios.get("/dashboard/admin/option/sls-available-list", {
+        params: { nomor_bs },
+      });
+      setSlsOptions(res.data.nama_sls || []);
+    } catch (error) {
+      console.error("Gagal mengambil data SLS", error);
+    }
+  };
+
   useEffect(() => {
-    const flattenedData = sampel.map((item) => ({
-      ...item,
-      // contoh: item.segmen ? item.segmen.nama_segmen : '-'
-    }));
+    // Lakukan flatten data jika perlu
+    const flattenedData = sampel.map(item => ({ ...item }));
     setData(flattenedData);
+
+    // Fetch opsi dropdown
+    fetchSegmenOptions();
+    fetchBlokSensusOptions();
+    fetchSlsOptions();
   }, [sampel]);
 
   // Tambah Sampel
@@ -116,7 +122,7 @@ const SampelPage = () => {
     try {
       const response = await axios.post("/dashboard/admin/sampel/store", formData);
       if (response.data.status === "success") {
-        setData((prevData) => [...prevData, response.data.sampel]);
+        setData(prev => [...prev, response.data.sampel]);
         toast.success(response.data.message);
         setIsAddDialogOpen(false);
       } else {
@@ -136,31 +142,33 @@ const SampelPage = () => {
 
   // Buka dialog hapus
   const handleDelete = (id: string) => {
-    const sampelItem = data.find((item) => item.id === Number(id));
+    const sampelItem = data.find(item => item.id === Number(id));
     setDeleteData({ id, nama: sampelItem?.nama_lok });
     setIsDeleteDialogOpen(true);
   };
 
-  // Update Sampel
-  const handleConfirmUpdate = async (id: number, formData: Partial<Sampel>) => {
+  // Update Sampel – perbaiki agar mengirim data FK SLS (id_sls)
+  const handleConfirmUpdate = async (id: number, formData: SampelFormData) => {
     try {
+      // Di sini, asumsikan formData sudah memiliki field id_sls (sebagai number)
       const response = await axios.post(`/dashboard/admin/sampel/update/${id}`, formData);
-      if (response.data.status === 'success') {
-        setData((prevData) =>
-          prevData.map((item) => (item.id === id ? { ...item, ...formData } : item))
+      if (response.data.status === "success") {
+        setData(prev =>
+          prev.map(item => (item.id === id ? { ...item, ...response.data.sampel } : item))
         );
         setIsEditDialogOpen(false);
         toast.success(response.data.message);
       } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
+        toast.error(response.data.message || "Terjadi kesalahan.");
       }
     } catch (error: any) {
       if (error.response && error.response.data.errors) {
-        const errors = error.response.data.errors;
-        const errorMessage = Object.values(errors).flat().join(', ');
+        const errorMessage = Object.values(error.response.data.errors)
+          .flat()
+          .join(", ");
         toast.error(`Gagal: ${errorMessage}`);
       } else {
-        toast.error('Gagal memperbarui sampel.');
+        toast.error("Gagal memperbarui sampel.");
       }
     }
   };
@@ -169,32 +177,33 @@ const SampelPage = () => {
   const handleDeleteConfirm = async (id: string) => {
     try {
       const response = await axios.delete(`/dashboard/admin/sampel/delete/${id}`);
-      if (response.data.status === 'success') {
-        setData((prevData) => prevData.filter((item) => item.id !== Number(id)));
+      if (response.data.status === "success") {
+        setData(prev => prev.filter(item => item.id !== Number(id)));
         setIsDeleteDialogOpen(false);
         toast.success(response.data.message);
       } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
+        toast.error(response.data.message || "Terjadi kesalahan.");
       }
     } catch (error: any) {
       if (error.response && error.response.data.errors) {
-        const errors = error.response.data.errors;
-        const errorMessage = Object.values(errors).flat().join(', ');
+        const errorMessage = Object.values(error.response.data.errors)
+          .flat()
+          .join(", ");
         toast.error(`Gagal: ${errorMessage}`);
       } else {
-        toast.error('Gagal menghapus sampel.');
+        toast.error("Gagal menghapus sampel.");
       }
     }
   };
 
-  // Copy data ke Clipboard
+  // Copy data ke clipboard
   const handleCopy = (rowData: any) => {
     const { id, created_at, updated_at, ...dataWithoutId } = rowData;
     toast.promise(
       () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
       {
-        pending: 'Menyalin data ke clipboard...',
-        success: 'Data berhasil disalin ke clipboard',
+        pending: "Menyalin data ke clipboard...",
+        success: "Data berhasil disalin ke clipboard",
         error: {
           render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
         },
@@ -202,9 +211,9 @@ const SampelPage = () => {
     );
   };
 
-  // Generate kolom tabel
+  // Generate kolom tabel, tambahkan kolom untuk menampilkan relasi
   const columns = generateColumns<Sampel>(
-    'sampel',
+    "sampel",
     columnTitleMap,
     undefined,
     undefined,
@@ -227,7 +236,7 @@ const SampelPage = () => {
               onClick={() => setIsAddDialogOpen(true)}
             >
               <CirclePlus className="h-4 w-4" />
-              Tambah Sampel
+              {/* Tambah Sampel */}
             </Button>
           </div>
           <DataTable
@@ -244,6 +253,9 @@ const SampelPage = () => {
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSampel}
+        segmenOptions={segmenOptions}
+        blokSensusOptions={blokSensusOptions}
+        // slsOptions tidak dikirim karena dialog akan fetch sendiri
       />
 
       {/* Dialog Edit Sampel */}
@@ -251,9 +263,11 @@ const SampelPage = () => {
         <EditSampelDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
-          // Di sini kita definisikan tipenya agar tidak 'any'
-          onSave={(formData: Partial<Sampel>) => handleConfirmUpdate(editData.id, formData)}
+          onSave={(formData: SampelFormData) => handleConfirmUpdate(editData.id, formData)}
           data={editData}
+          segmenOptions={segmenOptions}
+          blokSensusOptions={blokSensusOptions}
+          // slsOptions tidak dikirim karena dialog akan fetch sendiri
         />
       )}
 

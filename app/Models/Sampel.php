@@ -13,6 +13,7 @@ class Sampel extends Model
     protected $fillable = [
         'jenis_sampel',
         'jenis_tanaman',
+        'jenis_komoditas',
         'frame_ksa',
         'prov',
         'kab',
@@ -69,7 +70,7 @@ class Sampel extends Model
         return $this->hasMany(Notifikasi::class, 'sampel_id', 'id');
     }
      // Relasi ke nama_sls (id_sls): Sampel milik satu NamaSls
-     public function namaSls()
+     public function nama_sls()
      {
          return $this->belongsTo(NamaSls::class, 'id_sls', 'id');
      }

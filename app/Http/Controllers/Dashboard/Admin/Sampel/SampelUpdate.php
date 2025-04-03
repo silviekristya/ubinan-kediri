@@ -24,7 +24,7 @@ class SampelUpdate extends Controller
         $validated = $request->validate([
             'jenis_sampel'          => 'required|in:Utama,Cadangan',
             'jenis_tanaman'         => 'required|in:Padi,Palawija',
-            'jenis_komoditas'       => 'required|string',
+            'jenis_komoditas'       => 'required|in:Padi,Jagung,Kedelai,Kacang Tanah,Ubi Kayu,Ubi Jalar,Lainnya',
             'frame_ksa'             => 'nullable|string|max:20',
             'prov'                  => 'required|string|max:5',
             'kab'                   => 'required|string|max:5',
@@ -53,16 +53,16 @@ class SampelUpdate extends Controller
         ]);
 
         // Jika segmen_id diisi, cek atau buat segmen baru jika belum ada
-        if (!empty($validated['segmen_id'])) {
-            $segmenId = $validated['segmen_id'];
-            $segmen = Segmen::where('id_segmen', $segmenId)->first();
-            if (!$segmen) {
-                $segmen = Segmen::create([
-                    'id_segmen'   => $segmenId,
-                    'nama_segmen' => 'Segmen ' . $segmenId,
-                ]);
-            }
-        }
+        // if (!empty($validated['segmen_id'])) {
+        //     $segmenId = $validated['segmen_id'];
+        //     $segmen = Segmen::where('id_segmen', $segmenId)->first();
+        //     if (!$segmen) {
+        //         $segmen = Segmen::create([
+        //             'id_segmen'   => $segmenId,
+        //             'nama_segmen' => 'Segmen ' . $segmenId,
+        //         ]);
+        //     }
+        // }
 
         try {
             $sampel->update($validated);

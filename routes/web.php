@@ -44,6 +44,8 @@ use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsDelete;
 use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsUpdate;
 use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 
@@ -148,6 +150,8 @@ Route::middleware('auth')
                 Route::get('pml-available-list', [PmlAvailableListOption::class, 'v1'])->name('pml-available');
                 Route::get('pcl-available-list', [PclAvailableListOption::class, 'v1'])->name('pcl-available');
                 Route::get('bs-available-list', [BsAvailableListOption::class, 'v1'])->name('bs-available');
+                Route::get('sls-available-list', [SlsAvailableListOption::class, 'v1'])->name('sls-available');
+                Route::get('segmen-available-list', [SegmenAvailableListOption::class, 'v1'])->name('segmen-available');
             });
             // End: Option
         });

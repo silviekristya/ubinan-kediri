@@ -15,8 +15,9 @@ class SampelList extends Controller
      */
     public function v1(Request $request): Response
     {
-        $sampel = Sampel::all();
-
+        // $sampel = Sampel::with('nama_sls')->get();
+        $sampel = Sampel::with('nama_sls.blok_sensus')->get();
+        
         return Inertia::render('Dashboard/Admin/Sampel/ListSampel', [
             'sampel' => $sampel,
         ]);

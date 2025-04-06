@@ -18,7 +18,7 @@ class NamaSls extends Model
     ];
 
     // Relasi ke blok_sensus : Nama SLS milik satu Blok Sensus
-    public function blok_sensus()
+    public function blokSensus()
     {
         return $this->belongsTo(BlokSensus::class, 'id_bs', 'id');
     }

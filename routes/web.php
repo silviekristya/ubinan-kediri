@@ -30,22 +30,23 @@ use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
-use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenList;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenDelete;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
-use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusList;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusUpdate;
-use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsList;
 use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsStore;
 use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsDelete;
 use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsUpdate;
 use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; // Ensure this class exists in the specified namespace
+
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 
@@ -111,7 +112,6 @@ Route::middleware('auth')
                 
                 // Sub-route segmen
                 Route::prefix('segmen')->name('segmen.')->group(function () {
-                    Route::get('', [SegmenList::class, 'v1'])->name('index');
                     Route::post('store', [SegmenStore::class, 'v1']);
                     Route::post('update/{segmen}', [SegmenUpdate::class, 'v1']);
                     Route::delete('delete/{segmen}', [SegmenDelete::class, 'v1'])->name('delete');
@@ -119,7 +119,6 @@ Route::middleware('auth')
                 
                 // Sub-route blok-sensus
                 Route::prefix('blok-sensus')->name('blok-sensus.')->group(function () {
-                    Route::get('', [BlokSensusList::class, 'v1'])->name('index');
                     Route::post('store', [BlokSensusStore::class, 'v1']);
                     Route::post('update/{blokSensus}', [BlokSensusUpdate::class, 'v1']);
                     Route::delete('delete/{blokSensus}', [BlokSensusDelete::class, 'v1'])->name('delete');
@@ -127,7 +126,6 @@ Route::middleware('auth')
                 
                 // Sub-route nama-sls
                 Route::prefix('nama-sls')->name('nama-sls.')->group(function () {
-                    Route::get('', [NamaSlsList::class, 'v1'])->name('index');
                     Route::post('store', [NamaSlsStore::class, 'v1']);
                     Route::post('update/{namaSls}', [NamaSlsUpdate::class, 'v1']);
                     Route::delete('delete/{namaSls}', [NamaSlsDelete::class, 'v1'])->name('delete');
@@ -152,8 +150,16 @@ Route::middleware('auth')
                 Route::get('bs-available-list', [BsAvailableListOption::class, 'v1'])->name('bs-available');
                 Route::get('sls-available-list', [SlsAvailableListOption::class, 'v1'])->name('sls-available');
                 Route::get('segmen-available-list', [SegmenAvailableListOption::class, 'v1'])->name('segmen-available');
+                Route::get('tim-available-list', [TimAvailableListOption::class, 'v1'])->name('tim-available');
             });
             // End: Option
+
+            // Start: Alokasi
+            Route::prefix('alokasi')->name('alokasi.')->group(function () {
+                Route::put('update/sampel/{sampel}/pml', [PmlAllocationUpdate::class, 'v1']) -> name('alokasi-pml'); 
+                Route::put('update/sampel/{sampel}/pcl', [PclAllocationUpdate::class, 'v1']) -> name('alokasi-pcl');
+            });
+            // End: Alokasi
         });
         // End: Admin
 });

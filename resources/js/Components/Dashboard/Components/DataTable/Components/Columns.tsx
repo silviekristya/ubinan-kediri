@@ -19,7 +19,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/Components/ui/tooltip";
-import { useState } from "react";
+import { ReactNode } from "react";
 
 interface ColumnTitleMap {
   [key: string]: string;
@@ -27,9 +27,11 @@ interface ColumnTitleMap {
 
 export type DataTableColumnDef<TData> = ColumnDef<TData, any>;
 
+// Parameter customRender bersifat opsional dan default akan mengembalikan undefined.
 export const generateColumns = <TData,>(
   name: string | undefined,
   columnTitleMap: ColumnTitleMap,
+  customRender?: (columnKey: string, row: TData) => ReactNode,
   onDetail?: (id: string, data: any) => void,
   onUpdateStatus?: (id: string, status: string) => void,
   onEdit?: (id: string, data: any) => void,
@@ -42,14 +44,14 @@ export const generateColumns = <TData,>(
     {
       header: "Nomor BS",
       cell: ({ row }: { row: any }) => {
-        const nomorBs = row.original?.nama_sls?.blok_sensus?.nomor_bs;
+        const nomorBs = row.original?.namaSls?.blokSensus?.nomor_bs;
         return nomorBs ? String(nomorBs) : "";
       },
     },
     {
       header: "Nama SLS",
       cell: ({ row }: { row: any }) => {
-        const namaSls = row.original?.nama_sls?.nama_sls;
+        const namaSls = row.original?.namaSls?.namaSls;
         return namaSls ? String(namaSls) : "";
       },
     },
@@ -121,7 +123,6 @@ export const generateColumns = <TData,>(
       return;
     }
 
-    // Buat kolom khusus untuk key
     let columnDef: DataTableColumnDef<TData>;
 
     if (key === "abstract") {
@@ -237,13 +238,22 @@ export const generateColumns = <TData,>(
             className="flex justify-center"
           />
         ),
-        cell: ({ row }: { row: any }) => (
-          <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue(key)}
-            </span>
-          </div>
-        ),
+        cell: ({ row }: { row: any }) => {
+          // Jika customRender ada, panggil untuk key ini
+          if (customRender) {
+            const customContent = customRender(key, row.original);
+            if (customContent !== null && customContent !== undefined) {
+              return customContent;
+            }
+          }
+          return (
+            <div className="flex space-x-2">
+              <span className="max-w-[500px] truncate font-medium">
+                {row.getValue(key)}
+              </span>
+            </div>
+          );
+        },
         filterFn: (row: any, id: string, value: string) =>
           value.includes(row.getValue(id)),
       };

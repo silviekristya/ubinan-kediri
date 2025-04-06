@@ -17,7 +17,7 @@ class BlokSensus extends Model
     ];
 
     // Relasi ke nama_sls (id_bs): satu Blok Sensus memiliki banyak Nama SLS
-    public function nama_sls()
+    public function namaSls()
     {
         return $this->hasMany(NamaSls::class, 'id_bs', 'id');
     }

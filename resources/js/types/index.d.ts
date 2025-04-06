@@ -76,10 +76,11 @@ export interface Sampel {
     perkiraan_minggu_panen?: number; // integer, nullable
     pcl_id?: number;
     tim_id?: number;
+    tim?: Tim;
     created_at?: string;
     updated_at?: string;
 }
-interface Tim {
+export interface Tim {
     id: number;
     nama_tim: string;
     pml?: Pegawai | null; // Ubah tipe di sini

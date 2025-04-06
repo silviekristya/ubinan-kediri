@@ -40,6 +40,13 @@ class Sampel extends Model
         'pcl_id',
         'tim_id',
     ];
+    public function getNamaPmlAttribute()
+{
+    if ($this->tim) {
+        return $this->tim->pml ? $this->tim->pml->nama : null;
+    }
+    return null;
+}
     // Relasi ke Segmen: Sampel milik satu Segmen (mengacu ke kolom segmen_id)
     public function segmen()
     {
@@ -70,7 +77,7 @@ class Sampel extends Model
         return $this->hasMany(Notifikasi::class, 'sampel_id', 'id');
     }
      // Relasi ke nama_sls (id_sls): Sampel milik satu NamaSls
-     public function nama_sls()
+     public function namaSls()
      {
          return $this->belongsTo(NamaSls::class, 'id_sls', 'id');
      }

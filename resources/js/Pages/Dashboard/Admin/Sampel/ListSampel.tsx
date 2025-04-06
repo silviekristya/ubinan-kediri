@@ -20,8 +20,10 @@ import {
 import { AddSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddSampelDialog';
 import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
-import { PageProps, Sampel, Segmen, BlokSensus, NamaSls } from '@/types';
+import { PageProps, Sampel, Segmen, BlokSensus, NamaSls, Tim } from '@/types';
 import { SampelFormData } from "@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog";
+import AddAlokasiPmlDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPmlDialog';
+import PmlAllocationsDialog from '../../../../Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPmlDialog';
 
 interface SampelPageProps extends PageProps {
   sampel: Sampel[];
@@ -56,7 +58,8 @@ const columnTitleMap: { [key: string]: string } = {
   lat: "Latitude",
   subround: "Subround",
   perkiraan_minggu_panen: "Perkiraan Minggu Panen",
-  Alokasi: "Alokasi",
+  tim_id: "PML",
+  pcl_id: "PCL",
 };
 
 const SampelPage = () => {
@@ -106,6 +109,17 @@ const SampelPage = () => {
     }
   };
 
+  // fetch tim option
+  const fetchTimOptions = async (): Promise<Tim[]> => {
+    try {
+      const res = await axios.get('/dashboard/admin/option/tim-available-list');
+      return res.data.tim; // Pastikan struktur data sesuai dengan response backend
+    } catch (error) {
+      console.error('Gagal mengambil data tim', error);
+      return [];
+    }
+  };
+
   useEffect(() => {
     // Lakukan flatten data jika perlu
     const flattenedData = sampel.map(item => ({ ...item }));
@@ -115,6 +129,9 @@ const SampelPage = () => {
     fetchSegmenOptions();
     fetchBlokSensusOptions();
     fetchSlsOptions();
+    fetchTimOptions().then((timData) => {
+      setTimOptions(timData);
+    });
   }, [sampel]);
 
   // Tambah Sampel
@@ -211,17 +228,90 @@ const SampelPage = () => {
     );
   };
 
+  // Custom render untuk kolom PML: tampilkan tombol "Alokasi" jika tim_id belum ada,
+  // jika sudah ada, tampilkan nama_pml.
+  const customRender = (columnKey: string, row: Sampel) => {
+    try {
+      console.log(`customRender dipanggil untuk kolom ${columnKey}`, row);
+      if (columnKey === 'tim_id') {
+        // Jika row.tim_id belum ada, tampilkan tombol Alokasi
+        if (row.tim_id === undefined || row.tim_id === null) {
+          console.log("PML belum dialokasikan, rendering tombol Alokasi", row);
+          return (
+            <Button onClick={() => {
+              console.log("Klik Alokasi untuk row:", row);
+              setSelectedForPml(row);
+            }}>
+              Alokasi
+            </Button>
+          );
+        } else {
+          console.log("PML sudah dialokasikan, menampilkan nama_pml", row.tim?.pml?.nama);
+          return (
+            <span>
+              {row.tim && row.tim.pml && row.tim.pml.nama
+                ? row.tim.pml.nama
+                : "Nama PML tidak tersedia"}
+            </span>
+          );
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Error dalam customRender untuk kolom", columnKey, "pada row:", row, error);
+      return <span>Error rendering</span>;
+    }
+  };
+  
+  
+
+  // State dan handler untuk dialog alokasi PML
+  const [selectedForPml, setSelectedForPml] = useState<Sampel | null>(null);
+  const [timOptions, setTimOptions] = useState<Tim[]>([]);
+
+  // useEffect(() => {
+  //   fetchTimOptions().then(setTimOptions);
+  // }, []);
+
+  const handlePmlAllocationSuccess = async (timId: number) => {
+    if (!selectedForPml) return;
+  
+    try {
+      // Panggil endpoint alokasi PML
+      const response = await axios.put(`/dashboard/admin/alokasi/update/sampel/${selectedForPml.id}/pml`, {
+        tim_id: timId,
+      });
+  
+      // Respons berisi sampel yang sudah di-load dengan relasi tim -> pml
+      const updatedSample = response.data.sampel;
+      console.log("Updated sample:", updatedSample);
+  
+      // Perbarui state data di frontend
+      setData(prev =>
+        prev.map(item => (item.id === updatedSample.id ? updatedSample : item))
+      );
+  
+      setSelectedForPml(null);
+      toast.success("PML berhasil diperbarui.");
+    } catch (error) {
+      console.error("Error saat update PML:", error);
+      toast.error("Gagal menyimpan PML");
+    }
+  };
+  
+
   // Generate kolom tabel, tambahkan kolom untuk menampilkan relasi
   const columns = generateColumns<Sampel>(
     "sampel",
     columnTitleMap,
+    customRender,
     undefined,
     undefined,
     handleEdit,
     handleCopy,
     handleDelete
   );
-
+  // console.log("Kolom yang dihasilkan:", columns);
   return (
     <DashboardLayout>
       <Head title="Sampel" />
@@ -296,6 +386,16 @@ const SampelPage = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      )}
+      {/* Dialog Alokasi PML */}
+      {selectedForPml && (
+        <AddAlokasiPmlDialog
+          isOpen={!!selectedForPml}
+          sampel={selectedForPml}
+          onClose={() => setSelectedForPml(null)}
+          onAllocationSuccess={handlePmlAllocationSuccess}
+          tim={timOptions} // Pass tim options ke dialog
+        />
       )}
     </DashboardLayout>
   );

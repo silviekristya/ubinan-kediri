@@ -46,15 +46,15 @@ class TimUpdate extends Controller
             // Reset tim_id untuk semua mitra yang sebelumnya terkait dengan tim ini
             Mitra::where('tim_id', $tim->id)->update(['tim_id' => null]);
 
-            // Update anggota tim (ppl)
-            Mitra::whereIn('id', $request->ppl_ids)->update(['tim_id' => $tim->id]);
+            // Update anggota tim (pcl)
+            Mitra::whereIn('id', $request->pcl_ids)->update(['tim_id' => $tim->id]);
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tim berhasil diperbarui.',
-                'tim' => $tim->load(['pml', 'ppl']),
+                'tim' => $tim->load(['pml', 'pcl']),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

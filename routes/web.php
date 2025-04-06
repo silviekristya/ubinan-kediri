@@ -43,6 +43,7 @@ use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusContro
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; // Ensure this class exists in the specified namespace
@@ -151,6 +152,7 @@ Route::middleware('auth')
                 Route::get('sls-available-list', [SlsAvailableListOption::class, 'v1'])->name('sls-available');
                 Route::get('segmen-available-list', [SegmenAvailableListOption::class, 'v1'])->name('segmen-available');
                 Route::get('tim-available-list', [TimAvailableListOption::class, 'v1'])->name('tim-available');
+                Route::get('tim-pcl/{timId}/tim-pcl-available-list', [TimPclAvailableListOption::class, 'v1'])->name('tim-pcl-available');
             });
             // End: Option
 

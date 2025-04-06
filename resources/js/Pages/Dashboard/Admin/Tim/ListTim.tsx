@@ -210,6 +210,7 @@ const TimPage = () => {
         columnTitleMap,
         undefined,
         undefined,
+        undefined,
         handleEdit,
         handleCopy,
         handleDelete

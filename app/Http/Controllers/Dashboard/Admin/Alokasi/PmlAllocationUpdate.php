@@ -24,8 +24,8 @@ class PmlAllocationUpdate extends Controller
 
         Log::info("Sampel setelah update: ", $sampel->toArray());
 
-        // Load relasi tim dan pml
-        $sampel->load('tim.pml');
+        // Load relasi tim dan pml, pcl
+        $sampel->load('tim.pml', 'pcl');
 
         return response()->json([
             'message' => 'PML berhasil diperbarui',

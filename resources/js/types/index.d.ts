@@ -77,6 +77,7 @@ export interface Sampel {
     pcl_id?: number;
     tim_id?: number;
     tim?: Tim;
+    pcl?: Mitra;
     created_at?: string;
     updated_at?: string;
 }

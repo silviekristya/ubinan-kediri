@@ -135,6 +135,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     columnTitleMap,
     undefined,
     undefined,
+    undefined,
     handleEdit,
     handleCopy,
     handleDelete,

@@ -192,6 +192,7 @@ const PegawaiPage = () => {
         columnTitleMap,
         undefined,
         undefined,
+        undefined,
         handleEdit,
         handleCopy,
         handleDelete

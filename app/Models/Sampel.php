@@ -54,7 +54,7 @@ class Sampel extends Model
     }
     
     // Relasi ke Mitra: Sampel milik satu Mitra (pcl_id mengacu ke id Mitra)
-    public function mitra()
+    public function pcl()
     {
         return $this->belongsTo(Mitra::class, 'pcl_id', 'id');
     }

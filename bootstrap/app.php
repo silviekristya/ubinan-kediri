@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\CheckAdmin;
+use App\Http\Middleware\CheckMitra;
+use App\Http\Middleware\CheckPml;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Menambahkan alias middleware
         $middleware->alias([
             'check.admin' => CheckAdmin::class,
+            'check.pml' => CheckPml::class,
+            'check.mitra' => CheckMitra::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

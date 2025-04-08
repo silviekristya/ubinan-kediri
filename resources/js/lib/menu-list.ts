@@ -1,6 +1,13 @@
 import {
     LuUsers,
-    LuLayoutPanelLeft
+    LuUser,
+    LuLayoutPanelLeft,
+    LuLayoutDashboard,
+    LuUserPlus,
+    LuBriefcase,
+    LuUngroup,
+    LuMapPin,
+    LuClipboardList,
 } from "react-icons/lu";
 
 import { usePage } from '@inertiajs/react';
@@ -28,7 +35,13 @@ type Group = {
   export function getMenuList(pathname: string): Group[] {
     const { auth } = usePage().props;
 
-    const userRole: string = auth.user.pegawai?.role ?? '';
+    // const userRole: string = auth.user.pegawai?.role ?? '';
+    const userRole: string = auth.user.mitra
+  ? 'MITRA'
+  : auth.user.pegawai?.is_pml
+    ? 'PML'
+    : auth.user.pegawai?.role ?? '';
+
     return [
       {
         groupLabel: "",
@@ -57,21 +70,21 @@ type Group = {
                 href: route('dashboard.admin.user.index'),
                 label: "User",
                 active: pathname.includes("/dashboard/admin/user"),
-                icon: LuUsers,
+                icon: LuUser,
                 submenus: []
             },
             {
                 href: route('dashboard.admin.pegawai.index'),
                 label: "Pegawai",
                 active: pathname.includes("/dashboard/admin/pegawai"),
-                icon: LuUsers,
+                icon: LuUserPlus,
                 submenus: []
             },
             {
                 href: route('dashboard.admin.mitra.index'),
                 label: "Mitra",
                 active: pathname.includes("/dashboard/admin/mitra"),
-                icon: LuUsers,
+                icon: LuUserPlus,
                 submenus: []
             },
             {
@@ -85,19 +98,45 @@ type Group = {
               href: route('dashboard.admin.segmen-blok-sensus.index'),
               label: "Segmen & Blok Sensus",
               active: pathname.includes("/dashboard/admin/segmen-blok-sensus"),
-              icon: LuUsers,
+              icon: LuMapPin,
               submenus: []
             },
             {
               href: route('dashboard.admin.sampel.index'),
               label: "Sampel",
               active: pathname.includes("/dashboard/admin/sampel"),
-              icon: LuUsers,
+              icon: LuClipboardList,
               submenus: []
             },
             
           ]
         }
-      ] : [])
+      ] : userRole === 'MITRA' ? [
+        {
+          groupLabel: "Mitra",
+          menus: [
+            {
+              href: route('dashboard.mitra.sampel.index'),
+              label: "Sampel",
+              active: pathname.includes("/dashboard/mitra/sampel"),
+              icon: LuClipboardList,
+              submenus: []
+            }
+          ]
+        }
+      ] : userRole === 'PML' ? [
+        {
+          groupLabel: "PML",
+          menus: [
+            {
+              href: route('dashboard.pml.sampel.index'),
+              label: "Sampel",
+              active: pathname.includes("/dashboard/pml/sampel"),
+              icon: LuClipboardList,
+              submenus: []
+            }
+          ]
+        }
+      ]: [])
     ];
   }

@@ -26,7 +26,7 @@ use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList; 
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList; 
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
@@ -46,7 +46,9 @@ use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensur
 use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
-use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
+use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
+use App\Http\Controllers\Dashboard\Pml\Sampel\SampelList as PmlSampelList;
 
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
@@ -136,7 +138,7 @@ Route::middleware('auth')
 
             // Start: Sampel
             Route::prefix('sampel')->name('sampel.')->group(function () {
-                Route::get('/', [SampelList::class, 'v1'])->name('index');
+                Route::get('/', [AdminSampelList::class, 'v1'])->name('index');
                 Route::post('store', [SampelStore::class, 'v1']);
                 Route::post('update/{sampel}', [SampelUpdate::class, 'v1']);
                 Route::delete('delete/{sampel}', [SampelDelete::class, 'v1'])->name('delete');
@@ -164,6 +166,33 @@ Route::middleware('auth')
             // End: Alokasi
         });
         // End: Admin
+
+        // Start: Mitra
+        Route::middleware('check.mitra')
+        ->prefix('mitra')
+        ->name('mitra.')
+        ->group(function () {
+            // Start: Sampel
+            Route::prefix('sampel')->name('sampel.')->group(function () {
+                Route::get('', [MitraSampelList::class, 'v1'])->name('index'); // Ensure the class and method exist
+            });
+            // End: Sampel
+        });
+        // End: Mitra
+
+        // Start: PML
+        Route::middleware('check.pml')
+        ->prefix('pml')
+        ->name('pml.')
+        ->group(function () {
+            // Start: Sampel
+            Route::prefix('sampel')->name('sampel.')->group(function () {
+                Route::get('', [PmlSampelList::class, 'v1'])->name('index'); // Ensure the class and method exist
+            });
+            // End: Sampel
+        });
+        // End: PML
+
 });
 
 // Rute API khusus untuk operasi CRUD Tim (mengembalikan JSON)

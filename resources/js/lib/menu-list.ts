@@ -8,6 +8,8 @@ import {
     LuUngroup,
     LuMapPin,
     LuClipboardList,
+    LuClipboardCheck,
+    LuTrendingUp,
 } from "react-icons/lu";
 
 import { usePage } from '@inertiajs/react';
@@ -121,7 +123,21 @@ type Group = {
               active: pathname.includes("/dashboard/mitra/sampel"),
               icon: LuClipboardList,
               submenus: []
-            }
+            },
+            {
+              href: route('dashboard.mitra.pengecekan.index'),
+              label: "Pengecekan",
+              active: pathname.includes("/dashboard/mitra/pengecekan"),
+              icon: LuClipboardCheck,
+              submenus: []
+            },
+            {
+              href: route('dashboard.mitra.hasil-ubinan.index'),
+              label: "Hasil Ubinan",
+              active: pathname.includes("/dashboard/mitra/hasil-ubinan"),
+              icon: LuTrendingUp,
+              submenus: []
+            },
           ]
         }
       ] : userRole === 'PML' ? [
@@ -134,7 +150,14 @@ type Group = {
               active: pathname.includes("/dashboard/pml/sampel"),
               icon: LuClipboardList,
               submenus: []
-            }
+            },
+            {
+              href: route('dashboard.pml.pengecekan.index'),
+              label: "Pengecekan",
+              active: pathname.includes("/dashboard/pml/pengecekan"),
+              icon: LuClipboardCheck,
+              submenus: []
+            },
           ]
         }
       ]: [])

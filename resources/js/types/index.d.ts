@@ -78,9 +78,58 @@ export interface Sampel {
     tim_id?: number;
     tim?: Tim;
     pcl?: Mitra;
+    pengecekan?: Pengecekan;
     created_at?: string;
     updated_at?: string;
 }
+
+export interface Pengecekan {
+    id: number;
+    id_sampel: number;
+    tanggal_pengecekan: string;
+    subround: string;
+    nama_responden: string;
+    alamat_responden: string;
+    no_telepon_responden: string;
+    tanggal_panen: string;
+    status_sampel?: 'Eligible' | 'Non-eligible' | 'Belum';
+    keterangan?: string | null;
+    id_sampel_cadangan?: number | null;
+    created_at?: string;
+    updated_at?: string;
+
+    // optional back‐reference
+    sampel?: Sampel;
+} 
+
+export interface Fenomena {
+    id: number;
+    nama: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface HasilUbinan {
+    id: number;
+    pengecekan_id: number;
+    tanggal_pencacahan: string;
+    berat_hasil_ubinan?: number;
+    jumlah_rumpun?: number;
+    luas_lahan?: number;
+    cara_penanaman?: string;
+    jenis_pupuk?: string;
+    penanganan_hama?: string;
+    status: 'Selesai' | 'Gagal';
+    is_verif?: boolean;
+    created_at?: string;
+    updated_at?: string;
+
+    // optional back‐reference
+    pengecekan?: Pengecekan;
+}
+
+
+
 export interface Tim {
     id: number;
     nama_tim: string;

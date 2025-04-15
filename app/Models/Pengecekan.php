@@ -30,6 +30,11 @@ class Pengecekan extends Model
         return $this->belongsTo(Sampel::class, 'id_sampel', 'id');
     }
 
+    public function cadangan()
+    {
+        return $this->belongsTo(Sampel::class, 'id_sampel_cadangan', 'id');
+    }
+
     // Relasi ke hasil_ubinan (one-to-one?)
     // Pengecekan.id -> hasil_ubinan.pengecekan_id: satu Pengecekan memiliki satu HasilUbinan
     public function hasilUbinan()

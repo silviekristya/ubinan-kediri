@@ -49,6 +49,13 @@ use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
 use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
 use App\Http\Controllers\Dashboard\Pml\Sampel\SampelList as PmlSampelList;
+use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanStore as PengecekanStoreMitra;
+use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanStorePml;
+use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanList as PengecekanListMitra;
+use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanList as PengecekanListPml;
+use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanList as HasilUbinanListMitra;
+use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanStore as HasilUbinanStoreMitra;
+use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdateMitra;
 
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
@@ -177,6 +184,20 @@ Route::middleware('auth')
                 Route::get('', [MitraSampelList::class, 'v1'])->name('index'); // Ensure the class and method exist
             });
             // End: Sampel
+
+            // Start: Pengecekan
+            Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
+                Route::get('', [PengecekanListMitra::class, 'index'])->name('index'); // Ensure the class and method exist
+                Route::post('store', [PengecekanStoreMitra::class, 'v1'])->name('store'); // Ensure the class and method exist
+            });
+            // End: Pengecekan
+
+            // Start: Hasil Ubinan
+            Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
+                Route::get('', [HasilUbinanListMitra::class, 'index'])->name('index'); 
+                Route::post('store', [HasilUbinanStoreMitra::class, 'v1'])->name('store');
+                Route::post('update/{hasilUbinan}', [HasilUbinanUpdateMitra::class, 'v1'])->name('update');
+            });
         });
         // End: Mitra
 
@@ -190,6 +211,12 @@ Route::middleware('auth')
                 Route::get('', [PmlSampelList::class, 'v1'])->name('index'); // Ensure the class and method exist
             });
             // End: Sampel
+
+            // Start: Pengecekan
+            Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
+                Route::get('', [PengecekanListPml::class, 'index'])->name('index'); 
+                Route::post('store', [PengecekanStorePml::class, 'v1'])->name('store'); 
+            });
         });
         // End: PML
 

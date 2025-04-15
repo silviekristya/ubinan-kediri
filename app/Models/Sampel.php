@@ -70,6 +70,14 @@ class Sampel extends Model
     {
         return $this->hasOne(Pengecekan::class, 'id_sampel', 'id');
     }
+
+     /**
+     * Pengecekan di mana sampel ini dipilih sebagai CADANGAN
+     */
+    public function pengecekanCadangan()
+    {
+        return $this->hasOne(Pengecekan::class, 'id_sampel_cadangan');
+    }
     
     // Relasi ke Notifikasi: Satu Sampel dapat memiliki banyak Notifikasi
     public function notifikasi()

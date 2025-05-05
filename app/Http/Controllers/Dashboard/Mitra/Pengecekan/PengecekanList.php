@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Dashboard\Mitra\Pengecekan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Sampel;
+use App\Models\Pengecekan;
 use Inertia\Inertia;
 
 class PengecekanList extends Controller
@@ -26,6 +27,12 @@ class PengecekanList extends Controller
             ->where('pcl_id', $mitraId)
             ->where('jenis_sampel', 'utama')
             ->get();
+
+        // kumpulkan id_sampel cadangan yang sudah dipakai jadi sampel
+        $usedCadIds = Pengecekan::query()
+            ->whereNotNull('id_sampel_cadangan')
+            ->pluck('id_sampel_cadangan')
+            ->toArray();
 
         $mainSamples = collect();
 
@@ -51,6 +58,7 @@ class PengecekanList extends Controller
         $backupSamples = Sampel::where('pcl_id', $mitraId)
             ->where('jenis_sampel', 'cadangan')
             ->whereDoesntHave('pengecekan')
+            ->whereNotIn('id', $usedCadIds)
             ->get();
 
         return Inertia::render('Dashboard/Mitra/Pengecekan/ListPengecekan', [

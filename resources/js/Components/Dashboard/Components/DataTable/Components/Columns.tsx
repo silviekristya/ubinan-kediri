@@ -6,6 +6,7 @@ import { decode } from "html-entities";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { rolePegawai } from "@/Components/Dashboard/Components/Admin/Pegawai/DataTableFilterPegawai";
+import { tahunStyles, subroundStyles } from "../../Admin/Pengecekan/DataTableFilterPengecekan";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import utc from "dayjs/plugin/utc";
@@ -39,24 +40,6 @@ export const generateColumns = <TData,>(
   onDelete?: (id: string) => void,
   onRilis?: (id: string, data: any) => void
 ): DataTableColumnDef<TData>[] => {
-  // Kolom khusus untuk relasi (extra columns)
-  const extraColumns: DataTableColumnDef<TData>[] = [
-    {
-      header: "Nomor BS",
-      cell: ({ row }: { row: any }) => {
-        const nomorBs = row.original?.namaSls?.blokSensus?.nomor_bs;
-        return nomorBs ? String(nomorBs) : "";
-      },
-    },
-    {
-      header: "Nama SLS",
-      cell: ({ row }: { row: any }) => {
-        const namaSls = row.original?.namaSls?.namaSls;
-        return namaSls ? String(namaSls) : "";
-      },
-    },
-  ];
-
   // Mulai dengan kolom-kolom statis: aksi dan checkbox
   const baseColumns: DataTableColumnDef<TData>[] = [
     {
@@ -116,13 +99,10 @@ export const generateColumns = <TData,>(
     (key) => key !== "id" && key !== "user_id"
   );
 
+  const DATE_KEY_REGEX = /(tanggal|tgl|panen|rilis|date)/i;
+
   // Loop melalui semua key dan buat definisi kolom
   allKeys.forEach((key) => {
-    // Untuk key "nama_sls" dan "nomor_bs", kita lewati (karena akan ditangani lewat extraColumns)
-    if (key === "nama_sls" || key === "nomor_bs") {
-      return;
-    }
-
     let columnDef: DataTableColumnDef<TData>;
 
     if (key === "abstract") {
@@ -152,6 +132,56 @@ export const generateColumns = <TData,>(
         filterFn: (row: any, id: string, value: string) =>
           value.includes(row.getValue(id)),
       };
+    } else if (DATE_KEY_REGEX.test(key)) {
+    columnDef = {
+      accessorKey: key,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={columnTitleMap[key] || key}
+          className="flex justify-center"
+        />
+      ),
+      cell: ({ row }) => {
+        const raw = row.getValue<string>(key);
+        if (!raw) return <span className="text-gray-400">—</span>;
+        return (
+          <div className="flex justify-center">
+            {dayjs.utc(raw).format("DD/MM/YYYY")}
+          </div>
+        );
+      },
+      filterFn: (row: any, id: string, value: string) => {
+        const rowValue: string = row.getValue(id);
+        return value.includes(rowValue);
+      },
+    };
+  }else if (name === 'templatePesan' && key === 'text') {
+      columnDef = {
+        accessorKey: key,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={columnTitleMap[key] || key}
+            className="flex justify-center"
+          />
+        ),
+        cell: ({ row }) => (
+          <div
+            className="
+              truncate
+              max-w-xs
+              lg:max-w-none
+              lg:overflow-visible
+              lg:whitespace-normal
+            "
+          >
+            {row.getValue<string>(key)}
+          </div>
+        ),
+        filterFn: (row, id, value: string) =>
+          value.includes(row.getValue(id)),
+      };
     } else if (key === "date") {
       columnDef = {
         accessorKey: key,
@@ -164,7 +194,7 @@ export const generateColumns = <TData,>(
         ),
         cell: ({ row }: { row: any }) => {
           const timeDate = row.getValue(key);
-          let formattedData = dayjs.utc(timeDate).format("DD MMMM YYYY HH:mm");
+          let formattedData = dayjs.utc(timeDate).format("DD/MM/YYYY HH:mm");
           return (
             <div className="flex space-x-2">
               <span className="max-w-[500px] truncate font-medium">
@@ -207,6 +237,60 @@ export const generateColumns = <TData,>(
           return value.includes(rowValue);
         },
       };
+    } else if (key === "tahun_listing") {
+      columnDef = {
+        accessorKey: key,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={columnTitleMap[key] || key}
+            className="flex justify-center"
+          />
+        ),
+        cell: ({ row }) => {
+          const year = row.getValue<string>(key)
+          const yearClass = tahunStyles.DEFAULT || "bg-gray-100 text-gray-800";
+          // give all years the same badge color:
+          return (
+            <div className="flex justify-center">
+              <Badge className={`text-xs ${yearClass}`}>
+                {year}
+              </Badge>
+            </div>
+          );
+        },
+        filterFn: (row, id, value: string) => {
+          return value.includes(row.getValue(id))
+        },
+      }
+    } else if (key === "subround") {
+      columnDef = {
+        accessorKey: key,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={columnTitleMap[key] || key}
+            className="flex justify-center"
+          />
+        ),
+        cell: ({ row }) => {
+          // raw value from the row (could be "1", "01", "02", etc)
+          const raw = row.getValue<string>(key)
+          // normalize: remove any leading zeros so "01" → "1"
+          const norm = String(Number(raw))
+          const badgeClass = subroundStyles[norm] || "bg-gray-100 text-gray-800"
+          return (
+            <div className="flex justify-center">
+              <Badge className={`text-xs ${badgeClass}`}>
+                {raw}
+              </Badge>
+            </div>
+          )
+        },
+        filterFn: (row, id, value: string) => {
+          return value.includes(row.getValue(id))
+        },
+      };
     } else if (key === "is_pml") {
       columnDef = {
         accessorKey: key,
@@ -227,7 +311,26 @@ export const generateColumns = <TData,>(
           </div>
         ),
       };
-    } else {
+    } else if (key === "is_verif" && name === "Hasil Ubinan Admin") {
+      columnDef = {
+        accessorKey: key,
+        header: ({ column }: { column: any }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={columnTitleMap[key] || key}
+            className="flex justify-center"
+          />
+        ),
+        cell: ({ row }: { row: any }) => (
+          <div className="flex justify-center">
+            {row.getValue(key)
+              ? "Sudah diverifikasi"
+              : "Belum diverifikasi"}
+          </div>
+        ),
+      };
+    }
+     else {
       // Kolom default untuk key lainnya
       columnDef = {
         accessorKey: key,
@@ -261,11 +364,6 @@ export const generateColumns = <TData,>(
 
     // Tambahkan kolom yang baru dibuat ke baseColumns
     baseColumns.push(columnDef);
-
-    // Jika key yang sedang diproses adalah "subsegmen" dan name adalah "sampel", sisipkan extraColumns
-    if (name === "sampel" && key === "subsegmen") {
-      baseColumns.push(...extraColumns);
-    }
   });
 
   return baseColumns;

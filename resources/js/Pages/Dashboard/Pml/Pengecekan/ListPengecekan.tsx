@@ -1,5 +1,3 @@
-// resources/js/Pages/Dashboard/Pml/Pengecekan/ListPengecekan.tsx
-
 import React, { useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
@@ -11,6 +9,9 @@ import { toast } from 'react-toastify';
 import type { PageProps, Sampel } from '@/types';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 import type { ColumnDef } from '@tanstack/react-table';
+import { Card, CardContent, CardHeader } from '@/Components/ui/card';
+import dayjsLib from 'dayjs';
+
 
 interface PengecekanPageProps extends PageProps {
   samplesUtama: (Sampel & { cadanganOptions: { id: number; label: string }[] })[];
@@ -93,10 +94,10 @@ export default function PengecekanPage() {
   const customRender = (col: string, row: Sampel) => {
     const p = row.pengecekan;
     switch (col) {
-      case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ?? '-';
+      case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ? dayjsLib(p.tanggal_pengecekan).format('DD/MM/YYYY') : '-';
       case 'nama_responden':       return p?.nama_responden     ?? '-';
       case 'no_telepon_responden': return p?.no_telepon_responden ?? '-';
-      case 'tanggal_panen':        return p?.tanggal_panen      ?? '-';
+      case 'tanggal_panen':        return p?.tanggal_panen      ? dayjsLib(p.tanggal_panen).format('DD/MM/YYYY') : '-';
       case 'keterangan':           return p?.keterangan         ?? '-';
       case 'status_sampel':        return p?.status_sampel      ?? 'Belum';
       default: return undefined;
@@ -143,40 +144,50 @@ export default function PengecekanPage() {
   return (
     <DashboardLayout>
       <Head title="Verifikasi Pengecekan PML" />
-
-      {/* Sampel Utama */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Sampel Utama</h2>
-        <DataTable
-          name="Sampel Utama"
-          data={samplesUtama}
-          columns={columnsWithAction}
-          columnTitleMap={columnTitleMap}
-        />
-      </div>
-
-       {/* Sampel Terverifikasi */}
-       <div>
-        <h2 className="text-lg font-semibold mb-4">Sampel Terverifikasi</h2>
-        <DataTable
+      <Card className="mb-6">
+        <CardHeader className="flex items-center justify-between space-x-4">
+          <h2 className="text-lg font-semibold text-center">Sampel Utama</h2>
+        </CardHeader>
+        <CardContent>
+          {/* Sampel Utama */}
+          <DataTable
+            name="Sampel Utama"
+            data={samplesUtama}
+            columns={columnsWithAction}
+            columnTitleMap={columnTitleMap}
+          />
+        </CardContent>
+      </Card>
+      
+      <Card className="mb-6">
+        <CardHeader className="flex items-center justify-between space-x-4">
+          <h2 className="text-lg font-semibold text-center">Sampel Terverifikasi</h2>
+        </CardHeader>
+        <CardContent>
+          {/* Sampel Terverifikasi */}
+          <DataTable
           name="Sampel Terverifikasi"
           data={samplesVerified}
           columns={columnsReadOnly}
           columnTitleMap={columnTitleMap}
         />
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Sampel Cadangan */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Sampel Cadangan</h2>
-        <DataTable
+      <Card className="mb-6">
+        <CardHeader className="flex items-center justify-between space-x-4">
+          <h2 className="text-lg font-semibold text-center">Sampel Cadangan</h2>
+        </CardHeader>
+        <CardContent>
+          {/* Sampel Cadangan */}
+          <DataTable
           name="Sampel Cadangan"
           data={samplesCadangan}
           columns={columnsWithAction}
           columnTitleMap={columnTitleMap}
         />
-      </div>
-
+        </CardContent>
+      </Card>
 
       {isDialogOpen && (
         <VerifyDialog
@@ -190,3 +201,7 @@ export default function PengecekanPage() {
     </DashboardLayout>
   );
 }
+function dayjs(tanggal_panen: string) {
+  throw new Error('Function not implemented.');
+}
+

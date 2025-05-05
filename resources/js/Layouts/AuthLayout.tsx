@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function AuthLayout({ children }: PropsWithChildren) {
     return (
         <>
-            <div className="min-h-screen flex flex-col justify-center items-center p-2 bg-[url('/assets/img/bg-footer.png')]">
+            <div className="min-h-screen flex items-center justify-center p-2 bg-[url('/assets/img/bg-footer.png')]">
             <ToastContainer
                 position="top-right"
                 autoClose={5000}

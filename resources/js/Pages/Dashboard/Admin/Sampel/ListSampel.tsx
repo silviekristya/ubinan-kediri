@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { DataTable } from "@/Components/Dashboard/Components/DataTable/DataTable";
+import type { DataTableColumnDef } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
 import { toast } from 'react-toastify';
@@ -29,6 +30,11 @@ interface SampelPageProps extends PageProps {
   sampel: Sampel[];
 }
 
+interface FlatSampel extends Omit<Sampel, 'nama_sls' | 'nomor_bs'> {
+  nama_sls: string;
+  nomor_bs: string;
+}
+
 const columnTitleMap: { [key: string]: string } = {
   jenis_sampel: "Jenis Sampel",
   jenis_tanaman: "Jenis Tanaman",
@@ -44,8 +50,8 @@ const columnTitleMap: { [key: string]: string } = {
   segmen_id: "ID Segmen",
   subsegmen: "Subsegmen",
   // Kolom nomor_bs dan nama_sls akan didapat melalui relasi:
-  // nomor_bs: "Nomor BS",
-  // nama_sls: "Nama SLS",
+  nomor_bs: "Nomor BS",
+  nama_sls: "Nama SLS",
   nama_krt: "Nama KRT",
   strata: "Strata",
   bulan_listing: "Bulan Listing",
@@ -58,15 +64,16 @@ const columnTitleMap: { [key: string]: string } = {
   lat: "Latitude",
   subround: "Subround",
   perkiraan_minggu_panen: "Perkiraan Minggu Panen",
-  tim_id: "PML",
-  pcl_id: "PCL",
+  tim_id: "PML Bertugas",
+  pcl_id: "PCL Bertugas",
 };
 
 const SampelPage = () => {
   const { sampel } = usePage<SampelPageProps>().props;
 
   // State utama
-  const [data, setData] = useState<Sampel[]>(sampel);
+  // const [data, setData] = useState<Sampel[]>(sampel);
+  const [data, setData] = useState<FlatSampel[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editData, setEditData] = useState<Sampel | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -122,8 +129,13 @@ const SampelPage = () => {
 
   useEffect(() => {
     // Lakukan flatten data jika perlu
-    const flattenedData = sampel.map(item => ({ ...item }));
-    setData(flattenedData);
+    const flattenedData: FlatSampel[] = sampel.map(item => ({ 
+      ...item,
+      // Ambil data dari relasi yang diperlukan
+      nama_sls:    item.nama_sls?.nama_sls ?? '-',
+      nomor_bs:    item.nama_sls?.blok_sensus?.nomor_bs ?? '-',
+    }));
+    setData(flattenedData); // Cast ke tipe Sampel[]
 
     // Fetch opsi dropdown
     fetchSegmenOptions();
@@ -365,7 +377,7 @@ const SampelPage = () => {
           </div>
           <DataTable
             data={data}
-            columns={columns}
+            columns={columns as DataTableColumnDef<FlatSampel>[]}
             columnTitleMap={columnTitleMap}
             name="Sampel"
           />

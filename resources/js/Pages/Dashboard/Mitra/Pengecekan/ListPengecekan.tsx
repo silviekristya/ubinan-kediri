@@ -13,6 +13,12 @@ import { Inertia } from '@inertiajs/inertia';
 import axios from 'axios';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/Components/ui/button';
+import dayjs from 'dayjs';
+import utc   from 'dayjs/plugin/utc';
+import 'dayjs/locale/id';
+
+dayjs.extend(utc);
+dayjs.locale('id');
 
 
 interface PengecekanPageProps extends PageProps {
@@ -76,8 +82,10 @@ const PengecekanPage: React.FC = () => {
       case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ?? '-';
       case 'nama_responden':       return p?.nama_responden     ?? '-';
       case 'no_telepon_responden': return p?.no_telepon_responden ?? '-';
-      case 'tanggal_panen':        return p?.tanggal_panen      ?? '-';
-      case 'keterangan':         return p?.keterangan          ?? '-';
+      case 'tanggal_panen':
+        return p?.tanggal_panen
+          ? dayjs.utc(p.tanggal_panen).format('DD/MM/YYYY')
+          : '-';      case 'keterangan':         return p?.keterangan          ?? '-';
       case 'status_sampel':       return p?.status_sampel      ?? 'Belum';
       default: return undefined;
     }

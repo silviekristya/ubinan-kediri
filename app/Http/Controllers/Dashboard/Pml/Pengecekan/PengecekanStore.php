@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pengecekan;
 use App\Models\Sampel;
+use Illuminate\Support\Facades\DB;
 
 class PengecekanStore extends Controller
 {
@@ -19,16 +20,16 @@ class PengecekanStore extends Controller
             'id_sampel_cadangan' => 'nullable|exists:sampel,id',
         ]);
 
-        // Cari record pengecekan dan sampel utama
-        $cek    = Pengecekan::findOrFail($data['id']);
-        $sampel = Sampel::findOrFail($cek->id_sampel);
-
-        // Pastikan sampel ini milik tim PML yang login
-        if ($sampel->tim_id !== Auth::user()->pegawai->id) {
-            abort(403, 'Anda tidak berwenang memverifikasi ini.');
-        }
-
-        // Set status
+        DB::transaction(function () use ($data){
+            // Cari record pengecekan dan sampel utama
+            $cek    = Pengecekan::findOrFail($data['id']);
+            $sampel = Sampel::findOrFail($cek->id_sampel);
+    
+            // Pastikan sampel ini milik tim PML yang login
+            if ($sampel->tim->pml_id !== Auth::user()->pegawai->id) {
+                abort(403, 'Anda tidak berwenang memverifikasi ini.');
+            }
+             // Set status
         $cek->status_sampel = $data['status_sampel'];
 
         // Jika Non‑eligible, validasi cadangan dan set id_sampel_cadangan
@@ -43,18 +44,25 @@ class PengecekanStore extends Controller
                 abort(422, 'Sampel cadangan tidak valid atau bukan milik mitra yang sama.');
             }
 
+            // Simpan relasi cadangan di pengecekan
             $cek->id_sampel_cadangan = $cad->id;
+            $cek->save();
+
+            // promote cadangan jadi utama
+            $cad->update([
+                'jenis_sampel' => 'utama',
+            ]);
         } else {
             // Bersihkan jika sebelumnya ada
             $cek->id_sampel_cadangan = null;
+            $cek->save();
         }
-
-        $cek->save();
-
+        });
+       
         return response()->json([
             'status'     => 'success',
             'message'    => 'Verifikasi berhasil disimpan.',
-            'pengecekan' => $cek,
+            // 'pengecekan' => $cek,
         ]);
     }
 }

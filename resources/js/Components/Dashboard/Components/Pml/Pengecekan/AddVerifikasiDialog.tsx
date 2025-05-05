@@ -47,7 +47,7 @@ export function VerifyDialog({
   };
 
   // disable simpan kalau NonEligible tapi belum pilih cadangan
-  const isSaveDisabled = status === "NonEligible" && cadangan == null;
+  const isSaveDisabled = status === "Belum" || (status === "NonEligible" && cadangan == null);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -76,28 +76,28 @@ export function VerifyDialog({
           <label className="font-medium">Sampel Cadangan</label>
           <Select
             value={cadangan != null ? String(cadangan) : undefined}
-            onValueChange={v => setCadangan(Number(v))}
+            onValueChange={(v) => setCadangan(Number(v))}
             disabled={status !== "NonEligible"}
           >
             <SelectTrigger>
-              <SelectValue placeholder={
-                status === "NonEligible"
-                  ? "Pilih sampel cadangan"
-                  : "Pilih status Non‑eligible dahulu"
-              }/>
+              <SelectValue
+                placeholder={
+                  status === "NonEligible"
+                    ? cadanganOptions.length
+                      ? "Pilih sampel cadangan…"
+                      : "Tidak ada cadangan tersedia"
+                    : "Tersedia hanya saat Non‑eligible"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              {cadanganOptions.length > 0 ? (
-                cadanganOptions.map(o => (
-                  <SelectItem key={o.id} value={String(o.id)}>
-                    {o.label}
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem disabled value="">
-                  Tidak ada sampel cadangan
-                </SelectItem>
-              )}
+              {cadanganOptions.length
+                ? cadanganOptions.map((o) => (
+                    <SelectItem key={o.id} value={String(o.id)}>
+                      {o.label}
+                    </SelectItem>
+                  ))
+                : null /* <-- no empty-string <SelectItem> */}
             </SelectContent>
           </Select>
         </div>

@@ -24,9 +24,9 @@ class SampelStore extends Controller
             'nama_kab'              => 'required|string',
             'nama_kec'              => 'required|string',
             'nama_lok'              => 'required|string',
-            'segmen_id'             => 'nullable|string|max:10',
+            'segmen_id'             => 'nullable|string|exists:segmen,id_segmen',
             'subsegmen'             => 'nullable|string|max:5',
-            'id_sls'                => 'nullable|integer',
+            'id_sls'                => 'nullable|integer|exists:nama_sls,id',
             'nama_krt'              => 'nullable|string',
             'strata'                => 'required|string|max:5',
             'bulan_listing'         => 'required|string',
@@ -42,18 +42,6 @@ class SampelStore extends Controller
             'pcl_id'                => 'nullable|numeric',
             'tim_id'                => 'nullable|numeric',
         ]);
-
-        // Jika segmen_id diisi, cek apakah segmen tersebut sudah ada; jika belum, buat segmen baru
-        // if (!empty($validated['segmen_id'])) {
-        //     $segmenId = $validated['segmen_id'];
-        //     $segmen = Segmen::where('id_segmen', $segmenId)->first();
-        //     if (!$segmen) {
-        //         $segmen = Segmen::create([
-        //             'id_segmen'   => $segmenId,
-        //             'nama_segmen' => 'Segmen ' . $segmenId,
-        //         ]);
-        //     }
-        // }
 
         try {
             // Simpan data sampel (hanya menyimpan id_sls sebagai FK)

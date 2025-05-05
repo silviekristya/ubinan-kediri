@@ -11,6 +11,14 @@ class Pengecekan extends Model
 
     protected $table = 'pengecekan';
     protected $primaryKey = 'id';
+    protected $dates = [
+        'tanggal_panen',
+        // 'tanggal_pengecekan',
+    ];
+    protected $casts = [
+        // 'tanggal_pengecekan' => 'datetime',
+        'tanggal_panen' => 'datetime',
+    ];
 
     protected $fillable = [
         'id_sampel',

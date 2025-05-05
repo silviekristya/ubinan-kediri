@@ -3,7 +3,8 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
-use App\Http\Controllers\Auth\PasswordController;;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\Tim\TimList;
 use App\Http\Controllers\Dashboard\Admin\Tim\TimStore;
 use App\Http\Controllers\Home\Beranda\HomeBerandaList;
@@ -22,7 +23,6 @@ use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiList;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiStore;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiDelete;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiUpdate;
-use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
@@ -45,6 +45,10 @@ use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensur
 use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanList; 
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanStore;
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanUpdate;
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanDelete;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
 use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
@@ -53,10 +57,16 @@ use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanStore as Pengeceka
 use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanStorePml;
 use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanList as PengecekanListMitra;
 use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanList as PengecekanListPml;
+use App\Http\Controllers\Dashboard\Admin\Pengecekan\PengecekanList as PengecekanListAdmin;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanList as HasilUbinanListMitra;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanStore as HasilUbinanStoreMitra;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdateMitra;
-
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanList as HasilUbinanListPML;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanStore as HasilUbinanStorePML;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdatePML;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanVerifikasi as HasilUbinanVerifikasiPML;
+use App\Http\Controllers\Dashboard\Admin\HasilUbinan\HasilUbinanList as HasilUbinanListAdmin;
+use App\Http\Controllers\Dashboard\Admin\Produktivitas\ProduktivitasList as ProduktivitasListAdmin;
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 
@@ -65,7 +75,7 @@ Route::middleware('auth')
     ->name('dashboard.')
     ->group(function () {
         Route::get('', [DashboardController::class, 'v1'])->name('beranda');
-
+        
         // Start: Profil
         Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
         Route::patch('profil', [ProfilController::class, 'update'])->name('profil.update');
@@ -171,6 +181,33 @@ Route::middleware('auth')
                 Route::put('update/sampel/{sampel}/pcl', [PclAllocationUpdate::class, 'v1']) -> name('alokasi-pcl');
             });
             // End: Alokasi
+
+            // Start: Template Pesan
+            Route::prefix('template-pesan')->name('template-pesan.')->group(function () {
+                Route::get('', [TemplatePesanList::class, 'v1'])->name('index');
+                Route::post('store', [TemplatePesanStore::class, 'v1']);
+                Route::post('update/{templatePesan}', [TemplatePesanUpdate::class, 'v1']);
+                Route::delete('delete/{templatePesan}', [TemplatePesanDelete::class, 'v1'])->name('delete');
+            });
+            // End: Template Pesan
+
+            // Start: Pengecekan
+            Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
+                Route::get('', [PengecekanListAdmin::class, 'index'])->name('index'); 
+            });
+            // End: Pengecekan
+
+            // Start: Hasil Ubinan
+            Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
+                Route::get('', [HasilUbinanListAdmin::class, 'index'])->name('index'); 
+            });
+            // End: Hasil Ubinan
+
+            //Start: Produktivitas
+            Route::prefix('produktivitas')->name('produktivitas.')->group(function () {
+                Route::get('', [ProduktivitasListAdmin::class, 'index'])->name('index'); 
+            });
+            // End: Produktivitas
         });
         // End: Admin
 
@@ -196,7 +233,7 @@ Route::middleware('auth')
             Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
                 Route::get('', [HasilUbinanListMitra::class, 'index'])->name('index'); 
                 Route::post('store', [HasilUbinanStoreMitra::class, 'v1'])->name('store');
-                Route::post('update/{hasilUbinan}', [HasilUbinanUpdateMitra::class, 'v1'])->name('update');
+                Route::post('update{hasilUbinan}', [HasilUbinanUpdateMitra::class, 'v1'])->name('update');
             });
         });
         // End: Mitra
@@ -216,6 +253,15 @@ Route::middleware('auth')
             Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
                 Route::get('', [PengecekanListPml::class, 'index'])->name('index'); 
                 Route::post('store', [PengecekanStorePml::class, 'v1'])->name('store'); 
+            });
+            // End: Pengecekan
+
+            // Start: Hasil Ubinan
+            Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
+                Route::get('', [HasilUbinanListPML::class, 'index'])->name('index'); 
+                Route::post('store', [HasilUbinanStorePML::class, 'v1'])->name('store');
+                Route::post('update{hasilUbinan}', [HasilUbinanUpdatePML::class, 'v1'])->name('update');
+                Route::post('verifikasi{hasilUbinan}', [HasilUbinanVerifikasiPML::class, 'v1'])->name('verifikasi');
             });
         });
         // End: PML

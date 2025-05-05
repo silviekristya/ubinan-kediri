@@ -19,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
         // Menambahkan alias middleware
         $middleware->alias([
             'check.admin' => CheckAdmin::class,

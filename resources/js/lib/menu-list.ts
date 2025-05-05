@@ -10,6 +10,8 @@ import {
     LuClipboardList,
     LuClipboardCheck,
     LuTrendingUp,
+    LuMail,
+    LuTrees,
 } from "react-icons/lu";
 
 import { usePage } from '@inertiajs/react';
@@ -110,7 +112,35 @@ type Group = {
               icon: LuClipboardList,
               submenus: []
             },
-            
+            {
+              href: route('dashboard.admin.pengecekan.index'),
+              label: "Pengecekan",
+              active: pathname.includes("/dashboard/admin/pengecekan"),
+              icon: LuClipboardCheck,
+              submenus: []
+            },
+            {
+              href: route('dashboard.admin.hasil-ubinan.index'),
+              label: "Hasil Ubinan",
+              active: pathname.includes("/dashboard/admin/hasil-ubinan"),
+              icon: LuTrendingUp,
+              submenus: []
+            },
+            {
+              href: route('dashboard.admin.produktivitas.index'),
+              label: "Produktivitas",
+              active: pathname.includes("/dashboard/admin/produktivitas"),
+              icon: LuTrees,
+              submenus: []
+            },
+            {
+              href: route('dashboard.admin.template-pesan.index'),
+              label: "Template Pesan",
+              active: pathname.includes("/dashboard/admin/template-pesan"),
+              icon: LuMail,
+              submenus: []
+            },
+      
           ]
         }
       ] : userRole === 'MITRA' ? [
@@ -156,6 +186,13 @@ type Group = {
               label: "Pengecekan",
               active: pathname.includes("/dashboard/pml/pengecekan"),
               icon: LuClipboardCheck,
+              submenus: []
+            },
+            {
+              href: route('dashboard.pml.hasil-ubinan.index'),
+              label: "Hasil Ubinan",
+              active: pathname.includes("/dashboard/pml/hasil-ubinan"),
+              icon: LuTrendingUp,
               submenus: []
             },
           ]

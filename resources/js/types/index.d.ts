@@ -100,6 +100,7 @@ export interface Pengecekan {
 
     // optional back‐reference
     sampel?: Sampel;
+    hasil_ubinan?: HasilUbinan;
 } 
 
 export interface Fenomena {
@@ -119,6 +120,7 @@ export interface HasilUbinan {
     cara_penanaman?: string;
     jenis_pupuk?: string;
     penanganan_hama?: string;
+    fenomena?: Fenomena;
     status: 'Selesai' | 'Gagal';
     is_verif?: boolean;
     created_at?: string;
@@ -128,7 +130,12 @@ export interface HasilUbinan {
     pengecekan?: Pengecekan;
 }
 
-
+export interface Fenomena{
+    id: number;
+    nama: string;
+    created_at?: string;
+    updated_at?: string;
+}
 
 export interface Tim {
     id: number;

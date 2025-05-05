@@ -7,10 +7,12 @@ import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { DataTableViewOptions } from "@/Components/Dashboard/Components/DataTable/Components/DataTableViewOptions"
 
+import {tahunOptions, subroundOptions as allSubroundOptions} from "@/Components/Dashboard/Components/Admin/Pengecekan/DataTableFilterPengecekan"; // Ensure this path is correct or adjust it
 import { rolePegawai } from "@/Components/Dashboard/Components/Admin/Pegawai/DataTableFilterPegawai";
 import { DataTableFacetedFilter } from "@/Components/Dashboard/Components/DataTable/Components/DataTableFacetedFilter"
 import { downloadToExcel } from "@/lib/xlsxDownload"
 import { Download } from 'lucide-react';
+
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   columnTitleMap: { [key: string]: string };
@@ -57,6 +59,48 @@ export function DataTableToolbar<TData>({
     );
   };
 
+  // Ambil tahun yang difilter
+  const selectedYear = table
+    .getState()
+    .columnFilters
+    .find(f => f.id === "tahun_listing")
+    ?.value as string | undefined
+
+  // Ambil semua tahun yg muncul
+  const yearCol = columns.find(col => col.id === 'tahun_listing')
+  const yearOptions =
+    yearCol
+      ? tahunOptions(
+        Array.from(yearCol.getFacetedUniqueValues().keys()) as string[]
+      )
+      : []
+
+  // Ambil semua subround yg muncul
+  const subroundCol = columns.find(col => col.id === 'subround')
+  const subroundOptionsMap: Record<string, { value: string; label: string }[]> = {}  
+   if (subroundCol) {  
+     yearOptions.forEach(({ value: year }) => {  
+       // only subrounds in that year  
+       const opts = Array.from(subroundCol.getFacetedUniqueValues().keys())  
+         .filter((sr) =>  
+           table  
+             .getPreFilteredRowModel()  
+             .rows  
+             .some((r) =>  
+               (r.original as any).tahun_listing === year &&  
+               (r.original as any).subround === sr  
+             )  
+         );
+       subroundOptionsMap[year] = allSubroundOptions(opts);
+     })  
+   }  
+
+   // Ambil sobround yang dipilih
+   const subroundOptions = 
+    selectedYear && subroundOptionsMap[selectedYear] 
+    ? subroundOptionsMap[selectedYear] 
+    : []
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -80,6 +124,34 @@ export function DataTableToolbar<TData>({
           />
         )}
         {/* Filter Tabel User */}
+
+        {/* Filter Tabel Pengecekan */}
+        {(name === "Sampel Utama" || name === "Sampel Cadangan" || name === "Sampel" || name === "Hasil Ubinan Admin") && yearCol && (
+          <DataTableFacetedFilter
+            column={yearCol!}
+            title="Tahun"
+            options={yearOptions}
+          />
+        )}
+        {(name === "Sampel Utama" || name=== "Sampel Cadangan" || name === "Sampel" || name === "Hasil Ubinan Admin") && subroundCol && (
+        <div
+        className={`relative ${
+          !selectedYear
+            ? "pointer-events-none opacity-50"
+            : ""
+        }`}
+        >
+          <DataTableFacetedFilter
+          column={subroundCol}
+          title="Subround"
+          options={subroundOptions}
+          />
+          { !selectedYear && (
+            <div className="absolute inset-0" aria-hidden="true" />
+          ) }
+        </div>
+        )}
+        {/* Filter Tabel Pengecekan */}
 
         {isFiltered && (
           <Button

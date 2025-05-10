@@ -19,9 +19,9 @@ return new class extends Migration
                 'H3PencacahanPML','H1PencacahanPML',
                 'H3PencacahanPCL','H1PencacahanPCL',
             ]);
-
+            
             $table->unsignedBigInteger('template_pesan_id');
-            $table->json('default_vars');
+            $table->enum('jenis', ['Email', 'WhatsApp']);
 
             // composite primary key
             $table->primary(['tipe_notifikasi', 'template_pesan_id']);

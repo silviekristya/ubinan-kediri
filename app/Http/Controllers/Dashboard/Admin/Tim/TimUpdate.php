@@ -54,7 +54,8 @@ class TimUpdate extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tim berhasil diperbarui.',
-                'tim' => $tim->load(['pml', 'pcl']),
+                // 'tim' => $tim->load(['pml', 'pcl']),
+                'tim' => $tim->load(['pml']),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

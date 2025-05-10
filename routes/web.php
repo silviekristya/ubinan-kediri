@@ -30,6 +30,7 @@ use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelImportController;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenDelete;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
@@ -69,6 +70,7 @@ use App\Http\Controllers\Dashboard\Admin\HasilUbinan\HasilUbinanList as HasilUbi
 use App\Http\Controllers\Dashboard\Admin\Produktivitas\ProduktivitasList as ProduktivitasListAdmin;
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
+Route::post('import', [SampelImportController::class, 'v1'])->name('import');
 
 Route::middleware('auth')
     ->prefix('dashboard')

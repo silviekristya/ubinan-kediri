@@ -13,14 +13,14 @@ trait HasCompositePrimaryKey
     /**
      * Override setKeysForSaveQuery to use composite PK.
      */
-    protected function setKeysForSaveQuery(Builder $query)
+    protected function setKeysForSaveQuery($query)
     {
         $keys = $this->getKeyName();
         if (!is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getAttribute($keyName));
+        foreach ($this->getKeyName() as $keyField) {
+            $query->where($keyField, '=', $this->getAttribute($keyField));
         }
         return $query;
     }

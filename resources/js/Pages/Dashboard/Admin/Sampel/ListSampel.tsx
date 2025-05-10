@@ -6,6 +6,7 @@ import type { DataTableColumnDef } from "@/Components/Dashboard/Components/DataT
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
 import { toast } from 'react-toastify';
+import { AddImportDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddImportDialog';
 import axios from 'axios';
 import { CirclePlus, TriangleAlert } from 'lucide-react';
 import {
@@ -84,6 +85,8 @@ const SampelPage = () => {
   const [segmenOptions, setSegmenOptions] = useState<Segmen[]>([]);
   const [blokSensusOptions, setBlokSensusOptions] = useState<BlokSensus[]>([]);
   const [slsOptions, setSlsOptions] = useState<NamaSls[]>([]);
+
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Fetch opsi dropdown
   const fetchSegmenOptions = async () => {
@@ -357,10 +360,23 @@ const SampelPage = () => {
     handleCopy,
     handleDelete
   );
+
   // console.log("Kolom yang dihasilkan:", columns);
   return (
     <DashboardLayout>
       <Head title="Sampel" />
+      {/* Tombol Import hanya di halaman Sampel */}
+      <div className="mb-4">
+        <Button onClick={() => setIsImportOpen(true)}>
+          Import Excel
+        </Button>
+      </div>
+
+      {/* Dialog untuk pilih & upload file Excel */}
+      <AddImportDialog
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+      />
       <Card className="w-full shadow-md overflow-x-auto">
         <CardHeader className="flex flex-col items-center text-base sm:text-xl font-semibold justify-between">
           <h2>Daftar Sampel</h2>

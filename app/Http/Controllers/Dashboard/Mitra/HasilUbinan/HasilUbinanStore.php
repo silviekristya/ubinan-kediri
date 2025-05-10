@@ -36,15 +36,15 @@ class HasilUbinanStore extends Controller
             'is_verif'             => 'nullable|boolean',
         ], $messages);
 
-        // 1) Pastikan pengecekan milik mitra
+        // Pastikan pengecekan milik mitra
         Pengecekan::where('id', $data['pengecekan_id'])
             ->where('pcl_id', $mitraId)
             ->firstOrFail();
 
-        // 2) Simpan
+        // Simpan
         $hasil = HasilUbinan::create($data);
 
-        // Karena client Anda pakai axios, return JSON 201
+        // Karena client pakai axios, return JSON 201
         return response()->json([
             'status'  => 'success',
             'message' => 'Hasil ubinan berhasil disimpan.',

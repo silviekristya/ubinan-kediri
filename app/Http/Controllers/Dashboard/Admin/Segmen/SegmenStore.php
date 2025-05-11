@@ -45,11 +45,12 @@ class SegmenStore extends Controller
                 ], 422);
             }
 
+            $nama_segmen = strtoupper($request->input('nama_segmen'));
             // Buat segmen baru
             $segmen = Segmen::create([
                 'id_segmen'    => $request->input('id_segmen'),
                 'kode_segmen'  => $request->input('kode_segmen'),
-                'nama_segmen'  => $request->input('nama_segmen'),
+                'nama_segmen'  => $nama_segmen,
                 'kecamatan_id' => $request->input('kecamatan_id'),
             ]);
 

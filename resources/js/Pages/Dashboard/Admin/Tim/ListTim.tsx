@@ -85,13 +85,17 @@ const TimPage = () => {
             );
             console.log("Response:", response.data); // Debug respons
             if (response.data.status === "success") {
-                const newTim: Tim = {
-                    ...response.data.tim,
-                    pml: response.data.tim.pml || null,
-                    pcl: response.data.tim.pcl || [],
+                console.log("Response:", response.data);
+                const apiTim = response.data.tim;
+                const newRow: Tim = {
+                    id: apiTim.id,
+                    nama_tim: apiTim.nama_tim,
+                    pml: apiTim.pml?.nama ?? "-",
+                    pcl_count: apiTim.pcl?.length ?? 0,
+                    pml_id: apiTim.pml_id,
                 };
 
-                setData((prevData) => [...prevData, newTim]);
+                setData((prev) => [...prev, newRow]);
 
                 toast.success(response.data.message);
                 setIsAddDialogOpen(false);

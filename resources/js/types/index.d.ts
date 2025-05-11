@@ -145,6 +145,7 @@ export interface Tim {
     pml?: Pegawai | null; // Ubah tipe di sini
     pcl?: Mitra[];
     pml_id: number;
+    pcl_count: number;
 }
 
 

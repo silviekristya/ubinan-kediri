@@ -50,7 +50,8 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     try {
       const response = await axios.post('/dashboard/admin/segmen-blok-sensus/segmen/store', formData);
       if (response.data.status === 'success') {
-        setSegmenData((prev) => [...prev, response.data.newSegmen]);
+        const newSegmen = response.data.data;
+        setSegmenData((prev) => [...prev, newSegmen]);
         toast.success('Berhasil menambah segmen!');
         setIsAddDialogOpen(false);
       } else {
@@ -152,7 +153,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
         )}
       </div>
       <DataTable
-        key={data.length}
+        // key={data.length}
         data={data.map(item => ({ ...item, id: item.id_segmen }))}
         columns={columns}
         columnTitleMap={columnTitleMap}

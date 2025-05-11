@@ -84,9 +84,9 @@ class Sampel extends Model
     {
         return $this->hasMany(Notifikasi::class, 'sampel_id', 'id');
     }
-     // Relasi ke nama_sls (id_sls): Sampel milik satu NamaSls
+     // Relasi ke nama_sls (id_sls): Sampel milik satu Sls
      public function namaSls()
      {
-         return $this->belongsTo(NamaSls::class, 'id_sls', 'id');
+         return $this->belongsTo(Sls::class, 'id_sls', 'id');
      }
 }

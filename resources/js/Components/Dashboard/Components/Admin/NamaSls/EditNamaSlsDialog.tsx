@@ -5,18 +5,18 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { usePage, useForm } from '@inertiajs/react';
 import { Loader2 } from "lucide-react";
-import { NamaSls, WithCsrf, PageProps } from '@/types';
+import { Sls, WithCsrf, PageProps } from '@/types';
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Badge } from '@/Components/ui/badge';
 
-interface NamaSlsFormData extends NamaSls, WithCsrf {}
+interface NamaSlsFormData extends Sls, WithCsrf {}
 
 interface EditNamaSlsDialogProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (formData: NamaSlsFormData) => Promise<void>;
-    data: NamaSls;
+    data: Sls;
 }
 
 export const EditNamaSlsDialog = ({ isOpen, onClose, onSave, data }: EditNamaSlsDialogProps) => {

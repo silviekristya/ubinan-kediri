@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard\Admin\NamaSls;
+namespace App\Http\Controllers\Dashboard\Admin\Sls;
 
 use App\Http\Controllers\Controller;
-use App\Models\NamaSls;
+use App\Models\Sls;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +12,9 @@ use Illuminate\Validation\ValidationException;
 class NamaSlsUpdate extends Controller
 {
     /**
-     * Update data NamaSls.
+     * Update data Sls.
      */
-    public function v1(Request $request, NamaSls $namaSls): JsonResponse
+    public function v1(Request $request, Sls $namaSls): JsonResponse
     {
         DB::beginTransaction();
 
@@ -26,7 +26,7 @@ class NamaSlsUpdate extends Controller
                 'nama_sls.required' => 'Nama SLS tidak boleh kosong.',
             ]);
 
-            // Update data NamaSls
+            // Update data Sls
             $namaSls->update([
                 'nama_sls' => $validated['nama_sls'],
             ]);

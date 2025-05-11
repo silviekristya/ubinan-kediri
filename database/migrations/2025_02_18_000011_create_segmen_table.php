@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('segmen', function (Blueprint $table) {
-            $table->string('id_segmen', 20)->primary();
-            $table->string('nama_segmen');
+            $table->string('id_segmen', 9)->primary();
+            $table->string('kode_segmen', 2);
+            $table->string('nama_segmen')->nullable();
+            $table->string('kecamatan_id', 7);
+            $table->foreign('kecamatan_id')
+                  ->references('id')->on('kecamatan')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
             $table->timestamps();
         });
     }

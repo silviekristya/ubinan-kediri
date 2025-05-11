@@ -22,7 +22,7 @@ import {
 import { AddSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddSampelDialog';
 import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
-import { PageProps, Sampel, Segmen, BlokSensus, NamaSls, Tim } from '@/types';
+import { PageProps, Sampel, Segmen, BlokSensus, Sls, Tim } from '@/types';
 import { SampelFormData } from "@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog";
 import AddAlokasiPmlDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPmlDialog';
 import AddAlokasiPclDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPclDialog';
@@ -84,7 +84,7 @@ const SampelPage = () => {
   // Opsi dropdown
   const [segmenOptions, setSegmenOptions] = useState<Segmen[]>([]);
   const [blokSensusOptions, setBlokSensusOptions] = useState<BlokSensus[]>([]);
-  const [slsOptions, setSlsOptions] = useState<NamaSls[]>([]);
+  const [slsOptions, setSlsOptions] = useState<Sls[]>([]);
 
   const [isImportOpen, setIsImportOpen] = useState(false);
 

@@ -3,17 +3,17 @@ import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
-import { PageProps, Segmen, BlokSensus, NamaSls } from '@/types'; // Pastikan definisi interface di file types
+import { PageProps, Segmen, BlokSensus, Sls } from '@/types'; // Pastikan definisi interface di file types
 import SegmenSection from '@/Components/Dashboard/Components/Admin/Segmen/SegmenSection';
 import BlokSensusSection from '@/Components/Dashboard/Components/Admin/BlokSensus/BlokSensusSection';
-import NamaSlsSection from '@/Components/Dashboard/Components/Admin/NamaSls/NamaSlsSection';
+import NamaSlsSection from '@/Components/Dashboard/Components/Admin/Sls/NamaSlsSection';
 
 
 interface SegmenBlokSensusProps extends PageProps {
   csrf_token: string;
   segmen: Segmen[];
   blokSensus: BlokSensus[];
-  namaSls: NamaSls[];
+  namaSls: Sls[];
 }
 
 const SegmenBlokSensusPage: React.FC = () => {
@@ -23,7 +23,7 @@ const SegmenBlokSensusPage: React.FC = () => {
   // State data
   const [segmenData, setSegmenData] = useState<Segmen[]>([]);
   const [blokData, setBlokData] = useState<BlokSensus[]>([]);
-  const [slsData, setSlsData] = useState<NamaSls[]>([]);
+  const [slsData, setSlsData] = useState<Sls[]>([]);
 
   // Tab aktif
   const [activeTab, setActiveTab] = useState<'segmen' | 'blokSensus' | 'namaSls'>('segmen');

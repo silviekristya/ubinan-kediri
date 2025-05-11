@@ -6,7 +6,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use App\Models\Segmen;
 use App\Models\BlokSensus;
-use App\Models\NamaSls;
+use App\Models\Sls;
 
 class SegmenBlokSensusController extends Controller
 {
@@ -16,7 +16,7 @@ class SegmenBlokSensusController extends Controller
         $segmen = Segmen::all();
         $blokSensus = BlokSensus::all();
         // Tambahkan eager loading untuk relasi blokSensus
-        $namaSlsList = NamaSls::with('blokSensus')->get();
+        $namaSlsList = Sls::with('blokSensus')->get();
 
         // Mapping agar nomor_bs ikut terkirim
         $namaSls = $namaSlsList->map(function ($sls) {

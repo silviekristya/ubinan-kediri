@@ -5,12 +5,12 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { usePage, useForm } from '@inertiajs/react';
 import { ALargeSmall, AlarmCheck, Loader2 } from "lucide-react";
-import { NamaSls, WithCsrf, PageProps, BlokSensus } from '@/types';
+import { Sls, WithCsrf, PageProps, BlokSensus } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 
-interface NamaSlsFormData extends Omit<NamaSls, 'id' | 'id_bs'>, WithCsrf {
+interface NamaSlsFormData extends Omit<Sls, 'id' | 'id_bs'>, WithCsrf {
     id_bs: string;
 }
 

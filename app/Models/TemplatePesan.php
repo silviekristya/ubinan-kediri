@@ -11,21 +11,28 @@ class TemplatePesan extends Model
 
     protected $table = 'template_pesan';
     protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'nama_template',
         'text',
     ];
 
-    public $timestamps = false;
+    // Enable timestamps
+    public $timestamps = true;
 
-    // Relasi ke notifikasi: TemplatePesan memiliki banyak Notifikasi
+    /**
+     * One TemplatePesan has many Notifikasi
+     */
     public function notifikasi()
     {
         return $this->hasMany(Notifikasi::class, 'template_pesan_id', 'id');
     }
 
-    // Relasi ke TemplateNotifikasi: TemplatePesan memiliki banyak TemplateNotifikasi
+    /**
+     * One TemplatePesan has many TemplateNotifikasi entries
+     */
     public function templateNotifikasi()
     {
         return $this->hasMany(TemplateNotifikasi::class, 'template_pesan_id', 'id');

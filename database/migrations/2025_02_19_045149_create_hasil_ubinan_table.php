@@ -15,15 +15,14 @@ return new class extends Migration
             $table->id();
             $table->date('tanggal_pencacahan');
             $table->foreignId('pengecekan_id')->constrained('pengecekan')->onDelete('cascade')->unique();
-            $table->double('berat_hasil_ubinan', 8, 2)->nullable();
+            $table->double('berat_hasil_ubinan')->nullable();
             $table->integer('jumlah_rumpun')->nullable();
-            $table->double('luas_lahan', 8, 2)->nullable();
+            $table->double('luas_lahan')->nullable();
             $table->string('cara_penanaman')->nullable();
             $table->string('jenis_pupuk')->nullable();
             $table->text('penanganan_hama')->nullable();
             $table->enum('status', ['Selesai', 'Gagal']);
             $table->boolean('is_verif')->nullable();
-            $table->enum('fenomena', ['Fenomena1', 'Fenomena2', 'Fenomena3'])->nullable();
             $table->timestamps();
         });
     }

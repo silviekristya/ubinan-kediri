@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_sampel')->constrained('sampel')->onDelete('cascade');
             $table->date('tanggal_pengecekan');
-            $table->char('subround', 2);
             $table->string('nama_responden');
             $table->text('alamat_responden');
             $table->string('no_telepon_responden');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Dashboard\Admin\Option; 
 
 use App\Http\Controllers\Controller;
-use App\Models\NamaSls;
+use App\Models\Sls;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -17,7 +17,7 @@ class SlsAvailableListOption extends Controller
 
             try {
                 if ($blokSensus) {
-                    $namaSls = NamaSls::select('id', 'nama_sls')
+                    $namaSls = Sls::select('id', 'nama_sls')
                                     ->where('id_bs', $blokSensus)
                                     ->get();
                 } else {
@@ -25,7 +25,7 @@ class SlsAvailableListOption extends Controller
                 }
                 return response()->json(['nama_sls' => $namaSls]);
             } catch (\Exception $e) {
-                Log::error('Error fetching NamaSls: ' . $e->getMessage());
+                Log::error('Error fetching Sls: ' . $e->getMessage());
                 return response()->json([
                     'message' => 'Terjadi kesalahan server.',
                     'error' => $e->getMessage()

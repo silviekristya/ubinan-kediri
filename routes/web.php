@@ -37,9 +37,9 @@ use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusUpdate;
-use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsStore;
-use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsDelete;
-use App\Http\Controllers\Dashboard\Admin\NamaSls\NamaSlsUpdate;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsStore;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsDelete;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsUpdate;
 use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace

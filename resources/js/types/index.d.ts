@@ -37,7 +37,7 @@ export interface BlokSensus {
     nomor_bs: string
 }
 
-export interface NamaSls {
+export interface Sls {
     id: number
     nama_sls: string
     id_bs: number
@@ -60,7 +60,7 @@ export interface Sampel {
     segmen_id?: string; // nullable
     subsegmen?: string; // varchar(5), nullable
     id_sls?: number; // bigint, nullable
-    nama_sls?: NamaSls;
+    nama_sls?: Sls;
     nomor_bs?: BlokSensus;
     nama_krt?: string; // nullable
     strata?: string; // varchar(5), nullable

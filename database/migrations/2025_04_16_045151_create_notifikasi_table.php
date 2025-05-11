@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('notifikasi', function (Blueprint $table) {
             $table->id();
-            $table->enum('tipe_notifikasi', [
-                'PengumumanSampelPML', 'PengumumanSampelPCL', 
-                'BulanSampelPML', 'BulanSampelPCL', 
-                'H3PencacahanPML', 'H1PencacahanPML', 
-                'H3PencacahanPCL', 'H1PencacahanPCL'
-            ]);
+            $table->foreignId('template_notifikasi_id')
+                  ->constrained('template_notifikasi')
+                  ->onDelete('cascade');
             $table->foreignId('tim_id')->constrained('tim')->onDelete('cascade');
             $table->foreignId('pml_id')->constrained('pegawai')->onDelete('cascade');
             $table->foreignId('pcl_id')->constrained('mitra')->onDelete('cascade');
@@ -26,9 +23,10 @@ return new class extends Migration
             $table->string('no_wa', 20);
             $table->foreignId('sampel_id')->constrained('sampel')->onDelete('cascade');
             $table->foreignId('pengecekan_id')->constrained('pengecekan')->onDelete('cascade');
-            $table->foreignId('template_pesan_id')->constrained('template_pesan')->onDelete('cascade');
-            $table->date('tanggal_terkirim');
             $table->enum('status', ['Terkirim', 'Gagal']);
+            $table->timestamp('tanggal_terkirim')
+                  ->useCurrent()
+                  ->change();
             $table->timestamps();
         });
     }

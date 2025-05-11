@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nama_sls', function (Blueprint $table) {
+        Schema::create('sls', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_bs')->constrained('blok_sensus')->cascadeOnDelete();
+            $table->string('bs_id', 14);
+            $table->foreign('bs_id')
+                  ->references('id_bs')->on('blok_sensus')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
             $table->string('nama_sls');
             $table->timestamps();
         });

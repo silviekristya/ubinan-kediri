@@ -12,9 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('blok_sensus', function (Blueprint $table) {
-            $table->id();
-            $table->string('nomor_bs', 20);
+            $table->string('id_bs', 14)->primary();
+            $table->string('nomor_bs', 4);
+            $table->string('kel_desa_id', 10);
             $table->timestamps();
+            $table->foreign('kel_desa_id')
+                  ->references('id')->on('kel_desa')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
         });
     }
 

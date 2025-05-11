@@ -11,7 +11,7 @@ import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { usePage, useForm } from "@inertiajs/react"
 import { Loader2, Check } from "lucide-react"
-import { Sampel, Segmen, BlokSensus, NamaSls, WithCsrf, PageProps } from "@/types"
+import { Sampel, Segmen, BlokSensus, Sls, WithCsrf, PageProps } from "@/types"
 import axios from "axios"
 import { Popover, PopoverTrigger, PopoverContent } from "@/Components/ui/popover"
 import {
@@ -71,7 +71,7 @@ interface AddSampelDialogProps {
   onSave: (formData: SampelFormData) => Promise<void>
   segmenOptions: Segmen[]
   blokSensusOptions: BlokSensus[]
-  // slsOptions: NamaSls[]
+  // slsOptions: Sls[]
 }
 
 export const AddSampelDialog = ({
@@ -118,7 +118,7 @@ export const AddSampelDialog = ({
   const [selectedSLS, setSelectedSLS] = useState<{ id: string; label: string }>({ id: "", label: "" });
 
   // State untuk opsi yang didapat secara dinamis untuk SLS
-  const [slsOptions, setSlsOptions] = useState<NamaSls[]>([])
+  const [slsOptions, setSlsOptions] = useState<Sls[]>([])
 
   // State untuk pencarian dan popover masing-masing dropdown
   const [querySegmen, setQuerySegmen] = useState("")

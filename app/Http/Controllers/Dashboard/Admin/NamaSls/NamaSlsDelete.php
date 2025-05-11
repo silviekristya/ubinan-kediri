@@ -1,18 +1,18 @@
 <?php 
 
-namespace App\Http\Controllers\Dashboard\Admin\NamaSls;
+namespace App\Http\Controllers\Dashboard\Admin\Sls;
 
 use App\Http\Controllers\Controller;
-use App\Models\NamaSls;
+use App\Models\Sls;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NamaSlsDelete extends Controller
 {
     /**
-     * Delete data NamaSls.
+     * Delete data Sls.
      */
-    public function v1(NamaSls $namaSls): JsonResponse
+    public function v1(Sls $namaSls): JsonResponse
     {
         $namaSls->delete();
 

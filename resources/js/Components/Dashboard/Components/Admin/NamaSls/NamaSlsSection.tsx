@@ -3,9 +3,9 @@ import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { CirclePlus } from 'lucide-react';
-import { NamaSls } from '@/types';
-import { AddNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/NamaSls/AddNamaSlsDialog';
-import { EditNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/NamaSls/EditNamaSlsDialog';
+import { Sls } from '@/types';
+import { AddNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/AddNamaSlsDialog';
+import { EditNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/EditNamaSlsDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,8 +20,8 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 interface NamaSlsSectionProps {
-  slsData: NamaSls[];
-  setSlsData: React.Dispatch<React.SetStateAction<NamaSls[]>>;
+  slsData: Sls[];
+  setSlsData: React.Dispatch<React.SetStateAction<Sls[]>>;
   canEditDelete: boolean; // Boleh edit/hapus?
 }
 
@@ -33,7 +33,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [filteredBlokSensus, setFilteredBlokSensus] = useState([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editSls, setEditSls] = useState<NamaSls | null>(null);
+  const [editSls, setEditSls] = useState<Sls | null>(null);
 
   const [deleteData, setDeleteData] = useState<{ id: number; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -60,12 +60,12 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     }
   };
 
-  const handleEditSls = (item: NamaSls) => {
+  const handleEditSls = (item: Sls) => {
     setEditSls(item);
     setIsEditDialogOpen(true);
   };
 
-  const handleConfirmUpdateSls = async (id: number, formData: Partial<NamaSls>) => {
+  const handleConfirmUpdateSls = async (id: number, formData: Partial<Sls>) => {
     try {
       const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`, formData);
       if (response.data.status === 'success') {
@@ -130,7 +130,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
       id: 'aksi',
       header: 'Aksi',
       cell: ({ row }: any) => {
-        const rowData = row.original as NamaSls;
+        const rowData = row.original as Sls;
         return (
           <div className="flex space-x-2">
             {canEditDelete ? (

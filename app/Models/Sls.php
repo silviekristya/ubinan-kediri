@@ -5,24 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NamaSls extends Model
+class Sls extends Model
 {
     use HasFactory;
 
-    protected $table = 'nama_sls';
+    protected $table = 'sls';
     protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'id_bs',
+        'bs_id',
         'nama_sls',
     ];
 
-    // Relasi ke blok_sensus : Nama SLS milik satu Blok Sensus
+    /**
+     * Relationship: Sls belongs to a BlokSensus
+     */
     public function blokSensus()
     {
-        return $this->belongsTo(BlokSensus::class, 'id_bs', 'id');
+        return $this->belongsTo(BlokSensus::class, 'bs_id', 'id_bs');
     }
-    // Relasi ke sampel : satu Nama SLS dapat memiliki banyak Sampel
+
+    /**
+     * Relationship: one Sls can have many Sampel
+     */
     public function sampel()
     {
         return $this->hasMany(Sampel::class, 'id_sls', 'id');

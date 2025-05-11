@@ -11,9 +11,11 @@ class Notifikasi extends Model
 
     protected $table = 'notifikasi';
     protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'tipe_notifikasi',
+        'template_notifikasi_id',
         'tim_id',
         'pml_id',
         'pcl_id',
@@ -21,44 +23,55 @@ class Notifikasi extends Model
         'no_wa',
         'sampel_id',
         'pengecekan_id',
-        'template_pesan_id',
-        'tanggal_terkirim',
         'status',
+        'tanggal_terkirim',
     ];
 
-    // Relasi ke tim: notifikasi milik satu tim
+    /**
+     * Belongs to TemplateNotifikasi
+     */
+    public function templateNotifikasi()
+    {
+        return $this->belongsTo(TemplateNotifikasi::class, 'template_notifikasi_id');
+    }
+
+    /**
+     * Belongs to Tim
+     */
     public function tim()
     {
         return $this->belongsTo(Tim::class, 'tim_id', 'id');
     }
 
-    // Relasi ke pegawai (pml_id)
+    /**
+     * Belongs to Pegawai (PML)
+     */
     public function pegawai()
     {
         return $this->belongsTo(Pegawai::class, 'pml_id', 'id');
     }
 
-    // Relasi ke mitra (pcl_id)
+    /**
+     * Belongs to Mitra (PCL)
+     */
     public function mitra()
     {
         return $this->belongsTo(Mitra::class, 'pcl_id', 'id');
     }
 
-    // Relasi ke sampel (sampel_id)
+    /**
+     * Belongs to Sampel
+     */
     public function sampel()
     {
         return $this->belongsTo(Sampel::class, 'sampel_id', 'id');
     }
 
-    // Relasi ke pengecekan (pengecekan_id)
+    /**
+     * Belongs to Pengecekan
+     */
     public function pengecekan()
     {
         return $this->belongsTo(Pengecekan::class, 'pengecekan_id', 'id');
-    }
-
-    // Relasi ke template_pesan
-    public function templatePesan()
-    {
-        return $this->belongsTo(TemplatePesan::class, 'template_pesan_id', 'id');
     }
 }

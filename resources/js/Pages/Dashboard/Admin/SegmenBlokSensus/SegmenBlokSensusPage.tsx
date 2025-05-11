@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
 import { PageProps, Segmen, BlokSensus, Sls } from '@/types'; // Pastikan definisi interface di file types
 import SegmenSection from '@/Components/Dashboard/Components/Admin/Segmen/SegmenSection';
 import BlokSensusSection from '@/Components/Dashboard/Components/Admin/BlokSensus/BlokSensusSection';
-import NamaSlsSection from '@/Components/Dashboard/Components/Admin/Sls/NamaSlsSection';
+import SlsSection from '@/Components/Dashboard/Components/Admin/Sls/SlsSection';
 
 
 interface SegmenBlokSensusProps extends PageProps {
@@ -80,7 +80,7 @@ const SegmenBlokSensusPage: React.FC = () => {
 
             {/* Tab Nama SLS */}
             <TabsContent value="namaSls">
-              <NamaSlsSection
+              <SlsSection
                 slsData={slsData}
                 setSlsData={setSlsData}
                 canEditDelete={canEditDelete}

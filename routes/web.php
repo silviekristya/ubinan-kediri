@@ -4,7 +4,6 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\Tim\TimList;
 use App\Http\Controllers\Dashboard\Admin\Tim\TimStore;
 use App\Http\Controllers\Home\Beranda\HomeBerandaList;
@@ -16,58 +15,63 @@ use App\Http\Controllers\Dashboard\Admin\Mitra\MitraList;
 use App\Http\Controllers\Dashboard\Admin\User\UserDelete;
 use App\Http\Controllers\Dashboard\Admin\User\UserUpdate;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraStore;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsStore;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraDelete;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraUpdate;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsDelete;
+use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsUpdate;
 use App\Http\Controllers\Dashboard\Profil\ProfilController;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiList;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenDelete;
+use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiStore;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiDelete;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiUpdate;
-use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList; 
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelDelete;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelUpdate;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelImportController;
-use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
-use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenDelete;
-use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenUpdate;
+use App\Http\Controllers\Dashboard\Beranda\DashboardController;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusUpdate;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsStore;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsDelete;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsUpdate;
-use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
-use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
-use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelImportController;
+use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanList; 
 use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanStore;
-use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanUpdate;
-use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanDelete;
-use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
-use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
-use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
 use App\Http\Controllers\Dashboard\Pml\Sampel\SampelList as PmlSampelList;
-use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanStore as PengecekanStoreMitra;
-use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanStorePml;
-use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanList as PengecekanListMitra;
+use App\Http\Controllers\Dashboard\Admin\Option\KabKotaAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Option\KelDesaAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanDelete;
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanUpdate;
+use App\Http\Controllers\Dashboard\Admin\Option\ProvinsiAvailableListOption;
+use App\Http\Controllers\Dashboard\Admin\Option\KecamatanAvailableListOption;
+use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList; 
+use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
 use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanList as PengecekanListPml;
+use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanStorePml;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanList as HasilUbinanListPML;
 use App\Http\Controllers\Dashboard\Admin\Pengecekan\PengecekanList as PengecekanListAdmin;
+use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanList as PengecekanListMitra;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanStore as HasilUbinanStorePML;
+use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanStore as PengecekanStoreMitra;
+use App\Http\Controllers\Dashboard\Admin\HasilUbinan\HasilUbinanList as HasilUbinanListAdmin;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanList as HasilUbinanListMitra;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdatePML;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanStore as HasilUbinanStoreMitra;
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdateMitra;
-use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanList as HasilUbinanListPML;
-use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanStore as HasilUbinanStorePML;
-use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdatePML;
-use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanVerifikasi as HasilUbinanVerifikasiPML;
-use App\Http\Controllers\Dashboard\Admin\HasilUbinan\HasilUbinanList as HasilUbinanListAdmin;
 use App\Http\Controllers\Dashboard\Admin\Produktivitas\ProduktivitasList as ProduktivitasListAdmin;
+use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanVerifikasi as HasilUbinanVerifikasiPML;
+use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
+use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 Route::post('import', [SampelImportController::class, 'v1'])->name('import');
@@ -174,6 +178,11 @@ Route::middleware('auth')
                 Route::get('segmen-available-list', [SegmenAvailableListOption::class, 'v1'])->name('segmen-available');
                 Route::get('tim-available-list', [TimAvailableListOption::class, 'v1'])->name('tim-available');
                 Route::get('tim-pcl/{timId}/tim-pcl-available-list', [TimPclAvailableListOption::class, 'v1'])->name('tim-pcl-available');
+
+                Route::get('provinsi-available-list', [ProvinsiAvailableListOption::class, 'v1'])->name('provinsi-available');
+                Route::get('kab-kota-available-list', [KabKotaAvailableListOption::class, 'v1'])->name('kab-kota-available');
+                Route::get('kecamatan-available-list', [KecamatanAvailableListOption::class, 'v1'])->name('kecamatan-available');
+                Route::get('kel-desa-available-list', [KelDesaAvailableListOption::class, 'v1'])->name('kel-desa-available');
             });
             // End: Option
 

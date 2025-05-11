@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Dashboard\Admin\Segmen;
 
@@ -12,64 +12,58 @@ use Illuminate\Support\Facades\DB;
 class SegmenStore extends Controller
 {
     /**
-     * Store a new Segment baru.
- */
+     * Store a new Segmen entry.
+     */
     public function v1(Request $request): JsonResponse
     {
-        // Mulai transaksi database untuk menjaga konsistensi data
         DB::beginTransaction();
 
         try {
             // Validasi input
-            $validated = Validator::make(
+            $validator = Validator::make(
                 $request->all(),
                 [
-                    'id_segmen' => ['required', 'string', 'max:100'],
-                    'nama_segmen' => ['required','string'],
+                    'id_segmen'    => ['required', 'string', 'max:100'],
+                    'kode_segmen'  => ['required', 'string', 'max:10'],
+                    'nama_segmen'  => ['required', 'string', 'max:255'],
+                    'kecamatan_id' => ['required', 'string', 'exists:kecamatan,id'],
                 ],
                 [
-                    'id_segmen.required' => 'ID Segmen tidak boleh kosong.',
-                    'nama_segmen.required' => 'Nama Segmen tidak boleh kosong.',
+                    'id_segmen.required'    => 'ID Segmen tidak boleh kosong.',
+                    'kode_segmen.required'  => 'Kode Segmen tidak boleh kosong.',
+                    'nama_segmen.required'  => 'Nama Segmen tidak boleh kosong.',
+                    'kecamatan_id.required' => 'Kecamatan tidak boleh kosong.',
+                    'kecamatan_id.exists'   => 'Kecamatan yang dipilih tidak valid.',
                 ]
             );
-            // Jika validasi gagal
-            if ($validated->fails()) {
-                // Gabungkan semua pesan error menjadi string tunggal
-                $errorMessages = [];
-                foreach ($validated->errors()->all() as $error) {
-                    $errorMessages[] = $error; // Tambahkan setiap pesan error ke dalam array
-                }
 
-                // Batalkan transaksi database
+            if ($validator->fails()) {
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Validasi gagal: ' . implode(', ', $validated->errors()->all()),
-                    'errors' => $validated->errors(),
+                    'status'  => 'error',
+                    'message' => 'Validasi gagal: ' . implode(', ', $validator->errors()->all()),
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
-            
-            // Simpan data segmen
+
+            // Buat segmen baru
             $segmen = Segmen::create([
-                'id_segmen' => $request->input('id_segmen'),
-                'nama_segmen' => $request->input('nama_segmen'),
+                'id_segmen'    => $request->input('id_segmen'),
+                'kode_segmen'  => $request->input('kode_segmen'),
+                'nama_segmen'  => $request->input('nama_segmen'),
+                'kecamatan_id' => $request->input('kecamatan_id'),
             ]);
 
-            // Commit transaksi database
             DB::commit();
 
-            // Kirim response JSON
             return response()->json([
-                'status' =>'success',
-                'message' => 'Mitra berhasil ditambahkan.',
-                'segmen' => $segmen,
-            ]);
+                'status'  => 'success',
+                'message' => 'Segmen berhasil ditambahkan.',
+                'data'    => $segmen,
+            ], 201);
         } catch (\Exception $e) {
-            // Rollback transaksi database
             DB::rollBack();
-
-            // Kirim response JSON
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Gagal menambahkan segmen: ' . $e->getMessage(),
             ], 500);
         }

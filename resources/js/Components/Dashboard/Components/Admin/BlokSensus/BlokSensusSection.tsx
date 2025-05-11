@@ -131,8 +131,8 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
           <Button variant="outline">Unduh</Button>
           <Button variant="outline">Unggah</Button>
           {canEditDelete && (
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <CirclePlus size={16} /> Tambah
+            <Button className="gap-1 flex items-center justify-center" onClick={() => setIsAddDialogOpen(true)}>
+              <CirclePlus className="h-4 w-4" /> Tambah
             </Button>
           )}
         </div>

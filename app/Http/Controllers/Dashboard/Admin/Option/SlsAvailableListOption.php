@@ -7,29 +7,29 @@ use App\Models\Sls;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class SlsAvailableListOption extends Controller 
-    
+class SlsAvailableListOption extends Controller     
+{
+    public function v1(Request $request)
     {
-        public function v1(Request $request)
-        {
-            $blokSensus = $request->query('blok_sensus');
-            Log::info('Param blok_sensus:', [$blokSensus]);
+        $blok = $request->query('blok_sensus');
+        Log::info('Param blok_sensus:', ['blok_sensus' => $blok]);
 
-            try {
-                if ($blokSensus) {
-                    $namaSls = Sls::select('id', 'nama_sls')
-                                    ->where('id_bs', $blokSensus)
-                                    ->get();
-                } else {
-                    $namaSls = collect([]);
-                }
-                return response()->json(['nama_sls' => $namaSls]);
-            } catch (\Exception $e) {
-                Log::error('Error fetching Sls: ' . $e->getMessage());
-                return response()->json([
-                    'message' => 'Terjadi kesalahan server.',
-                    'error' => $e->getMessage()
-                ], 500);
+        try {
+            if ($blok) {
+                $namaSls = Sls::select('id', 'nama_sls as text')
+                            ->where('bs_id', $blok)
+                            ->orderBy('nama_sls')
+                            ->get();
+            } else {
+                $namaSls = collect([]);
             }
+            return response()->json(['nama_sls' => $namaSls]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching Sls: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan server.',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
+}

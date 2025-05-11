@@ -10,21 +10,21 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Badge } from '@/Components/ui/badge';
 
-interface NamaSlsFormData extends Sls, WithCsrf {}
+interface SlsFormData extends Sls, WithCsrf {}
 
-interface EditNamaSlsDialogProps {
+interface EditSlsDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: NamaSlsFormData) => Promise<void>;
+    onSave: (formData: SlsFormData) => Promise<void>;
     data: Sls;
 }
 
-export const EditNamaSlsDialog = ({ isOpen, onClose, onSave, data }: EditNamaSlsDialogProps) => {
+export const EditSlsDialog = ({ isOpen, onClose, onSave, data }: EditSlsDialogProps) => {
     const { csrf_token } = usePage<PageProps>().props;
     
     const [namaSls, setNamaSls] = useState(data.nama_sls);
 
-    const { processing, errors } = useForm<NamaSlsFormData>({
+    const { processing, errors } = useForm<SlsFormData>({
         ...data,
         _token: csrf_token,
     });

@@ -57,8 +57,8 @@ return new class extends Migration
                   ->onDelete('set null');
             $table->string('subsegmen', 5)->nullable();
             $table->string('strata', 5)->nullable();
-            $table->string('bulan_listing');
-            $table->string('tahun_listing');
+            $table->tinyInteger('bulan_listing')->unsigned();
+            $table->year('tahun_listing');
             $table->string('fase_tanam')->nullable();
             $table->date('rilis');
             $table->string('a_random');

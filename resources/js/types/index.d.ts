@@ -30,6 +30,8 @@ export interface Mitra {
 export interface Segmen {
     id_segmen: string
     nama_segmen: string
+    kode_segmen: string
+    kecamatan_id: string
 }
 
 export interface BlokSensus {

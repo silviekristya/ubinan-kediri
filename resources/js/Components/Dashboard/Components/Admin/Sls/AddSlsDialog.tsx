@@ -10,25 +10,25 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 
-interface NamaSlsFormData extends Omit<Sls, 'id' | 'id_bs'>, WithCsrf {
+interface SlsFormData extends Omit<Sls, 'id' | 'id_bs'>, WithCsrf {
     id_bs: string;
 }
 
-interface AddNamaSlsDialogProps {
+interface AddSlsDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: NamaSlsFormData) => Promise<void>;
+    onSave: (formData: SlsFormData) => Promise<void>;
         blok_sensus: BlokSensus[];
 }
 
-export const AddNamaSlsDialog = ({ isOpen, onClose, onSave, blok_sensus = [] }: AddNamaSlsDialogProps) => {
+export const AddSlsDialog = ({ isOpen, onClose, onSave, blok_sensus = [] }: AddSlsDialogProps) => {
     const { csrf_token } = usePage<PageProps>().props;
 
     const [namaSls, setNamaSls] = useState("");
     const [open, setOpen] = useState(false);
     const [idBs, setIdBs] = useState("");
 
-    const { processing, errors } = useForm<NamaSlsFormData>({
+    const { processing, errors } = useForm<SlsFormData>({
         nama_sls: "",
         id_bs: "",
         _token: csrf_token,

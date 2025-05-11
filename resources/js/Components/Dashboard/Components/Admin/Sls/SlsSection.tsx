@@ -4,8 +4,8 @@ import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { CirclePlus } from 'lucide-react';
 import { Sls } from '@/types';
-import { AddNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/AddNamaSlsDialog';
-import { EditNamaSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/EditNamaSlsDialog';
+import { AddSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/AddSlsDialog';
+import { EditSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/EditSlsDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -174,7 +174,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
       />
 
       {/* Dialog Tambah */}
-      <AddNamaSlsDialog
+      <AddSlsDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSls}
@@ -183,7 +183,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
 
       {/* Dialog Edit */}
       {editSls && (
-        <EditNamaSlsDialog
+        <EditSlsDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
           data={editSls}

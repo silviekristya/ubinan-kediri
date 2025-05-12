@@ -6,7 +6,7 @@ import type { DataTableColumnDef } from "@/Components/Dashboard/Components/DataT
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
 import { toast } from 'react-toastify';
-import { AddImportDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddImportDialog';
+import { AddImportSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddImportSampelDialog';
 import axios from 'axios';
 import { CirclePlus, TriangleAlert } from 'lucide-react';
 import {
@@ -52,7 +52,7 @@ const columnTitleMap: { [key: string]: string } = {
   subsegmen: "Subsegmen",
   // Kolom nomor_bs dan nama_sls akan didapat melalui relasi:
   nomor_bs: "Nomor BS",
-  nama_sls: "Nama SLS",
+  nama_sls: "SLS",
   nama_krt: "Nama KRT",
   strata: "Strata",
   bulan_listing: "Bulan Listing",
@@ -373,7 +373,7 @@ const SampelPage = () => {
       </div>
 
       {/* Dialog untuk pilih & upload file Excel */}
-      <AddImportDialog
+      <AddImportSampelDialog
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
       />

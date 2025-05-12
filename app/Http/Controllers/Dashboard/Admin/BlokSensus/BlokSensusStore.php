@@ -14,59 +14,68 @@ class BlokSensusStore extends Controller
     /**
      * Simpan Blok Sensus baru.
      */
-    public function v1(Request $request): JsonResponse
+   public function v1(Request $request): JsonResponse
     {
-        //Mulai transaksi database untuk menjaga konsistensi data
         DB::beginTransaction();
 
         try {
-            // Validasi input
-            $validated = Validator::make(
-                $request->all(), 
-                [
-                'nomor_bs' => ['required', 'string','unique:blok_sensus,nomor_bs'],
-                ],
-                [
-                    'nomor_bs.unique' => 'Nomor Blok Sensus sudah terdaftar. Silakan gunakan nomor yang lain.',
-                ]
-            );
+            // validasi nomor_bs & kel_desa_id dasar
+            $validator = Validator::make($request->all(), [
+                'nomor_bs'    => ['required', 'string', 'size:4'],
+                'kel_desa_id' => ['required', 'string', 'size:10', 'exists:kel_desa,id'],
+            ], [
+                'nomor_bs.size'      => 'Nomor Blok Sensus harus 4 karakter.',
+                'kel_desa_id.exists' => 'Kelurahan/desa tidak ditemukan.',
+                'kel_desa_id.size'   => 'Format kode kelurahan/desa tidak valid.',
+            ]);
 
-            // Jika validasi gagal
-            if ($validated->fails()) {
-                // Gabungkan semua pesan error menjadi string tunggal
-                $errorMessages = [];
-                foreach ($validated->errors()->all() as $error) {
-                    $errorMessages[] = $error; // Tambahkan setiap pesan error ke dalam array
+            // hitung id_bs kandidat
+            $idBs = $request->input('kel_desa_id') . $request->input('nomor_bs');
+
+            // setelah validasi dasar, cek uniknya id_bs
+            $validator->after(function ($validator) use ($idBs) {
+                if (BlokSensus::where('id_bs', $idBs)->exists()) {
+                    $validator->errors()->add(
+                        'nomor_bs',
+                        "Blok Sensus dengan kombinasi desa+nomor ({$idBs}) sudah terdaftar."
+                    );
                 }
+            });
 
+            if ($validator->fails()) {
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Validasi gagal: ' . implode(', ', $errorMessages), // Gabungkan semua pesan error dengan koma
-                    'errors' => $validated->errors(), // Kirim semua pesan error untuk debugging
+                    'status'  => 'error',
+                    'message' => 'Validasi gagal.',
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
+            
+            // Buat primary key: gabungkan kel_desa_id + nomor_bs
+            $idBs = $request->kel_desa_id . $request->nomor_bs;
 
-            // Simpan Blok Sensus baru
-            $blokSensus = BlokSensus::create([
-                'nomor_bs' => $request->nomor_bs,
+            $blok = BlokSensus::create([
+                'id_bs'       => $idBs,
+                'nomor_bs'    => $request->nomor_bs,
+                'kel_desa_id' => $request->kel_desa_id,
             ]);
 
-            // Commit transaksi
+            $blok->load('kelDesa');
+
             DB::commit();
 
-            // Kembalikan response sukses
+
             return response()->json([
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Blok Sensus berhasil ditambahkan.',
-            ]);
+                'data'    => $blok,           // <-- tambahkan ini
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Blok Sensus gagal ditambahkan.',
-                'errors' => $e->getMessage(),
+                'errors'  => $e->getMessage(),
             ], 500);
         }
     }
 }
-

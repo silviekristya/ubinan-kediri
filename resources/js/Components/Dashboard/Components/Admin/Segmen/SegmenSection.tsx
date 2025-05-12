@@ -26,8 +26,9 @@ interface SegmenSectionProps {
 }
 
 const columnTitleMap: { [key: string]: string } = {
-  id_segmen: 'ID Segmen',
+  id_segmen: 'Kode Segmen',
   nama_segmen: 'Nama Segmen',
+  nama_kecamatan: 'Kecamatan',
 };
 
 const SegmenSection: React.FC<SegmenSectionProps> = ({

@@ -7,19 +7,19 @@ use App\Models\Sls;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class NamaSlsDelete extends Controller
+class SlsDelete extends Controller
 {
     /**
      * Delete data Sls.
      */
-    public function v1(Sls $namaSls): JsonResponse
+    public function v1(Sls $sls): JsonResponse
     {
-        $namaSls->delete();
+        $sls->delete();
 
         // Kembalikan response JSON dengan status sukses
         return response()->json([
             'status' => 'success',
-            'message' => 'Nama SLS berhasil dihapus',
+            'message' => 'SLS berhasil dihapus',
         ]);
     }
 }

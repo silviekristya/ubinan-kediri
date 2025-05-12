@@ -26,12 +26,12 @@ interface ImportFormValues {
   file: FileList
 }
 
-interface AddImportDialogProps {
+interface AddImportSampelDialogProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export function AddImportDialog({ isOpen, onClose }: AddImportDialogProps) {
+export function AddImportSampelDialog({ isOpen, onClose }: AddImportSampelDialogProps) {
   // Ambil CSRF token
   const { csrf_token } = usePage().props as any
 

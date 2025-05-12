@@ -9,12 +9,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class NamaSlsUpdate extends Controller
+class SlsUpdate extends Controller
 {
     /**
      * Update data Sls.
      */
-    public function v1(Request $request, Sls $namaSls): JsonResponse
+    public function v1(Request $request, Sls $sls): JsonResponse
     {
         DB::beginTransaction();
 
@@ -23,27 +23,27 @@ class NamaSlsUpdate extends Controller
             $validated = $request->validate([
                 'nama_sls' => ['required', 'string', 'max:255'],
             ], [
-                'nama_sls.required' => 'Nama SLS tidak boleh kosong.',
+                'nama_sls.required' => 'SLS tidak boleh kosong.',
             ]);
 
             // Update data Sls
-            $namaSls->update([
+            $sls->update([
                 'nama_sls' => $validated['nama_sls'],
             ]);
 
             // Load relasi blokSensus agar nomor_bs tersedia
-            $namaSls->load('blokSensus:id,nomor_bs');
+            $sls->load('blokSensus:id,nomor_bs');
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Data Nama SLS berhasil diperbarui.',
+                'message' => 'Data SLS berhasil diperbarui.',
                 'updatedNamaSls' => [
-                    'id'        => $namaSls->id,
-                    'nama_sls'  => $namaSls->nama_sls,
-                    'id_bs'     => $namaSls->id_bs,
-                    'nomor_bs'  => $namaSls->blokSensus->nomor_bs ?? null,
+                    'id'        => $sls->id,
+                    'nama_sls'  => $sls->nama_sls,
+                    'id_bs'     => $sls->id_bs,
+                    'nomor_bs'  => $sls->blokSensus->nomor_bs ?? null,
                 ],
             ]);
         }

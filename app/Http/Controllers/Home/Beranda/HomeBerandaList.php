@@ -12,8 +12,12 @@ class HomeBerandaList extends Controller
 {
     public function v1()
     {
-        return Inertia::render('Home/Index', [
-            'canLogin' => Route::has('login'),
+        // return Inertia::render('Home/Index', [
+        //     'canLogin' => Route::has('login'),
+        // ]);
+        return Inertia::render('Auth/Login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => session('status'),
         ]);
     }
 }

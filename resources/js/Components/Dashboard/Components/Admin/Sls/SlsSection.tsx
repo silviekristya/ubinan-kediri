@@ -18,6 +18,12 @@ import {
 } from '@/Components/ui/alert-dialog';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
+
+const columnTitleMap: { [key: string]: string } = {
+  nama_sls: 'Nama SLS',
+  bs_id: 'Kode Blok Sensus',
+};
 
 interface NamaSlsSectionProps {
   slsData: Sls[];
@@ -35,7 +41,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editSls, setEditSls] = useState<Sls | null>(null);
 
-  const [deleteData, setDeleteData] = useState<{ id: number; nama?: string } | null>(null);
+  const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // CRUD
@@ -56,23 +62,23 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
       }
     } catch (error) {
       console.error(error);
-      toast.error('Gagal menambahkan nama SLS.');
+      toast.error('Gagal menambahkan nama SLS. ' + (error as any)?.response?.data?.message);
     }
   };
 
-  const handleEditSls = (item: Sls) => {
+  const handleEditSls = (id: string, item: Sls) => {
     setEditSls(item);
     setIsEditDialogOpen(true);
   };
 
-  const handleConfirmUpdateSls = async (id: number, formData: Partial<Sls>) => {
+  const handleConfirmUpdateSls = async (id: string, formData: Partial<Sls>) => {
     try {
       const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`, formData);
       if (response.data.status === 'success') {
         const updatedSls = response.data.updatedNamaSls;
   
         setSlsData((prev) => prev.map((s) =>
-          s.id === id ? { ...s, ...updatedSls } : s
+          s.id_sls === id.toString() ? { ...s, ...updatedSls } : s
         ));
         toast.success('Berhasil memperbarui nama SLS!');
         setIsEditDialogOpen(false);
@@ -86,17 +92,17 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   };
   
 
-  const handleDeleteSls = (id: number) => {
-    const item = slsData.find((s) => s.id === id);
+  const handleDeleteSls = (id: string) => {
+    const item = slsData.find((s) => s.id_sls === id);
     setDeleteData({ id, nama: item?.nama_sls });
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDeleteSls = async (id: number) => {
+  const handleConfirmDeleteSls = async (id: string) => {
     try {
       const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/nama-sls/delete/${id}`);
       if (response.data.status === 'success') {
-        setSlsData((prev) => prev.filter((s) => s.id !== id));
+        setSlsData((prev) => prev.filter((s) => s.id_sls !== id.toString()));
         toast.success('Berhasil menghapus nama SLS!');
         setIsDeleteDialogOpen(false);
       } else {
@@ -123,33 +129,16 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   }
   
   // Kolom Tabel
-  const slsColumns = [
-    { accessorKey: 'nomor_bs', header: 'Nomor Blok Sensus', cell: ({ row }: any) => row.original.nomor_bs || 'Tidak tersedia', },
-    { accessorKey: 'nama_sls', header: 'Nama SLS' },
-    {
-      id: 'aksi',
-      header: 'Aksi',
-      cell: ({ row }: any) => {
-        const rowData = row.original as Sls;
-        return (
-          <div className="flex space-x-2">
-            {canEditDelete ? (
-              <>
-                <Button variant="outline" size="sm" onClick={() => handleEditSls(rowData)}>
-                  Edit
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => handleDeleteSls(rowData.id)}>
-                  Hapus
-                </Button>
-              </>
-            ) : (
-              <span className="text-gray-400 text-sm">Tidak ada aksi</span>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
+  const columns = generateColumns(
+    'segmen',
+    columnTitleMap,
+    undefined,
+    undefined,
+    undefined,
+    handleEditSls,
+    undefined,
+    handleDeleteSls,
+  );
 
   return (
     <div>
@@ -168,9 +157,9 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
 
       <DataTable 
         data={slsData} 
-        columns={slsColumns} 
+        columns={columns} 
         name="namaSLS" 
-        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'Nama SLS', aksi: 'Aksi' }} 
+        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'SLS', aksi: 'Aksi' }} 
       />
 
       {/* Dialog Tambah */}
@@ -178,7 +167,6 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSls}
-        blok_sensus={filteredBlokSensus}  // Pass the appropriate blok_sensus data here
       />
 
       {/* Dialog Edit */}
@@ -187,7 +175,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
           data={editSls}
-          onSave={(formData) => handleConfirmUpdateSls(editSls.id, formData)}
+          onSave={(formData) => handleConfirmUpdateSls(editSls.id_sls, formData)}
         />
       )}
 

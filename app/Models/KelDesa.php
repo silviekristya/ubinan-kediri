@@ -29,4 +29,9 @@ class KelDesa extends Model
     {
         return $this->belongsTo(Kecamatan::class, 'kecamatan_id', 'id');
     }
+
+    public function blokSensus()
+    {
+        return $this->hasMany(BlokSensus::class, 'kel_desa_id', 'id');
+    }
 }

@@ -16,14 +16,14 @@ class SlsAvailableListOption extends Controller
 
         try {
             if ($blok) {
-                $namaSls = Sls::select('id', 'nama_sls as text')
+                $sls = Sls::select('id', 'nama_sls as text')
                             ->where('bs_id', $blok)
                             ->orderBy('nama_sls')
                             ->get();
             } else {
-                $namaSls = collect([]);
+                $sls = collect([]);
             }
-            return response()->json(['nama_sls' => $namaSls]);
+            return response()->json(['nama_sls' => $sls]);
         } catch (\Exception $e) {
             Log::error('Error fetching Sls: ' . $e->getMessage());
             return response()->json([

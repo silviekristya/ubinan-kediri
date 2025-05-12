@@ -66,7 +66,7 @@ class SampelUpdate extends Controller
 
         try {
             $sampel->update($validated);
-            $sampel->load('namaSls.blokSensus'); 
+            $sampel->load('sls.blokSensus'); 
 
             return response()->json([
                 'status'  => 'success',

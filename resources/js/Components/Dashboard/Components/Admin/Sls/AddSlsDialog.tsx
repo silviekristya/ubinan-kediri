@@ -1,135 +1,160 @@
-import { useState, FormEventHandler, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/Components/ui/dialog";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { usePage, useForm } from '@inertiajs/react';
-import { ALargeSmall, AlarmCheck, Loader2 } from "lucide-react";
-import { Sls, WithCsrf, PageProps, BlokSensus } from '@/types';
-import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
+"use client"
 
-interface SlsFormData extends Omit<Sls, 'id' | 'id_bs'>, WithCsrf {
-    id_bs: string;
+import { useState, useEffect, FormEvent } from "react"
+import axios from "axios"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/Components/ui/dialog"
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import { Label } from "@/Components/ui/label"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/Components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover"
+import { usePage } from '@inertiajs/react'
+import { Loader2, ChevronsUpDown, Check } from "lucide-react"
+import { Sls, WithCsrf, PageProps, BlokSensus } from '@/types'
+
+interface SlsFormData extends Sls, WithCsrf {
 }
 
 interface AddSlsDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (formData: SlsFormData) => Promise<void>;
-        blok_sensus: BlokSensus[];
+  isOpen: boolean
+  onClose: () => void
+  onSave: (formData: SlsFormData) => Promise<void>
 }
 
-export const AddSlsDialog = ({ isOpen, onClose, onSave, blok_sensus = [] }: AddSlsDialogProps) => {
-    const { csrf_token } = usePage<PageProps>().props;
+export const AddSlsDialog = ({ isOpen, onClose, onSave }: AddSlsDialogProps) => {
+  const { csrf_token } = usePage<PageProps>().props
 
-    const [namaSls, setNamaSls] = useState("");
-    const [open, setOpen] = useState(false);
-    const [idBs, setIdBs] = useState("");
+  // form state
+  const [namaSls, setNamaSls] = useState("")
+  const [blokList, setBlokList] = useState<BlokSensus[]>([])
+  const [blokOpen, setBlokOpen] = useState(false)
+  const [blokSearch, setBlokSearch] = useState("")
+  const [selectedBs, setSelectedBs] = useState<BlokSensus | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-    const { processing, errors } = useForm<SlsFormData>({
-        nama_sls: "",
-        id_bs: "",
-        _token: csrf_token,
-    });
+  // fetch daftar blok sensus available once
+  useEffect(() => {
+    axios.get('/dashboard/admin/option/bs-available-list')
+      .then(res => setBlokList(res.data.bs ?? []))
+      .catch(console.error)
+  }, [])
 
-    const handleSubmit: FormEventHandler = async (e) => {  
-        e.preventDefault();
+  // filter blokList by search
+  const filteredBlok = blokSearch
+    ? blokList.filter(b => b.id_bs && b.id_bs.toLowerCase().includes(blokSearch.toLowerCase()))
+    : blokList
 
-        try {
-            await onSave({
-                nama_sls: namaSls,
-                id_bs: idBs,
-                _token: csrf_token,
-            });
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!selectedBs || !namaSls) return
 
-            // Reset form setelah berhasil
-            onClose();
-            setNamaSls("");
-            setIdBs("");
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    
-    return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Tambah Nama SLS</DialogTitle>
-                    <DialogDescription>Masukkan data Nama SLS baru</DialogDescription>
-                </DialogHeader>
+    setIsLoading(true)
+    try {
+      await onSave({
+        id_sls:   "", // Provide a default or generated value for id_sls
+        bs_id:    selectedBs.id_bs,
+        nama_sls: namaSls,
+        _token:   csrf_token,
+      })
+      // reset form
+      setNamaSls("")
+      setSelectedBs(null)
+      onClose()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-                <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-                    <input type="hidden" name="_token" value={csrf_token} />
+  return (
+    <Dialog open={isOpen} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tambah SLS</DialogTitle>
+          <DialogDescription>Masukkan data SLS baru</DialogDescription>
+        </DialogHeader>
 
-                    {/* Blok Sensus */}{/* Blok Sensus Selection */}
-                    <div className="flex flex-col space-y-2">   
-                        <Label htmlFor="id_bs">Blok Sensus</Label>
-                        <Popover open={open} onOpenChange={setOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={open}
-                                    className='w-full justify-between'
-                                >
-                                    {blok_sensus?.find(bs => String(bs.id) === idBs)?.nomor_bs || 'Pilih Blok Sensus'}
-                                    <ChevronsUpDown className='opacity-50'/>
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <Command>
-                                    <CommandInput
-                                        placeholder="Cari Blok Sensus"
-                                    />
-                                    <CommandList>
-                                        <CommandEmpty>Tidak ada blok sensus ditemukan.</CommandEmpty>
-                                        <CommandGroup>
-                                            {blok_sensus.map((bs) => (
-                                                <CommandItem 
-                                                key={String(bs.id)} 
-                                                value={String(bs.id)}
-                                                onSelect={() => {
-                                                    setIdBs(String(bs.id));
-                                                    setOpen(false);
-                                                }}>
-                                                    {bs.nomor_bs}
-                                                    <Check className={`ml-auto ${idBs === String(bs.id)? 'opacity-100' : 'opacity-0'}`} />
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+          <Input type="hidden" name="_token" value={csrf_token} />
 
-                    {/* Nama SLS */}
-                    <div className="flex flex-col space-y-2">
-                        <Label htmlFor="nama_sls">Nama SLS</Label>
-                        <Input
-                            id="nama_sls"
-                            name="nama_sls"
-                            placeholder="Masukkan nama SLS"
-                            value={namaSls}
-                            onChange={(e) => setNamaSls(e.target.value)}
-                        />
-                    </div>
+          {/* Blok Sensus */}
+          <div className="space-y-1">
+            <Label>Blok Sensus</Label>
+            <Popover open={blokOpen} onOpenChange={setBlokOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={blokOpen}
+                  className="w-full justify-between"
+                  type="button"
+                >
+                  {selectedBs?.id_bs ?? "Pilih Blok Sensus"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
 
-                   {/* Tombol Aksi */}
-                    <div className="flex justify-end space-x-4">
-                        <Button type="button" variant="outline" onClick={onClose}>
-                        Batal
-                        </Button>
-                        <Button type="submit" disabled={processing}>
-                        {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Simpan"}
-                        </Button>
-                    </div>
-                </form>
-                    
-            </DialogContent>
-        </Dialog>
-    );
+              <PopoverContent onOpenAutoFocus={e => e.preventDefault()} className="w-full p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Cari blok sensus..."
+                    value={blokSearch}
+                    onValueChange={setBlokSearch}
+                  />
+                  <CommandList>
+                    <CommandEmpty>Tidak ada blok sensus.</CommandEmpty>
+                    <CommandGroup>
+                      {filteredBlok.map(bs => (
+                        <CommandItem
+                            key={bs.id_bs}
+                            value={bs.id_bs}
+                            onPointerDown={e => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                            }}
+                            onSelect={(value: string) => {
+                                const sel = blokList.find(b => b.id_bs === value) || null
+                                setSelectedBs(sel)
+                                setBlokOpen(false)
+                            }}
+                        >
+                          {bs.id_bs}
+                          <Check className={`ml-auto ${selectedBs?.id_bs === bs.id_bs ? 'opacity-100' : 'opacity-0'}`} />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Nama SLS */}
+          <div className="space-y-1">
+            <Label htmlFor="nama_sls">Nama SLS</Label>
+            <Input
+              id="nama_sls"
+              placeholder="Masukkan nama SLS"
+              value={namaSls}
+              onChange={e => setNamaSls(e.target.value)}
+            />
+          </div>
+
+          {/* Aksi */}
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Batal
+            </Button>
+            <Button type="submit" disabled={isLoading || !selectedBs}>
+              {isLoading
+                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                : "Simpan"
+              }
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
 }

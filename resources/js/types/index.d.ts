@@ -35,15 +35,18 @@ export interface Segmen {
 }
 
 export interface BlokSensus {
-    id: number
+    id_bs: string
     nomor_bs: string
+    kel_desa_id: string
+    nama_kel_desa?: string
+    text?: string
 }
 
 export interface Sls {
-    id: number
+    id_sls: string
     nama_sls: string
-    id_bs: number
-    blok_sensus?: BlokSensus
+    bs_id: string
+    blokSensus?: BlokSensus
 }
 
 export interface Sampel {

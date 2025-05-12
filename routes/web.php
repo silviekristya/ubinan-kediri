@@ -15,11 +15,11 @@ use App\Http\Controllers\Dashboard\Admin\Mitra\MitraList;
 use App\Http\Controllers\Dashboard\Admin\User\UserDelete;
 use App\Http\Controllers\Dashboard\Admin\User\UserUpdate;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraStore;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsStore;
+use App\Http\Controllers\Dashboard\Admin\Sls\SlsStore;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraDelete;
 use App\Http\Controllers\Dashboard\Admin\Mitra\MitraUpdate;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsDelete;
-use App\Http\Controllers\Dashboard\Admin\Sls\NamaSlsUpdate;
+use App\Http\Controllers\Dashboard\Admin\Sls\SlsDelete;
+use App\Http\Controllers\Dashboard\Admin\Sls\SlsUpdate;
 use App\Http\Controllers\Dashboard\Profil\ProfilController;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelStore;
 use App\Http\Controllers\Dashboard\Admin\Segmen\SegmenStore;
@@ -152,9 +152,9 @@ Route::middleware('auth')
                 
                 // Sub-route nama-sls
                 Route::prefix('nama-sls')->name('nama-sls.')->group(function () {
-                    Route::post('store', [NamaSlsStore::class, 'v1']);
-                    Route::post('update/{namaSls}', [NamaSlsUpdate::class, 'v1']);
-                    Route::delete('delete/{namaSls}', [NamaSlsDelete::class, 'v1'])->name('delete');
+                    Route::post('store', [SlsStore::class, 'v1']);
+                    Route::post('update/{sls}', [SlsUpdate::class, 'v1']);
+                    Route::delete('delete/{sls}', [SlsDelete::class, 'v1'])->name('delete');
                 });
             });
              // End: Segmen & Blok Sensus

@@ -53,10 +53,9 @@ export function DataTableRowActions<TData>({
   onRilis,
 }: DataTableRowActionsProps<TData>) {
   let data: TData = row.original;
-  let editBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel" || name === "segmen" || name === "pengecekanUtama" || name === "mitraHasilUbinan" || name == "templatePesan";
-  let deleteBoolean = name === "user" || name === "pegawai" || name === "mitra" || name === "tim" || name === "sampel" || name === "segmen" || name === "templatePesan";
-  let detailBoolean = name === "name";
-
+  const canEdit    = ['user','pegawai','mitra','tim','sampel','segmen','pengecekanUtama','mitraHasilUbinan','templatePesan','blokSensus'].includes(name)
+  const canDelete  = ['user','pegawai','mitra','tim','sampel','segmen','templatePesan', 'blokSensus'].includes(name)
+  const canDetail  = name === 'name'
   const handleDetail = () => {
     onDetail?.((data as any).id, data);
   }
@@ -88,18 +87,18 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {detailBoolean && (
+        {canDetail && (
           <>
             <DropdownMenuItem onClick={handleDetail} className='cursor-pointer'>Lihat Detail</DropdownMenuItem>
           </>
         )}
-        {editBoolean && (
+        {canEdit && (
             <>
             <DropdownMenuItem onClick={handleEdit} className='cursor-pointer'>Edit</DropdownMenuItem>
             </>
         )}
         <DropdownMenuItem onClick={handleCopy} className='cursor-pointer'>Salin</DropdownMenuItem>
-        {deleteBoolean && (
+        {canDelete && (
           <>
             <DropdownMenuItem onClick={handleDelete} className='cursor-pointer'>Hapus</DropdownMenuItem>
           </>

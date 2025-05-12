@@ -15,7 +15,7 @@ class SampelList extends Controller
      */
     public function v1(Request $request): Response
     {
-        $sampel = Sampel::with(['namaSls.blokSensus','tim.pml', 'pcl'])->get();
+        $sampel = Sampel::with(['sls.blokSensus','tim.pml', 'pcl'])->get();
         
         return Inertia::render('Dashboard/Admin/Sampel/ListSampel', [
             'sampel' => $sampel,

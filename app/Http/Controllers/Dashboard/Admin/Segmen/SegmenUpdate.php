@@ -16,55 +16,52 @@ class SegmenUpdate extends Controller
      */
     public function v1(Request $request, Segmen $segmen): JsonResponse
     {
-        // Mulai transaksi untuk menjaga konsistensi data
         DB::beginTransaction();
 
         try {
             // Validasi input
-            $validated = Validator::make($request->all(), [
-                'id_segmen' => ['required', 'string', 'max:100'],
-                'nama_segmen' => ['required', 'string'],
+            $validator = Validator::make($request->all(), [
+                'kode_segmen'  => ['required', 'string', 'size:2'],
+                'nama_segmen'  => ['nullable', 'string', 'max:255'],
+                'kecamatan_id' => ['required', 'string', 'size:7', 'exists:kecamatan,id'],
+            ], [
+                'kode_segmen.size'      => 'Kode Segmen harus tepat 2 karakter.',
+                'kecamatan_id.size'     => 'Format Kecamatan ID tidak valid.',
+                'kecamatan_id.exists'   => 'Kecamatan yang dipilih tidak ditemukan.',
+                'nama_segmen.max'       => 'Nama Segmen maksimal 255 karakter.',
             ]);
 
-            // Jika validasi gagal
-            if ($validated->fails()) {
-                // Ubah pesan error agar lebih jelas
-                $customErrors = [];
-                foreach ($validated->errors()->toArray() as $key => $error) {
-                    $customErrors[$key] = $error;
-                }
-
+            if ($validator->fails()) {
                 return response()->json([
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Validasi gagal.',
-                    'errors' => $customErrors,
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
 
-            // Update data segmen
+            // Hitung ulang primary key id_segmen
+            $newIdSegmen = $request->input('kecamatan_id') . $request->input('kode_segmen');
+
+            // Update fields
             $segmen->update([
-                'id_segmen' => $request->input('id_segmen'),
-                'nama_segmen' => $request->input('nama_segmen'),
+                'id_segmen'    => $newIdSegmen,
+                'kode_segmen'  => $request->input('kode_segmen'),
+                'nama_segmen'  => $request->input('nama_segmen'),
+                'kecamatan_id' => $request->input('kecamatan_id'),
             ]);
 
-            // Commit transaksi
             DB::commit();
 
-            // Kembalikan response sukses
             return response()->json([
-                'status' => 'success',
-                'message' => 'Data segmen berhasil diperbarui.',
-                'segmen' => $segmen, // Kirim data segmen yang diperbarui
+                'status'  => 'success',
+                'message' => 'Segmen berhasil diperbarui.',
+                'data'    => $segmen->fresh(),
             ]);
         } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi error
             DB::rollBack();
-
-            // Kembalikan response error
             return response()->json([
-                'status' => 'error',
-                'message' => 'Terjadi kesalahan saat memperbarui data segmen.',
-                'error' => $e->getMessage(),
+                'status'  => 'error',
+                'message' => 'Gagal memperbarui segmen: ' . $e->getMessage(),
             ], 500);
         }
     }

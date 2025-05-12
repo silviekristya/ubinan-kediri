@@ -20,10 +20,15 @@ class BlokSensus extends Model
         'kel_desa_id',
     ];
 
+    public function kelDesa()
+    {
+        return $this->belongsTo(KelDesa::class, 'kel_desa_id', 'id');
+    }
+
     /**
      * Relationship: one BlokSensus has many Sls (nama_sls entries)
      */
-    public function namaSls()
+    public function sls()
     {
         return $this->hasMany(Sls::class, 'bs_id', 'id_bs');
     }

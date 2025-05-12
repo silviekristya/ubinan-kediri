@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Dashboard\Admin\Option;
 
+use App\Http\Controllers\Controller;
 use App\Models\BlokSensus;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 
 class BsAvailableListOption extends Controller
 {
     /**
-     * Display a listing of Blok Sensus with related User data.
+     * Return daftar Blok Sensus, optional difilter berdasarkan kelurahan/desa.
      */
     public function v1(Request $request)
     {
@@ -19,22 +18,27 @@ class BsAvailableListOption extends Controller
         Log::info('Param kel_desa:', ['kel_desa' => $keldesa]);
 
         try {
+            // Query dasar: ambil id_bs => id, nomor_bs => text
+            $query = BlokSensus::select('id_bs', 'nomor_bs as text');
+
+            // Jika ada filter kelurahan/desa, tambahkan where
             if ($keldesa) {
-                $blok = BlokSensus::select('id_bs as id', 'nomor_bs as text')
-                                  ->where('kel_desa_id', $keldesa)
-                                  ->orderBy('nomor_bs')
-                                  ->get();
-            } else {
-                $blok = collect([]);
+                $query->where('kel_desa_id', $keldesa);
             }
 
-            return response()->json(['blok_sensus' => $blok]);
+            // Urutkan dan eksekusi
+            $blok = $query
+                ->orderBy('nomor_bs')
+                ->get();
+
+            // Kembalikan dengan key yang lebih ringkas
+            return response()->json(['bs' => $blok]);
         } catch (\Exception $e) {
             Log::error('Error fetching BlokSensus: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Terjadi kesalahan server.',
-                'error'   => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
-}   
+}

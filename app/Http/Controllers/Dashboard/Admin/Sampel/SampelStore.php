@@ -47,7 +47,7 @@ class SampelStore extends Controller
             // Simpan data sampel (hanya menyimpan id_sls sebagai FK)
             $sampel = Sampel::create($validated);
             // Eager load relasi untuk mengembalikan data lengkap
-            $sampel->load('namaSls.blokSensus'); 
+            $sampel->load('sls.blokSensus'); 
 
             return response()->json([
                 'status'  => 'success',

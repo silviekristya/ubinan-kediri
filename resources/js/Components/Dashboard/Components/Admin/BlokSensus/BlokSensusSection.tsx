@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, FormEventHandler } from 'react';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
@@ -18,12 +18,19 @@ import {
 } from '@/Components/ui/alert-dialog';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 
 interface BlokSensusSectionProps {
   blokData: BlokSensus[];
   setBlokData: React.Dispatch<React.SetStateAction<BlokSensus[]>>;
   canEditDelete: boolean; // Boleh edit/hapus?
 }
+
+const columnTitleMap: { [key: string]: string } = {
+  id_bs: 'Kode Blok Sensus',
+  nomor_bs: 'No Blok Sensus',
+  nama_kel_desa: 'Kel/Desa',
+};
 
 const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   blokData,
@@ -33,15 +40,31 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editBlok, setEditBlok] = useState<BlokSensus | null>(null);
-  const [deleteData, setDeleteData] = useState<{ id: number; nomor?: string } | null>(null);
+  const [deleteData, setDeleteData] = useState<{ id: string; nomor?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // CRUD
   const handleAddBlok = async (formData: any) => {
     try {
-      const response = await axios.post('/dashboard/admin/segmen-blok-sensus/blok-sensus/store', formData);
+      const response = await axios.post(
+        '/dashboard/admin/segmen-blok-sensus/blok-sensus/store',
+        formData
+      );
+
       if (response.data.status === 'success') {
-        setBlokData((prev) => [...prev, response.data.newBlokSensus]);
+        const newBlk: BlokSensus = response.data.data;
+        const newKelDesa = response.data.data.kel_desa;
+        // alias id_bs ke id
+        setBlokData((prev) => [
+          ...prev,
+          { ...newBlk,
+            id: newBlk.id_bs,
+            nama_kel_desa: newKelDesa.nama_kel_desa,
+            kel_desa_id: newBlk.kel_desa_id,
+            nomor_bs: newBlk.nomor_bs,
+          },
+        ]);
+
         toast.success('Berhasil menambah blok sensus!');
         setIsAddDialogOpen(false);
       } else {
@@ -53,16 +76,30 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
     }
   };
 
-  const handleEditBlok = (item: BlokSensus) => {
+  const handleEditBlok = (id: string, item: BlokSensus) => {
     setEditBlok(item);
     setIsEditDialogOpen(true);
   };
 
-  const handleConfirmUpdateBlok = async (id: number, formData: Partial<BlokSensus>) => {
+  const handleConfirmUpdateBlok = async (id: string, formData: Partial<BlokSensus>) => {
     try {
       const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/blok-sensus/update/${id}`, formData);
       if (response.data.status === 'success') {
-        setBlokData((prev) => prev.map((b) => (b.id === id ? { ...b, ...formData } : b)));
+        const newBlk: BlokSensus = response.data.data;
+        const newKelDesa = response.data.data.kel_desa;
+        setBlokData(prev =>
+          prev.map(b =>
+            b.id_bs === id
+              ? {
+                  id_bs: newBlk.id_bs,
+                  nomor_bs: newBlk.nomor_bs,
+                  kel_desa_id: newBlk.kel_desa_id,
+                  nama_kel_desa: newKelDesa.nama_kel_desa,
+                  id: response.data.data.id_bs,
+                }
+              : b
+          )
+        );
         toast.success('Berhasil memperbarui blok sensus!');
         setIsEditDialogOpen(false);
       } else {
@@ -74,17 +111,17 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
     }
   };
 
-  const handleDeleteBlok = (id: number) => {
-    const item = blokData.find((b) => b.id === id);
+  const handleDeleteBlok = (id: string) => {
+    const item = blokData.find((b) => b.id_bs === id.toString());
     setDeleteData({ id, nomor: item?.nomor_bs });
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDeleteBlok = async (id: number) => {
+  const handleConfirmDeleteBlok = async (id: string) => {
     try {
       const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/blok-sensus/delete/${id}`);
       if (response.data.status === 'success') {
-        setBlokData((prev) => prev.filter((b) => b.id !== id));
+        setBlokData((prev) => prev.filter((b) => b.id_bs !== id.toString()));
         toast.success('Berhasil menghapus blok sensus!');
         setIsDeleteDialogOpen(false);
       } else {
@@ -97,32 +134,17 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   };
 
   // Kolom Tabel
-  const blokColumns = [
-    { accessorKey: 'nomor_bs', header: 'Nomor Blok Sensus' },
-    {
-      id: 'aksi',
-      header: 'Aksi',
-      cell: ({ row }: any) => {
-        const rowData = row.original as BlokSensus;
-        return (
-          <div className="flex space-x-2">
-            {canEditDelete ? (
-              <>
-                <Button variant="outline" size="sm" onClick={() => handleEditBlok(rowData)}>
-                  Edit
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => handleDeleteBlok(rowData.id)}>
-                  Hapus
-                </Button>
-              </>
-            ) : (
-              <span className="text-gray-400 text-sm">Tidak ada aksi</span>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
+  const columns = generateColumns(
+    'blokSensus',
+    columnTitleMap,
+    undefined,
+    undefined,
+    undefined,
+    handleEditBlok,
+    undefined,
+    handleDeleteBlok,
+  );
+
 
   return (
     <div>
@@ -138,11 +160,11 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
         </div>
       </div>
 
-      <DataTable 
-        data={blokData} 
-        columns={blokColumns} 
-        name="blokSensus" 
-        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', aksi: 'Aksi' }} 
+      <DataTable
+        data={blokData.map(b => ({ ...b, id: b.id_bs, nama_kel_desa: b.nama_kel_desa }))}
+        columns={columns}
+        name="blokSensus"
+        columnTitleMap={columnTitleMap}
       />
 
       {/* Dialog Tambah */}
@@ -158,7 +180,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
             data={editBlok}
-          onSave={(formData) => handleConfirmUpdateBlok(editBlok.id, formData)}
+          onSave={(formData) => handleConfirmUpdateBlok(editBlok.id_bs, formData)}
         />
       )}
 

@@ -595,9 +595,9 @@ export const AddSampelDialog = ({
             </Popover>
           </div>
 
-          {/* Dropdown Nama SLS (Searchable) */}
+          {/* Dropdown SLS (Searchable) */}
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="nama_sls">Nama SLS</Label>
+            <Label htmlFor="nama_sls">SLS</Label>
             <Popover open={openSls} onOpenChange={setOpenSls}>
               <PopoverTrigger asChild>
                 <Button

@@ -19,7 +19,7 @@ return new class extends Migration
                 'Padi',
                 'Jagung',
                 'Kedelai',
-                'Kacang tanah',
+                'Kacang Tanah',
                 'Ubi Kayu',
                 'Ubi Jalar',
                 'Lainnya'
@@ -29,7 +29,8 @@ return new class extends Migration
             $table->string('provinsi_id', 2);
             $table->string('kab_kota_id', 4);
             $table->string('kecamatan_id', 7);
-            $table->string('kel_desa_id', 10);
+            $table->string('kel_desa_id', 10)
+                    ->nullable();
 
             $table->string('nama_lok');
 
@@ -68,7 +69,7 @@ return new class extends Migration
             $table->char('subround', 2);
             $table->foreignId('pcl_id')->nullable()->constrained('mitra')->onDelete('cascade');
             $table->foreignId('tim_id')->nullable()->constrained('tim')->onDelete('cascade');
-            $table->foreignId('id_sls')->nullable()->constrained('sls')->cascadeOnDelete();
+            $table->foreignId('id_sls')->nullable()->constrained(table: 'sls')->cascadeOnDelete();
             $table->string('nama_krt')->nullable();
             $table->integer('perkiraan_minggu_panen')->nullable();
             $table->timestamps();

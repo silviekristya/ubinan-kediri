@@ -19,7 +19,7 @@ class BsAvailableListOption extends Controller
 
         try {
             // Query dasar: ambil id_bs => id, nomor_bs => text
-            $query = BlokSensus::select('id_bs', 'nomor_bs as text');
+            $query = BlokSensus::select('id_bs as id', 'nomor_bs as text');
 
             // Jika ada filter kelurahan/desa, tambahkan where
             if ($keldesa) {

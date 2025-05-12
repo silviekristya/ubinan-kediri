@@ -90,7 +90,7 @@ export const AddSlsDialog = ({ isOpen, onClose, onSave }: AddSlsDialogProps) => 
                   className="w-full justify-between"
                   type="button"
                 >
-                  {selectedBs?.id_bs ?? "Pilih Blok Sensus"}
+                  {selectedBs?.id ?? "Pilih Blok Sensus"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -107,20 +107,20 @@ export const AddSlsDialog = ({ isOpen, onClose, onSave }: AddSlsDialogProps) => 
                     <CommandGroup>
                       {filteredBlok.map(bs => (
                         <CommandItem
-                            key={bs.id_bs}
-                            value={bs.id_bs}
+                            key={bs.id}
+                            value={bs.id}
                             onPointerDown={e => {
                                 e.preventDefault()
                                 e.stopPropagation()
                             }}
                             onSelect={(value: string) => {
-                                const sel = blokList.find(b => b.id_bs === value) || null
+                                const sel = blokList.find(b => b.id === value) || null
                                 setSelectedBs(sel)
                                 setBlokOpen(false)
                             }}
                         >
-                          {bs.id_bs}
-                          <Check className={`ml-auto ${selectedBs?.id_bs === bs.id_bs ? 'opacity-100' : 'opacity-0'}`} />
+                          {bs.id}
+                          <Check className={`ml-auto ${selectedBs?.id === bs.id ? 'opacity-100' : 'opacity-0'}`} />
                         </CommandItem>
                       ))}
                     </CommandGroup>

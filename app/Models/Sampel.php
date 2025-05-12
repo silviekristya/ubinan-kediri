@@ -10,43 +10,37 @@ class Sampel extends Model
     use HasFactory;
     protected $table = 'sampel';
     protected $primaryKey = 'id';   // Kolom id pada tabel sampel
-    protected $fillable = [
-        'jenis_sampel',
-        'jenis_tanaman',
-        'jenis_komoditas',
-        'frame_ksa',
-        'prov',
-        'kab',
-        'kec',
-        'nama_prov',
-        'nama_kab',
-        'nama_kec',
-        'nama_lok',
-        'segmen_id',
-        'subsegmen',
-        'id_sls',
-        'nama_krt',
-        'strata',
-        'bulan_listing',
-        'tahun_listing',
-        'fase_tanam',
-        'rilis',
-        'a_random',
-        'nks',
-        'long',
-        'lat',
-        'subround',
-        'perkiraan_minggu_panen',
-        'pcl_id',
-        'tim_id',
-    ];
+    protected $guarded = []; // Mengizinkan semua kolom untuk diisi
     public function getNamaPmlAttribute()
-{
-    if ($this->tim) {
-        return $this->tim->pml ? $this->tim->pml->nama : null;
+    {
+        if ($this->tim) {
+            return $this->tim->pml ? $this->tim->pml->nama : null;
+        }
+        return null;
     }
-    return null;
-}
+
+    public function provinsi()
+    {
+        return $this->belongsTo(Provinsi::class, 'provinsi_id', 'kode_provinsi');
+    }
+
+    // relasi ke Kabupaten/Kota
+    public function kabKota()
+    {
+        return $this->belongsTo(KabKota::class, 'kab_kota_id', 'id');
+    }
+
+    // relasi ke Kecamatan
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id', 'id');
+    }
+
+    // relasi ke Kelurahan/Desa
+    public function kelDesa()
+    {
+        return $this->belongsTo(KelDesa::class, 'kel_desa_id', 'id');
+    }
     // Relasi ke Segmen: Sampel milik satu Segmen (mengacu ke kolom segmen_id)
     public function segmen()
     {

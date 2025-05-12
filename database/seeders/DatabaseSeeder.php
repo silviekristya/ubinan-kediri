@@ -19,5 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(KabKotaSeeder::class);
         $this->call(KecamatanSeeder::class);
         $this->call(KelDesaSeeder::class);
+        $this->call(SegmenSeeder::class);
+        $this->call(BlokSensusSeeder::class);
+        $this->call(SlsSeeder::class);
     }
 }

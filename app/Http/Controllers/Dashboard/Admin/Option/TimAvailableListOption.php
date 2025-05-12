@@ -16,8 +16,6 @@ class TimAvailableListOption extends Controller
             $data = [
                 'id'        => $tim->id,
                 'nama_tim'  => $tim->nama_tim,
-                // Menggunakan relasi pml untuk mengambil nama pegawai
-                // Jika relasi pml tidak ada, maka akan menghasilkan null
                 'pml'    => $tim->pml,
             ];
             Log::info("Data tim: ", $data);

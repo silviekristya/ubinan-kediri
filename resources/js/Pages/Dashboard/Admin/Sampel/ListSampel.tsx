@@ -20,10 +20,9 @@ import {
   AlertDialogTitle
 } from "@/Components/ui/alert-dialog";
 import { AddSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddSampelDialog';
-import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
+// import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
-import { PageProps, Sampel, Segmen, BlokSensus, Sls, Tim } from '@/types';
-import { SampelFormData } from "@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog";
+import { PageProps, Sampel, Segmen, BlokSensus, Sls, Tim, SampelFormData } from '@/types';
 import AddAlokasiPmlDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPmlDialog';
 import AddAlokasiPclDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPclDialog';
 
@@ -31,9 +30,7 @@ interface SampelPageProps extends PageProps {
   sampel: Sampel[];
 }
 
-interface FlatSampel extends Omit<Sampel, 'nama_sls' | 'nomor_bs'> {
-  nama_sls: string;
-  nomor_bs: string;
+interface FlatSampel extends Sampel {
 }
 
 const columnTitleMap: { [key: string]: string } = {
@@ -41,17 +38,14 @@ const columnTitleMap: { [key: string]: string } = {
   jenis_tanaman: "Jenis Tanaman",
   jenis_komoditas: "Jenis Komoditas",
   frame_ksa: "Frame KSA",
-  prov: "Kode Provinsi",
-  kab: "Kode Kabupaten",
-  kec: "Kode Kecamatan",
   nama_prov: "Nama Provinsi",
-  nama_kab: "Nama Kabupaten",
+  nama_kab_kota: "Nama Kabupaten",
   nama_kec: "Nama Kecamatan",
   nama_lok: "Nama Lokasi",
   segmen_id: "ID Segmen",
   subsegmen: "Subsegmen",
   // Kolom nomor_bs dan nama_sls akan didapat melalui relasi:
-  nomor_bs: "Nomor BS",
+  id_bs: "Nomor BS",
   nama_sls: "SLS",
   nama_krt: "Nama KRT",
   strata: "Strata",
@@ -59,7 +53,7 @@ const columnTitleMap: { [key: string]: string } = {
   tahun_listing: "Tahun Listing",
   fase_tanam: "Fase Tanam",
   rilis: "Tanggal Rilis",
-  a_random: "A Random",
+  a_random: "Angka Random",
   nks: "NKS",
   long: "Longitude",
   lat: "Latitude",
@@ -73,7 +67,6 @@ const SampelPage = () => {
   const { sampel } = usePage<SampelPageProps>().props;
 
   // State utama
-  // const [data, setData] = useState<Sampel[]>(sampel);
   const [data, setData] = useState<FlatSampel[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editData, setEditData] = useState<Sampel | null>(null);
@@ -82,72 +75,121 @@ const SampelPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Opsi dropdown
-  const [segmenOptions, setSegmenOptions] = useState<Segmen[]>([]);
-  const [blokSensusOptions, setBlokSensusOptions] = useState<BlokSensus[]>([]);
-  const [slsOptions, setSlsOptions] = useState<Sls[]>([]);
+  const [provinsiOptions, setProvinsiOptions] = useState<{ id: string; text: string }[]>([]);
+  const [kabKotaOptions, setKabKotaOptions]   = useState<{ id: string; text: string }[]>([]);
+  const [kecamatanOptions, setKecamatanOptions] = useState<{ id: string; text: string }[]>([]);
+  const [kelDesaOptions, setKelDesaOptions]         = useState<{ id: string; text: string }[]>([]);
+  const [segmenOptions, setSegmenOptions]     = useState<{ id: string; text: string }[]>([]);
+  const [blokSensusOptions, setBlokSensusOptions] = useState<{ id: string; text: string }[]>([]);
+  const [slsOptions, setSlsOptions]           = useState<{ id: string; text: string }[]>([]);
+  const [timOptions, setTimOptions]           = useState<Tim[]>([]);
+
+  const [selectedProvinsi, setSelectedProvinsi] = useState<string | null>(null);
+  const [selectedKabKota, setSelectedKabKota]   = useState<string | null>(null);
+  const [selectedKecamatan, setSelectedKecamatan] = useState<string | null>(null);
+  const [selectedKelDesa, setSelectedKelDesa] = useState<string | null>(null);
+  const [selectedSegmen, setSelectedSegmen]   = useState<string | null>(null);
+  const [selectedBlokSensus, setSelectedBlokSensus] = useState<string | null>(null);
+  const [selectedSls, setSelectedSls]         = useState<string | null>(null);
+  const [selectedForPml, setSelectedForPml] = useState<Sampel | null>(null);
+  const [selectedForPcl, setSelectedForPcl] = useState<Sampel | null>(null);
 
   const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Fetch opsi dropdown
-  const fetchSegmenOptions = async () => {
-    try {
-      const res = await axios.get("/dashboard/admin/option/segmen-available-list");
-      setSegmenOptions(res.data.segmen || []);
-    } catch (error) {
-      console.error("Gagal mengambil data segmen", error);
-    }
+  const fetchProvinsi = async () => {
+    const { data } = await axios.get('/dashboard/admin/option/provinsi-available-list');
+    setProvinsiOptions(data.provinsi);
   };
-
-  const fetchBlokSensusOptions = async () => {
-    try {
-      const res = await axios.get("/dashboard/admin/option/bs-available-list");
-      setBlokSensusOptions(res.data.blok_sensus || []);
-    } catch (error) {
-      console.error("Gagal mengambil data blok sensus", error);
-    }
+  const fetchKabKota = async (provId: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/kab-kota-available-list', { params: { provinsi: provId } });
+    setKabKotaOptions(data.kab_kota);
   };
-
-  // Jika diperlukan, fetch SLS options (meskipun untuk tampilan di dialog, biasanya diatur di dalam dialog)
-  const fetchSlsOptions = async (nomor_bs?: string) => {
-    try {
-      const res = await axios.get("/dashboard/admin/option/sls-available-list", {
-        params: { nomor_bs },
-      });
-      setSlsOptions(res.data.nama_sls || []);
-    } catch (error) {
-      console.error("Gagal mengambil data SLS", error);
-    }
+  const fetchKecamatan = async (kabId: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/kecamatan-available-list', { params: { kab_kota: kabId } });
+    setKecamatanOptions(data.kecamatan);
   };
-
-  // fetch tim option
-  const fetchTimOptions = async (): Promise<Tim[]> => {
-    try {
-      const res = await axios.get('/dashboard/admin/option/tim-available-list');
-      return res.data.tim; // Pastikan struktur data sesuai dengan response backend
-    } catch (error) {
-      console.error('Gagal mengambil data tim', error);
-      return [];
-    }
+  const fetchDesa = async (kecId: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/kel-desa-available-list', { params: { kecamatan: kecId } });
+    setKelDesaOptions(data.kel_desa);
+  };
+  const fetchSegmen = async (kecId: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/segmen-available-list', { params: { kecamatan: kecId } });
+    setSegmenOptions(data.segmen);
+  };
+  const fetchBlok = async (kelDesaId?: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/bs-available-list', { params: { kel_desa: kelDesaId } });
+    setBlokSensusOptions(data.bs);
+  };
+  const fetchSLS = async (bsId?: string) => {
+    const { data } = await axios.get('/dashboard/admin/option/sls-available-list', { params: { blok_sensus: bsId } });
+    setSlsOptions(data.sls);
+  };
+  const fetchTim = async () => {
+    const { data } = await axios.get('/dashboard/admin/option/tim-available-list');
+    setTimOptions(data.tim);
   };
 
   useEffect(() => {
-    // Lakukan flatten data jika perlu
-    const flattenedData: FlatSampel[] = sampel.map(item => ({ 
-      ...item,
-      // Ambil data dari relasi yang diperlukan
-      nama_sls:    item.nama_sls?.nama_sls ?? '-',
-      nomor_bs:    item.nama_sls?.blok_sensus?.nomor_bs ?? '-',
+    // flatten sampel → data tabel
+    const flat: FlatSampel[] = sampel.map(item => ({
+      ...item
     }));
-    setData(flattenedData); // Cast ke tipe Sampel[]
+    setData(flat);
 
-    // Fetch opsi dropdown
-    fetchSegmenOptions();
-    fetchBlokSensusOptions();
-    fetchSlsOptions();
-    fetchTimOptions().then((timData) => {
-      setTimOptions(timData);
-    });
+    // ambil opsi statis
+    fetchProvinsi();
+    fetchBlok();
+    fetchTim();
   }, [sampel]);
+
+  // 3) Chaining dropdown
+  useEffect(() => {
+    if (selectedProvinsi != null) {
+      setKabKotaOptions([]);
+      setSelectedKabKota(null);
+      setKecamatanOptions([]);
+      setSelectedKecamatan(null);
+      setKelDesaOptions([]);
+      fetchKabKota(selectedProvinsi);
+    }
+  }, [selectedProvinsi]);
+
+  useEffect(() => {
+    if (selectedKabKota != null) {
+      setKecamatanOptions([]);
+      setSelectedKecamatan(null);
+      setKelDesaOptions([]);
+      fetchKecamatan(selectedKabKota);
+    }
+  }, [selectedKabKota]);
+
+  useEffect(() => {
+    if (selectedKecamatan != null) {
+      setKelDesaOptions([]);
+      setSelectedKelDesa(null);
+      setSelectedSegmen(null);
+      setSegmenOptions([]);
+      fetchDesa(selectedKecamatan);
+      fetchSegmen(selectedKecamatan);
+    }
+  }, [selectedKecamatan]);
+
+  useEffect(() => {
+    if (selectedKelDesa != null) {
+      setBlokSensusOptions([]);
+      setSelectedBlokSensus(null);
+      fetchBlok(selectedKelDesa);
+    }
+  }, [selectedKelDesa]);
+
+  useEffect(() => {
+    if (selectedBlokSensus != null) {
+      setSlsOptions([]);
+      setSelectedSls(null);
+      fetchSLS(selectedBlokSensus);
+    }
+  }, [selectedBlokSensus]);
 
   // Tambah Sampel
   const handleAddSampel = async (formData: SampelFormData) => {
@@ -291,17 +333,6 @@ const SampelPage = () => {
         return <span>Error rendering</span>;
       }
     };
-  
-  
-
-  // State dan handler untuk dialog alokasi PML
-  const [selectedForPml, setSelectedForPml] = useState<Sampel | null>(null);
-  const [timOptions, setTimOptions] = useState<Tim[]>([]);
-  const [selectedForPcl, setSelectedForPcl] = useState<Sampel | null>(null);
-
-  // useEffect(() => {
-  //   fetchTimOptions().then(setTimOptions);
-  // }, []);
 
   const handlePmlAllocationSuccess = async (timId: number) => {
     if (!selectedForPml) return;
@@ -405,13 +436,18 @@ const SampelPage = () => {
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSampel}
+        provinsiOptions={provinsiOptions}
+        kabKotaOptions={kabKotaOptions}
+        kecamatanOptions={kecamatanOptions}
+        kelDesaOptions={kelDesaOptions}
         segmenOptions={segmenOptions}
         blokSensusOptions={blokSensusOptions}
+        slsOptions={slsOptions} // Pass SLS options ke dialog
         // slsOptions tidak dikirim karena dialog akan fetch sendiri
       />
 
       {/* Dialog Edit Sampel */}
-      {editData && (
+      {/* {editData && (
         <EditSampelDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
@@ -421,7 +457,7 @@ const SampelPage = () => {
           blokSensusOptions={blokSensusOptions}
           // slsOptions tidak dikirim karena dialog akan fetch sendiri
         />
-      )}
+      )} */}
 
       {/* Dialog Konfirmasi Hapus */}
       {isDeleteDialogOpen && deleteData && (

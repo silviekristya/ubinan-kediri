@@ -33,7 +33,7 @@ const columnTitleMap: { [key: string]: string } = {
   tahun_listing: "Tahun Listing",
   fase_tanam: "Fase Tanam",
   rilis: "Tanggal Rilis",
-  a_random: "A Random",
+  a_random: "Angka Random",
   nks: "NKS",
   long: "Longitude",
   lat: "Latitude",

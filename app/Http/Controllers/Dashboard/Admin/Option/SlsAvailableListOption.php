@@ -1,29 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard\Admin\Option; 
+namespace App\Http\Controllers\Dashboard\Admin\Option;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sls;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class SlsAvailableListOption extends Controller     
+class SlsAvailableListOption extends Controller
 {
+    /**
+     * Return daftar SLS; jika ada filter blok_sensus, hanya ambil SLS di blok itu,
+     * kalau tidak, kembalikan seluruh SLS.
+     */
     public function v1(Request $request)
     {
         $blok = $request->query('blok_sensus');
         Log::info('Param blok_sensus:', ['blok_sensus' => $blok]);
 
         try {
+            // Bangun query dasar: id + nama_sls as text
+            $query = Sls::select('id', 'nama_sls as text')->orderBy('nama_sls');
+
+            // Jika ada filter blok_sensus, tambahkan where
             if ($blok) {
-                $sls = Sls::select('id', 'nama_sls as text')
-                            ->where('bs_id', $blok)
-                            ->orderBy('nama_sls')
-                            ->get();
-            } else {
-                $sls = collect([]);
+                $query->where('bs_id', $blok);
             }
-            return response()->json(['nama_sls' => $sls]);
+
+            // Eksekusi query
+            $sls = $query->get();
+
+            // Kembalikan dengan key 'sls'
+            return response()->json(['sls' => $sls]);
         } catch (\Exception $e) {
             Log::error('Error fetching Sls: ' . $e->getMessage());
             return response()->json([

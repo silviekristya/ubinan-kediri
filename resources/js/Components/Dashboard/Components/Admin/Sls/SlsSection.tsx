@@ -90,7 +90,6 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
       toast.error('Gagal memperbarui nama SLS.');
     }
   };
-  
 
   const handleDeleteSls = (id: string) => {
     const item = slsData.find((s) => s.id_sls === id);

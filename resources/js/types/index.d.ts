@@ -32,6 +32,8 @@ export interface Segmen {
     nama_segmen: string
     kode_segmen: string
     kecamatan_id: string
+    id?: string
+    text?: string
 }
 
 export interface BlokSensus {
@@ -39,6 +41,7 @@ export interface BlokSensus {
     nomor_bs: string
     kel_desa_id: string
     nama_kel_desa?: string
+    id?: string
     text?: string
 }
 
@@ -47,45 +50,8 @@ export interface Sls {
     nama_sls: string
     bs_id: string
     blokSensus?: BlokSensus
-}
-
-export interface Sampel {
-    id: number;
-    jenis_sampel: "Utama" | "Cadangan";
-    jenis_tanaman: "Padi" | "Palawija";
-    jenis_komoditas: "Padi" | "Jagung" | "Kedelai" | "Kacang Tanah" | "Ubi Kayu" | "Ubi Jalar" | "Lainnya";
-    frame_ksa?: string; // varchar(20), nullable
-    prov: string; // varchar(5), not null
-    kab: string; // varchar(5), not null
-    kec: string; // varchar(5), not null
-    nama_prov: string;
-    nama_kab: string;
-    nama_kec: string;
-    nama_lok: string;
-    segmen_id?: string; // nullable
-    subsegmen?: string; // varchar(5), nullable
-    id_sls?: number; // bigint, nullable
-    nama_sls?: Sls;
-    nomor_bs?: BlokSensus;
-    nama_krt?: string; // nullable
-    strata?: string; // varchar(5), nullable
-    bulan_listing: string;
-    tahun_listing: string;
-    fase_tanam?: string; // nullable
-    rilis: string; // date, bisa dideklarasikan sebagai string atau Date sesuai kebutuhan
-    a_random: string;
-    nks: string; // varchar(20), not null
-    long: string;
-    lat: string;
-    subround: string; // varchar, not null (misalnya 2 karakter)
-    perkiraan_minggu_panen?: number; // integer, nullable
-    pcl_id?: number;
-    tim_id?: number;
-    tim?: Tim;
-    pcl?: Mitra;
-    pengecekan?: Pengecekan;
-    created_at?: string;
-    updated_at?: string;
+    id?: string
+    text?: string
 }
 
 export interface Pengecekan {
@@ -151,6 +117,66 @@ export interface Tim {
     pcl_count: number;
 }
 
+export type JenisSampel = "Utama" | "Cadangan"
+export type JenisTanaman = "Padi" | "Palawija"
+export type JenisKomoditas =
+  | "Padi"
+  | "Jagung"
+  | "Kedelai"
+  | "Kacang Tanah"
+  | "Ubi Kayu"
+  | "Ubi Jalar"
+  | "Lainnya"
+
+export interface Sampel {
+    id?: number
+  jenis_sampel: JenisSampel           // enum Utama|Cadangan
+  jenis_tanaman: JenisTanaman         // enum Padi|Palawija
+  jenis_komoditas?: JenisKomoditas   // nullable
+  frame_ksa?: string                  // varchar(20), nullable
+
+  // FK ke wilayah administratif
+  provinsi_id: string                 // string(2)
+  kab_kota_id: string                 // string(4)
+  kecamatan_id: string                // string(7)
+  kel_desa_id: string                 // string(10)
+
+  nama_lok: string                    // string, required
+
+  segmen_id?: string                  // nullable FK
+  subsegmen?: string                  // nullable
+  strata?: string                     // nullable
+
+  bulan_listing: string               // tinyint, but di UI string/number
+  tahun_listing: string               // year
+
+  fase_tanam?: string                 // nullable
+  rilis: string                       // date, required
+  a_random: string                    // required
+
+  nks: string                         // varchar(20), required
+  long: string                        // required
+  lat: string                         // required
+  subround: string                    // char(2), required
+
+  pcl_id?: number                     // nullable FK
+  tim_id?: number                     // nullable FK
+  tim?: Tim                      // nullable FK
+  pcl?: Mitra                   // nullable FK
+  id_sls?: number                     // nullable FK
+  nama_krt?: string                   // nullable
+
+  perkiraan_minggu_panen?: number     // nullable integer
+
+  // timestamps (jika ingin expose)
+  created_at?: string
+  updated_at?: string
+}
+
+export interface SampelFormData extends Omit<Sampel,
+  | "created_at"
+  | "updated_at"
+>, WithCsrf {}
 
 export interface WithCsrf {
     _token: string;

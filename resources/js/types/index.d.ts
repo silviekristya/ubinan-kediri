@@ -63,7 +63,7 @@ export interface Pengecekan {
     alamat_responden: string;
     no_telepon_responden: string;
     tanggal_panen: string;
-    status_sampel?: 'Eligible' | 'Non-eligible' | 'Belum';
+    status_sampel?: 'Eligible' | 'NonEligible' | 'Belum';
     keterangan?: string | null;
     id_sampel_cadangan?: number | null;
     created_at?: string;

@@ -172,7 +172,7 @@ const PengecekanPage: React.FC = () => {
     id: 'action',
     header: 'Aksi',
     cell: ({ row }) => {
-      const hasChecked = Boolean(row.original.pengecekan);
+      const hasChecked = row.original.status_sampel && row.original.tanggal_pengecekan !== '-';
       return (
         <Button
           size="sm"

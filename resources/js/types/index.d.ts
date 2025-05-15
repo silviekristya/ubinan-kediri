@@ -165,6 +165,8 @@ export interface Sampel {
   pcl?: Mitra                   // nullable FK
   id_sls?: number                     // nullable FK
   nama_krt?: string                   // nullable
+  pcl_nama?: string               // nullable
+  pml_nama?: string               // nullable
 
   perkiraan_minggu_panen?: number     // nullable integer
 

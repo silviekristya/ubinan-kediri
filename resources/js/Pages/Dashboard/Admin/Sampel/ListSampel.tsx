@@ -34,6 +34,8 @@ interface FlatSampel extends Sampel {
 }
 
 const columnTitleMap: { [key: string]: string } = {
+  tim_id: "PML Bertugas",
+  pcl_id: "PCL Bertugas",
   jenis_sampel: "Jenis Sampel",
   jenis_tanaman: "Jenis Tanaman",
   jenis_komoditas: "Jenis Komoditas",
@@ -59,8 +61,7 @@ const columnTitleMap: { [key: string]: string } = {
   lat: "Latitude",
   subround: "Subround",
   perkiraan_minggu_panen: "Perkiraan Minggu Panen",
-  tim_id: "PML Bertugas",
-  pcl_id: "PCL Bertugas",
+
 };
 
 const SampelPage = () => {
@@ -303,7 +304,9 @@ const SampelPage = () => {
               <span>
                 {row.tim && row.tim.pml && row.tim.pml.nama 
                   ? row.tim.pml.nama 
-                  : "Nama PML tidak tersedia"}
+                  : row.pml_nama
+                    ? row.pml_nama 
+                    : "Nama PML tidak tersedia"}
               </span>
             );
           }
@@ -322,7 +325,8 @@ const SampelPage = () => {
             // Jika data sampel tidak mengembalikan relasi pcl, gunakan fallback
             return (
               <span>
-                {row.pcl ? row.pcl.nama : "Nama PCL tidak tersedia"}
+                {row.pcl ? row.pcl.nama : row.pcl_nama?
+                  row.pcl_nama : "Nama PCL tidak tersedia"}
               </span>
             );
           }

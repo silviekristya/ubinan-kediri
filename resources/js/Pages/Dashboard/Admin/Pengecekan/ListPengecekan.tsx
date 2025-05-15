@@ -91,6 +91,8 @@ export default function PengecekanPage() {
   // full columnTitleMap as requested
   const columnTitleMap: Record<string,string> = {
     id:                   'ID',
+    pcl_nama:             'PCL Bertugas',
+    pml_nama:             'PML Bertugas',
     jenis_tanaman:        'Jenis Tanaman',
     tahun_listing:        'Tahun Listing',
     subround:             'Subround',
@@ -106,8 +108,6 @@ export default function PengecekanPage() {
     tanggal_panen:        'Tanggal Panen',
     keterangan:           'Keterangan',
     status_sampel:        'Status Sampel',
-    pcl_nama:             'PCL Bertugas',
-    pml_nama:             'PML Bertugas',
   };
 
   // copy-to-clipboard handler

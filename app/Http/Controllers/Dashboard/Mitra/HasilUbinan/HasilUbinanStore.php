@@ -37,10 +37,18 @@ class HasilUbinanStore extends Controller
         ], $messages);
 
         // Pastikan pengecekan milik mitra
-        Pengecekan::where('id', $data['pengecekan_id'])
-            ->where('pcl_id', $mitraId)
+        $cek = Pengecekan::where('id', $data['pengecekan_id'])
+            ->whereHas('sampel', function($q) use ($mitraId) {
+                $q->where('pcl_id', $mitraId);
+            })
             ->firstOrFail();
 
+        // Jika pengecekan tidak ditemukan, abort 403
+        if (! $cek) {
+            abort(403, 'Anda tidak berwenang menambah di pengecekan ini.');
+        }
+
+        
         // Simpan
         $hasil = HasilUbinan::create($data);
 

@@ -29,10 +29,14 @@ class HasilUbinanStore extends Controller
         ]);
 
         // pastikan pengecekan berada di bawah PML ini
-        $cek = Pengecekan::with('sampel')
-            ->findOrFail($data['pengecekan_id']);
-
-        if ($cek->sampel->tim_id !== $pmlId) {
+        $cek = Pengecekan::where('id', $data['pengecekan_id'])
+            ->whereHas('sampel.tim', function($q) use ($pmlId) {
+                $q->where('pml_id', $pmlId);
+            })
+            ->firstOrFail();
+        
+        // Jika pengecekan tidak ditemukan, abort 403
+        if (! $cek) {
             abort(403, 'Anda tidak berwenang menambah di pengecekan ini.');
         }
 

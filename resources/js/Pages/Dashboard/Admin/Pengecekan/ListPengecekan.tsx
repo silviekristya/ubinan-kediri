@@ -61,32 +61,32 @@ export default function PengecekanPage() {
   const rowsBackup = useMemo(() => makeRows(backupData), [backupData]);
 
     // ambil semua tahun yg muncul
-    const yearOptions = useMemo(() => {
-        const ys = new Set<string>();
-        rowsMain.forEach(r => ys.add(String(r.tahun_listing)));
-        return Array.from(ys).sort();
-      }, [rowsMain]);
-    
-      // bangun subroundOptions per tahun
-      const subroundOptionsMap = useMemo(() => {
-        const map: Record<string, Set<string>> = {};
-        rowsMain.forEach(r => {
-          const y = String(r.tahun_listing);
-          map[y] = map[y]||new Set();
-          map[y].add(String(r.subround));
-        });
-        return Object.fromEntries(
-          Object.entries(map)
-                .map(([y, set]) => [y, Array.from(set).sort()])
-        ) as Record<string,string[]>;
-      }, [rowsMain]);
-    
-      // baris yg sudah difilter
-      const filteredRows = useMemo(() => {
-        return rowsMain
-          .filter(r => !selectedYear || String(r.tahun_listing) === selectedYear)
-          .filter(r => !selectedSubround || String(r.subround) === selectedSubround);
-      }, [rowsMain, selectedYear, selectedSubround]);
+  const yearOptions = useMemo(() => {
+      const ys = new Set<string>();
+      rowsMain.forEach(r => ys.add(String(r.tahun_listing)));
+      return Array.from(ys).sort();
+    }, [rowsMain]);
+  
+    // bangun subroundOptions per tahun
+    const subroundOptionsMap = useMemo(() => {
+      const map: Record<string, Set<string>> = {};
+      rowsMain.forEach(r => {
+        const y = String(r.tahun_listing);
+        map[y] = map[y]||new Set();
+        map[y].add(String(r.subround));
+      });
+      return Object.fromEntries(
+        Object.entries(map)
+              .map(([y, set]) => [y, Array.from(set).sort()])
+      ) as Record<string,string[]>;
+    }, [rowsMain]);
+  
+    // baris yg sudah difilter
+    const filteredRows = useMemo(() => {
+      return rowsMain
+        .filter(r => !selectedYear || String(r.tahun_listing) === selectedYear)
+        .filter(r => !selectedSubround || String(r.subround) === selectedSubround);
+    }, [rowsMain, selectedYear, selectedSubround]);
 
   // full columnTitleMap as requested
   const columnTitleMap: Record<string,string> = {

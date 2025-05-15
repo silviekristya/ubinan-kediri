@@ -18,11 +18,8 @@ const columnTitleMap: { [key: string]: string } = {
   jenis_tanaman: "Jenis Tanaman",
   jenis_komoditas: "Jenis Komoditas",
   frame_ksa: "Frame KSA",
-  prov: "Kode Provinsi",
-  kab: "Kode Kabupaten",
-  kec: "Kode Kecamatan",
   nama_prov: "Nama Provinsi",
-  nama_kab: "Nama Kabupaten",
+  nama_kab_kota: "Nama Kabupaten",
   nama_kec: "Nama Kecamatan",
   nama_lok: "Nama Lokasi",
   segmen_id: "ID Segmen",
@@ -104,7 +101,7 @@ const SampelPage: React.FC = () => {
     undefined             // onDelete (tidak mengoper tombol hapus)
   );
 
-  console.log("Kolom yang dihasilkan:", columns);
+  // console.log("Kolom yang dihasilkan:", columns);
 
   return (
     <DashboardLayout>

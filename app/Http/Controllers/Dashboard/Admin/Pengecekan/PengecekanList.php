@@ -30,6 +30,7 @@ class PengecekanList extends Controller
             ->orderBy('nama_lok')
             ->get();
 
+            // dd($samplesUtama, $samplesCadangan, $usedCadIds);
         return Inertia::render('Dashboard/Admin/Pengecekan/ListPengecekan', [
             'samplesUtama'    => $samplesUtama,
             'samplesCadangan' => $samplesCadangan,

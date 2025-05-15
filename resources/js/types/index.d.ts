@@ -117,6 +117,13 @@ export interface Tim {
     pcl_count: number;
 }
 
+export interface Kecamatan {
+    id: number
+    kode_kecamatan: string
+    nama_kecamatan: string
+    kab_kota_id: string
+}
+
 export type JenisSampel = "Utama" | "Cadangan"
 export type JenisTanaman = "Padi" | "Palawija"
 export type JenisKomoditas =
@@ -173,6 +180,9 @@ export interface Sampel {
   // timestamps (jika ingin expose)
   created_at?: string
   updated_at?: string
+
+  pengecekan?: Pengecekan
+  kecamatan?: Kecamatan
 }
 
 export interface SampelFormData extends Omit<Sampel,

@@ -1,16 +1,15 @@
 // resources/js/Pages/Dashboard/Mitra/Pengecekan/Index.tsx
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { Card, CardHeader, CardContent } from '@/Components/ui/card';
 import { toast } from 'react-toastify';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
-import { PageProps, Pengecekan, Sampel } from '@/types';
+import { PageProps, Sampel } from '@/types';
 import { AddPengecekanDialog } from '@/Components/Dashboard/Components/Mitra/Pengecekan/AddPengecekanDialog';
 import { Inertia } from '@inertiajs/inertia';
-import { Row } from '@tanstack/react-table';
 import axios from 'axios';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/Components/ui/button';
@@ -23,8 +22,8 @@ dayjs.locale('id');
 
 
 interface PengecekanPageProps extends PageProps {
-  mainSamples: Array<Sampel & { pengecekan?: Pengecekan }>;
-  backupSamples: Array<Sampel & { pengecekan?: Pengecekan }>;
+  mainSamples: Sampel[];
+  backupSamples: Sampel[];
 }
 
 const columnTitleMap: Record<string, string> = {
@@ -57,55 +56,45 @@ const PengecekanPage: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogSamples, setDialogSamples] = useState<Sampel[]>([]);
 
-  useEffect(() => { setMainData(mainSamples); }, [mainSamples]);
-  useEffect(() => { setBackupData(backupSamples); }, [backupSamples]);
+  useEffect(() => {
+    setMainData(mainSamples);
+  }, [mainSamples]);
 
-  // flatten + memoize
-  const makeRows = (
-    arr: Array<Sampel & { pengecekan?: Pengecekan }>
-  ) =>
-    arr.map(s => ({
-      id:                   s.id,
-      jenis_sampel:         s.jenis_sampel,
-      jenis_tanaman:        s.jenis_tanaman,
-      tahun_listing:        s.tahun_listing,
-      subround:             s.subround,
-      nama_kec:             s.kecamatan?.nama_kecamatan ?? '-',
-      nama_lok:             s.nama_lok,
-      segmen_id:            s.segmen_id,
-      nama_krt:             s.nama_krt,
-      rilis:                s.rilis,
-      nks:                  s.nks,
-      tanggal_pengecekan:   s.pengecekan?.tanggal_pengecekan ?? '-',
-      nama_responden:       s.pengecekan?.nama_responden     ?? '-',
-      no_telepon_responden: s.pengecekan?.no_telepon_responden ?? '-',
-      tanggal_panen:        s.pengecekan?.tanggal_panen      ?? '-',
-      keterangan:           s.pengecekan?.keterangan          ?? '-',
-      status_sampel:        s.pengecekan?.status_sampel      ?? 'Belum',
-      pcl_nama:             s.pcl?.nama,
-      pml_nama:             s.tim?.pml?.nama,
-    }));
+  useEffect(() => {
+    setBackupData(backupSamples);
+  }, [backupSamples]);
 
-  const rowsMain   = useMemo(() => makeRows(mainData),   [mainData]);
-  const rowsBackup = useMemo(() => makeRows(backupData), [backupData]);
-
+  // const handleEdit = (id: string, data: any) => {
+  //   setDialogSamples([data as Sampel]);
+  //   setIsDialogOpen(true);
+  // };
 
   // Fungsi untuk membuka dialog "tambah pengecekan"
   const openAddDialog = (row: Sampel) => {
     setDialogSamples([row]);
-    console.log("Membuka dialog untuk sampel:", row);
     setIsDialogOpen(true);
+  };
+
+
+  const customRender = (col: string, row: Sampel) => {
+    const p = row.pengecekan;
+    switch (col) {
+      case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ?? '-';
+      case 'nama_responden':       return p?.nama_responden     ?? '-';
+      case 'no_telepon_responden': return p?.no_telepon_responden ?? '-';
+      case 'tanggal_panen':
+        return p?.tanggal_panen
+          ? dayjs.utc(p.tanggal_panen).format('DD/MM/YYYY')
+          : '-';      case 'keterangan':         return p?.keterangan          ?? '-';
+      case 'status_sampel':       return p?.status_sampel      ?? 'Belum';
+      default: return undefined;
+    }
   };
 
   const closeDialog = () => {
     setIsDialogOpen(false);
     setDialogSamples([]);
   };
-
-    // const handleEdit = (id: string, data: any) => {
-  //   setDialogSamples([data as Sampel]);
-  //   setIsDialogOpen(true);
-  // };
 
   // const handleSave = (formData: any): Promise<void> => {
   //   return new Promise((resolve, reject) => {
@@ -159,7 +148,7 @@ const PengecekanPage: React.FC = () => {
   const baseColumnsMain = generateColumns<Sampel>(
     'pengecekanUtama',
     columnTitleMap,
-    undefined,
+    customRender,
     undefined,
     undefined,
     undefined,
@@ -218,7 +207,7 @@ const PengecekanPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <DataTable
-            data={rowsMain}
+            data={mainData}
             columns={columnsMain}
             columnTitleMap={columnTitleMap}
             name="Sampel Utama"
@@ -233,7 +222,7 @@ const PengecekanPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <DataTable
-            data={rowsBackup}
+            data={backupData}
             columns={columnsBackup}
             columnTitleMap={columnTitleMap}
             name="Sampel Cadangan"
@@ -254,5 +243,3 @@ const PengecekanPage: React.FC = () => {
 };
 
 export default PengecekanPage;
-
-

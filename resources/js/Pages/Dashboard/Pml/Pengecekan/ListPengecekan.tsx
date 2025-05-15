@@ -93,7 +93,9 @@ export default function PengecekanPage() {
   // custom renderer for pengecekan fields
   const customRender = (col: string, row: Sampel) => {
     const p = row.pengecekan;
+    const kec = row.kecamatan;
     switch (col) {
+      case 'nama_kec':           return kec?.nama_kecamatan ?? '-';
       case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ? dayjsLib(p.tanggal_pengecekan).format('DD/MM/YYYY') : '-';
       case 'nama_responden':       return p?.nama_responden     ?? '-';
       case 'no_telepon_responden': return p?.no_telepon_responden ?? '-';

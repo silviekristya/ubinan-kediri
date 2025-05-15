@@ -83,7 +83,7 @@ const PclAllocationDialog: React.FC<PclAllocationDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Pilih PCL untuk Sampel #{sampel.id}</DialogTitle>
+          <DialogTitle>Pilih PCL untuk Sampel {sampel.id}</DialogTitle>
           <DialogDescription>
             Pilih PCL yang tersedia pada tim yang sudah dipilih. Pastikan sampel sudah memiliki PML.
           </DialogDescription>

@@ -86,7 +86,7 @@ const SampelPage: React.FC = () => {
     undefined           // onDelete 
   );
 
-  console.log("Kolom yang dihasilkan:", columns);
+  // console.log("Kolom yang dihasilkan:", columns);
 
   return (
     <DashboardLayout>

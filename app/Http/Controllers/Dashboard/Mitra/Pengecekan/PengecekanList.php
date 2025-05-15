@@ -21,18 +21,19 @@ class PengecekanList extends Controller
     public function index()
     {
         $mitraId = Auth::user()->mitra->id;
-
-        // ambil semua sampel utama milik Mitra
-        $allUtama = Sampel::with('pengecekan')
-            ->where('pcl_id', $mitraId)
-            ->where('jenis_sampel', 'utama')
-            ->get();
-
-        // kumpulkan id_sampel cadangan yang sudah dipakai jadi sampel
         $usedCadIds = Pengecekan::query()
             ->whereNotNull('id_sampel_cadangan')
             ->pluck('id_sampel_cadangan')
             ->toArray();
+        // ambil semua sampel utama milik Mitra
+        $allUtama = Sampel::with(['pengecekan', 'kecamatan'])
+            ->where('pcl_id', $mitraId)
+            ->where('jenis_sampel', 'Utama')
+            ->whereNotIn('id', $usedCadIds)
+            ->get();
+
+        // kumpulkan id_sampel cadangan yang sudah dipakai jadi sampel
+
 
         $mainSamples = collect();
 
@@ -43,7 +44,7 @@ class PengecekanList extends Controller
                 && $cek->status_sampel === 'NonEligible'
                 && $cek->id_sampel_cadangan
             ) {
-                $cad = Sampel::with('pengecekan')
+                $cad = Sampel::with(['pengecekan', 'kecamatan'])
                     ->find($cek->id_sampel_cadangan);
                 if ($cad) {
                     $mainSamples->push($cad);
@@ -55,12 +56,12 @@ class PengecekanList extends Controller
         }
 
         // ambil sampel cadangan yang belum dicek sama sekali
-        $backupSamples = Sampel::where('pcl_id', $mitraId)
-            ->where('jenis_sampel', 'cadangan')
+        $backupSamples = Sampel::with('kecamatan')->where('pcl_id', $mitraId)
+            ->where('jenis_sampel', 'Cadangan')
             ->whereDoesntHave('pengecekan')
             ->whereNotIn('id', $usedCadIds)
             ->get();
-
+// dd($mainSamples, $backupSamples, $usedCadIds);
         return Inertia::render('Dashboard/Mitra/Pengecekan/ListPengecekan', [
             'mainSamples'   => $mainSamples->values(),
             'backupSamples' => $backupSamples,

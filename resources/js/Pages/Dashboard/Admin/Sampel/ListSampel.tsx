@@ -400,24 +400,18 @@ const SampelPage = () => {
   return (
     <DashboardLayout>
       <Head title="Sampel" />
-      {/* Tombol Import hanya di halaman Sampel */}
-      <div className="mb-4">
-        <Button onClick={() => setIsImportOpen(true)}>
-          Import Excel
-        </Button>
-      </div>
-
-      {/* Dialog untuk pilih & upload file Excel */}
-      <AddImportSampelDialog
-        isOpen={isImportOpen}
-        onClose={() => setIsImportOpen(false)}
-      />
       <Card className="w-full shadow-md overflow-x-auto">
         <CardHeader className="flex flex-col items-center text-base sm:text-xl font-semibold justify-between">
           <h2>Daftar Sampel</h2>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex justify-end">
+          
+          <div className="flex justify-end space-x-2">
+            {/* Tombol Import hanya di halaman Sampel */}
+            <Button onClick={() => setIsImportOpen(true)}>
+              Import Excel
+            </Button>
+            {/* Tombol tambah sampel */}
             <Button
               className="gap-1 flex items-center justify-center"
               onClick={() => setIsAddDialogOpen(true)}
@@ -426,6 +420,7 @@ const SampelPage = () => {
               {/* Tambah Sampel */}
             </Button>
           </div>
+
           <DataTable
             data={data}
             columns={columns as DataTableColumnDef<FlatSampel>[]}
@@ -434,6 +429,12 @@ const SampelPage = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Dialog untuk pilih & upload file Excel */}
+          <AddImportSampelDialog
+            isOpen={isImportOpen}
+            onClose={() => setIsImportOpen(false)}
+      />
 
       {/* Dialog Tambah Sampel */}
       <AddSampelDialog

@@ -41,7 +41,7 @@ export default function PengecekanPage() {
       jenis_tanaman:        s.jenis_tanaman,
       tahun_listing:        s.tahun_listing,
       subround:             s.subround,
-      nama_kec:             s.nama_kec,
+      nama_kec:             s.kecamatan?.nama_kecamatan ?? '-',
       nama_lok:             s.nama_lok,
       segmen_id:            s.segmen_id,
       nama_krt:             s.nama_krt,

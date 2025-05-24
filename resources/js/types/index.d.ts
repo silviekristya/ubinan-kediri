@@ -70,6 +70,7 @@ export interface Pengecekan {
     updated_at?: string;
 
     // optional back‐reference
+    tim?: Tim;
     sampel?: Sampel;
     hasil_ubinan?: HasilUbinan;
 } 

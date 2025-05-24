@@ -55,6 +55,7 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%
   }
+
 }
 @layer base {
   * {
@@ -64,3 +65,68 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer base {
+  /* Wrapper khusus untuk kalender */
+  .calendar-wrapper {
+    @apply w-full h-full overflow-hidden;
+  }
+
+  /* React-Calendar jadi grid 3 baris (nav, weekdays, tiles) */
+  .calendar-wrapper .react-calendar {
+    display: grid !important;
+    width: 100% !important;
+    height: 100% !important;
+    grid-template-rows: auto auto 1fr !important;
+  }
+
+  /* Grid 7 kolom, 6 baris (1fr) */
+  .calendar-wrapper .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Tile mengisi penuh sel */
+  .calendar-wrapper .react-calendar__tile {
+    height: 100% !important;
+    padding: 0.5rem !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  .calendar-wrapper .react-calendar__tile abbr {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+  }
+}
+@layer base {
+  .react-calendar {
+    width: 100% !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-rows: auto auto 1fr !important;
+  }
+  .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  .react-calendar__tile {
+    height: 100% !important;
+    padding: 0.5rem !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+  .react-calendar__tile abbr {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+  }
+}
+
+
+

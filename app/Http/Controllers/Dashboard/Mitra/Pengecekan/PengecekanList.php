@@ -26,7 +26,7 @@ class PengecekanList extends Controller
             ->pluck('id_sampel_cadangan')
             ->toArray();
         // ambil semua sampel utama milik Mitra
-        $allUtama = Sampel::with(['pengecekan', 'kecamatan'])
+        $allUtama = Sampel::with(['pengecekan', 'kecamatan', 'tim.pml'])
             ->where('pcl_id', $mitraId)
             ->where('jenis_sampel', 'Utama')
             ->whereNotIn('id', $usedCadIds)

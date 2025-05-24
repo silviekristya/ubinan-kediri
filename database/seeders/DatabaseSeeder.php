@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SegmenSeeder::class);
         $this->call(BlokSensusSeeder::class);
         $this->call(SlsSeeder::class);
+        $this->call(TemplatePesanSeeder::class);
+        $this->call(TemplateNotifikasiSeeder::class);
     }
 }

@@ -24,7 +24,9 @@ return new class extends Migration
             $table->enum('jenis', ['Email', 'WhatsApp']);
 
             // composite primary key
-            $table->unique(['tipe_notifikasi','template_pesan_id']);
+            $table->unique(['tipe_notifikasi','template_pesan_id','jenis'], 'uniq_template_notif');
+
+
             // foreign key ke template_pesan
             $table->foreign('template_pesan_id')
                   ->references('id')

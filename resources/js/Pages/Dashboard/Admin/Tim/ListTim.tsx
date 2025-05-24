@@ -13,12 +13,18 @@ import { CirclePlus, TriangleAlert } from 'lucide-react';
 import { AddTimDialog } from '@/Components/Dashboard/Components/Admin/Tim/AddTimDialog';
 import { useEffect } from 'react';
 import { EditTimDialog } from '@/Components/Dashboard/Components/Admin/Tim/EditTimDialog';
+import { SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/Components/ui/select';
 
 interface TimPageProps extends PageProps {
     tim: Tim[];
     pegawai: Pegawai[];
     mitra: Mitra[];
 }
+
+type RowTim = Tim & {
+  pcl: Mitra[];       // list PCL
+  pcl_count: number;  // jumlah PCL
+};
 
 const columnTitleMap: { [key: string]: string } = {
     nama_tim: "Nama Tim",
@@ -29,23 +35,31 @@ const columnTitleMap: { [key: string]: string } = {
 const TimPage = () => {
     const { tim, pegawai, mitra } = usePage<TimPageProps>().props;
 
-    const [data, setData] = useState<Tim[]>(tim);
+    const [data, setData] = useState<RowTim[]>([]);
     const [editData, setEditData] = useState<Tim | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-    const [filteredPegawai, setFilteredPegawai] = useState(pegawai);
-    const [filteredMitra, setFilteredMitra] = useState(mitra);
+    const [filteredPegawai, setFilteredPegawai] = useState<Pegawai[]>(pegawai);
+    const [filteredMitra, setFilteredMitra]     = useState<Mitra[]>(mitra);
+    // useEffect(() => {
+    //     const flattenedData: Tim[] = tim.map((item) => ({
+    //         ...item,
+    //         pml: item.pml || null, // Atasi undefined dengan null
+    //         pcl: item.pcl || [],   // Atasi undefined dengan array kosong
+    //     }));
+    //     setData(flattenedData);
 
+    // }, [tim]);
     useEffect(() => {
-        const flattenedData: Tim[] = tim.map((item) => ({
-            ...item,
-            pml: item.pml || null, // Atasi undefined dengan null
-            pcl: item.pcl || [],   // Atasi undefined dengan array kosong
+    const flattened: RowTim[] = tim.map(item => ({
+        ...item,
+        // pml:  item.pml  || null,
+        pcl:  item.pcl  || [],       // list PCL
+        pcl_count: (item.pcl?.length ?? 0),
         }));
-        setData(flattenedData);
-
+    setData(flattened);
     }, [tim]);
 
     async function fetchOptions(timId?: number) {
@@ -87,10 +101,11 @@ const TimPage = () => {
             if (response.data.status === "success") {
                 console.log("Response:", response.data);
                 const apiTim = response.data.tim;
-                const newRow: Tim = {
+                const newRow: RowTim = {
                     id: apiTim.id,
                     nama_tim: apiTim.nama_tim,
                     pml: apiTim.pml?.nama ?? "-",
+                    pcl: apiTim.pcl ?? [],
                     pcl_count: apiTim.pcl?.length ?? 0,
                     pml_id: apiTim.pml_id,
                 };
@@ -209,10 +224,34 @@ const TimPage = () => {
         );
     };
 
-    const columns = generateColumns(
+    const customRender = (columnKey: string, row: RowTim): React.ReactNode => {
+        if (columnKey === "pcl_count") {
+            const list = row.pcl ?? [];
+            if (list.length === 0) return '–';
+            if (list.length === 1) return list[0].nama;
+            // >1 : tampilkan angka + hover‐dropdown
+            return (
+                <div className="relative inline-block group">
+                    <span className="underline cursor-default">{`${list.length} PCL`}</span>
+                    <div className="absolute top-full mt-1 left-0 z-20 hidden group-hover:block
+                                    bg-white border rounded shadow p-2 min-w-[120px]">
+                        {list.map((p) => (
+                            <div key={p.id} className="text-sm">
+                                {p.nama}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        return undefined;
+    };
+
+
+    const columns = generateColumns<RowTim>(
         'tim',
         columnTitleMap,
-        undefined,
+        customRender,
         undefined,
         undefined,
         handleEdit,

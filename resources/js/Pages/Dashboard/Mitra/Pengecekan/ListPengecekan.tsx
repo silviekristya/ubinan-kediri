@@ -1,5 +1,3 @@
-// resources/js/Pages/Dashboard/Mitra/Pengecekan/Index.tsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
@@ -14,6 +12,7 @@ import { Row } from '@tanstack/react-table';
 import axios from 'axios';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/Components/ui/button';
+import { DataTableColumnHeader } from '@/Components/Dashboard/Components/DataTable/Components/DataTableColumnHeader';
 import dayjs from 'dayjs';
 import utc   from 'dayjs/plugin/utc';
 import 'dayjs/locale/id';
@@ -38,6 +37,7 @@ const columnTitleMap: Record<string, string> = {
   nama_krt: 'Nama KRT',
   rilis: 'Rilis',
   nks: 'NKS',
+  pml_nama: 'Nama PML',
   tanggal_pengecekan: 'Tanggal Pengecekan',
   nama_responden: 'Responden',
   no_telepon_responden: 'No. Telepon',
@@ -82,6 +82,7 @@ const PengecekanPage: React.FC = () => {
       tanggal_panen:        s.pengecekan?.tanggal_panen      ?? '-',
       keterangan:           s.pengecekan?.keterangan          ?? '-',
       status_sampel:        s.pengecekan?.status_sampel      ?? 'Belum',
+      // hasPengecekan:        Boolean(s.pengecekan),
       pcl_nama:             s.pcl?.nama,
       pml_nama:             s.tim?.pml?.nama,
     }));
@@ -167,23 +168,33 @@ const PengecekanPage: React.FC = () => {
     undefined
   );
 
+const [actionsColumn, checkboxColumn, ...dataColumns] = baseColumnsMain;
+
   // Tambahkan kolom aksi terakhir dengan tombol pengecekan
   const actionColumn: ColumnDef<Sampel> = {
-    id: 'action',
-    header: 'Aksi',
+    id: 'tambaah-pengecekan',
+    header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title="Tambah Pengecekan"
+      className="text-xs font-medium min-w-[130px]"  // disesuaikan dengan header default
+    />
+  ),
     cell: ({ row }) => {
-      const hasChecked = row.original.status_sampel && row.original.tanggal_pengecekan !== '-';
+      const isDisabled = row.getValue('status_sampel') !== 'Belum' || row.getValue('tanggal_pengecekan') !== '-';    
       return (
-        <Button
-          size="sm"
-          variant={hasChecked ? 'outline' : 'default'}
-          onClick={() => {
-            if (!hasChecked) openAddDialog(row.original);
-          }}
-          disabled={hasChecked}
-        >
-          Tambah Pengecekan
-        </Button>
+        <div className="min-w-[130px] flex justify-center">
+          <Button
+            size="sm"
+            variant={isDisabled ? 'outline' : 'default'}
+            onClick={() => 
+              !isDisabled && openAddDialog(row.original)
+            }
+            disabled={isDisabled}
+          >
+            Tambah
+          </Button>
+        </div>
       );
     },
     enableSorting: false,
@@ -192,8 +203,10 @@ const PengecekanPage: React.FC = () => {
   
   // gabungkan jadi columnsMain
   const columnsMain: ColumnDef<Sampel>[] = [
-    ...baseColumnsMain,
+    actionsColumn,
+    checkboxColumn,
     actionColumn,
+    ...dataColumns,
   ];
 
   const columnsBackup = generateColumns<Sampel>(

@@ -31,15 +31,15 @@ class PengecekanList extends Controller
               });
         };
 
-        // 1. Sampel Utama asli yg belum dicek
+        // Sampel Utama asli yg belum dicek
         $utama = Sampel::with(['pengecekan', 'kecamatan'])
             ->whereHas('tim', fn($q) => $q->where('pml_id', $pmlId))
             ->where('jenis_sampel', 'utama')
             ->where($unChecked)
             ->get();
 
-        // 2. Sampel Cadangan yg sudah dipromote (tampil di tabel Utama juga)
-        $cadPromote = Sampel::with('pengecekan')
+        // Sampel Cadangan yg sudah dipromote (tampil di tabel Utama juga)
+        $cadPromote = Sampel::with('pengecekan', 'kecamatan')
             ->whereIn('id', $usedCadIds)
             ->whereHas('tim', fn($q) => $q->where('pml_id', $pmlId))
             ->where($unChecked)
@@ -51,8 +51,8 @@ class PengecekanList extends Controller
             ->unique('id')
             ->values();
 
-        // 3. Sampel Cadangan (belum dicek & belum dipakai)
-        $samplesCadangan = Sampel::with('pengecekan')
+        // Sampel Cadangan (belum dicek & belum dipakai)
+        $samplesCadangan = Sampel::with('pengecekan', 'kecamatan')
             ->whereHas('tim', fn($q) => $q->where('pml_id', $pmlId))
             ->where('jenis_sampel', 'cadangan')
             ->where($unChecked)

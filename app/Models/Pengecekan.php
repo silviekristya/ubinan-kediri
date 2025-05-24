@@ -13,12 +13,12 @@ class Pengecekan extends Model
     protected $primaryKey = 'id';
     protected $dates = [
         'tanggal_panen',
-        // 'tanggal_pengecekan',
+        'tanggal_pengecekan',
     ];
-    protected $casts = [
-        // 'tanggal_pengecekan' => 'datetime',
-        'tanggal_panen' => 'datetime',
-    ];
+    // protected $casts = [
+    //     'tanggal_pengecekan' => 'date:d-m-Y',
+    //     'tanggal_panen' => 'date:d-m-Y',
+    // ];
 
     protected $fillable = [
         'id_sampel',

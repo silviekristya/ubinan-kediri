@@ -1,0 +1,17 @@
+tipe_notifikasi,template_pesan_id,jenis
+PengumumanSampelPML,2,Email
+PengumumanSampelPML,2,WhatsApp
+PengumumanSampelPCL,1,Email
+PengumumanSampelPCL,1,WhatsApp
+BulanSampelPML,3,Email
+BulanSampelPML,3,WhatsApp
+BulanSampelPCL,3,Email
+BulanSampelPCL,3,WhatsApp
+H3PencacahanPML,6,Email
+H3PencacahanPML,6,WhatsApp
+H1PencacahanPML,7,Email
+H1PencacahanPML,7,WhatsApp
+H3PencacahanPCL,4,Email
+H3PencacahanPCL,4,WhatsApp
+H1PencacahanPCL,5,Email
+H1PencacahanPCL,5,WhatsApp

@@ -126,6 +126,7 @@ export const AddBlokSensusDialog = ({ isOpen, onClose, onSave }: AddBlokSensusDi
                           key={k.id}
                           onPointerDown={e => { e.preventDefault(); e.stopPropagation(); }}
                           onSelect={() => { setKelDesaSel(k); setKelOpen(false); }}
+                          value={k.text}
                         >
                           {k.text}
                         </CommandItem>

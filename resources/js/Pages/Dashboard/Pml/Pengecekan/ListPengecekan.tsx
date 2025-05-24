@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// resources/js/Pages/Dashboard/Pml/Pengecekan/ListPengecekan.tsx
+import React, { useState, useMemo } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
@@ -6,20 +7,18 @@ import { Button } from '@/Components/ui/button';
 import { VerifyDialog } from '@/Components/Dashboard/Components/Pml/Pengecekan/AddVerifikasiDialog';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import type { PageProps, Sampel } from '@/types';
+import type { PageProps, Sampel, Pengecekan } from '@/types';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
-import dayjsLib from 'dayjs';
 
+type Props = PageProps & {
+  samplesUtama:    Array<Sampel & { pengecekan?: Pengecekan; cadanganOptions: { id: number; label: string }[] }>;
+  samplesVerified: Array<Sampel & { pengecekan?: Pengecekan }>;
+  samplesCadangan: Array<Sampel & { pengecekan?: Pengecekan }>;
+};
 
-interface PengecekanPageProps extends PageProps {
-  samplesUtama: (Sampel & { cadanganOptions: { id: number; label: string }[] })[];
-  samplesCadangan: Sampel[];
-  samplesVerified: Sampel[];
-}
-
-const columnTitleMap: Record<string, string> = {
+const columnTitleMap = {
   id: 'ID',
   jenis_sampel: 'Jenis Sampel',
   jenis_tanaman: 'Jenis Tanaman',
@@ -40,31 +39,81 @@ const columnTitleMap: Record<string, string> = {
 };
 
 export default function PengecekanPage() {
-  const {
-    samplesUtama,
-    samplesCadangan,
-    samplesVerified,
-  } = usePage<PengecekanPageProps>().props;
+  const { samplesUtama, samplesVerified, samplesCadangan } = usePage<Props>().props;
 
+  // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCekId, setSelectedCekId] = useState<number>(0);
+  const [selectedCekId, setSelectedCekId] = useState<number | null>(null);
   const [cadanganOptions, setCadanganOptions] = useState<{ id: number; label: string }[]>([]);
 
-  const openDialog = (row: Sampel & { cadanganOptions?: { id: number; label: string }[] }) => {
-    const p = row.pengecekan;
-    if (
-      !p ||
-      !p.tanggal_pengecekan ||
-      !p.nama_responden ||
-      !p.no_telepon_responden ||
-      !p.tanggal_panen
-    ) {
-      return toast.error('Pengecekan oleh Mitra belum lengkap.');
-    }
-    setSelectedCekId(p.id);
-    setCadanganOptions(row.cadanganOptions || []);
-    setIsDialogOpen(true);
+  // flatten jadi row-level object
+  const rowsUtama = useMemo(() =>
+    samplesUtama.map(s => ({
+      ...s, // biar you still punya id, jenis_sampel, dll
+      nama_kec: s.kecamatan?.nama_kecamatan ?? '-',
+      tanggal_pengecekan: s.pengecekan?.tanggal_pengecekan ?? '-',
+      nama_responden: s.pengecekan?.nama_responden ?? '-',
+      no_telepon_responden: s.pengecekan?.no_telepon_responden ?? '-',
+      tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
+      keterangan: s.pengecekan?.keterangan ?? '-',
+      status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+    })), [samplesUtama]
+  );
+
+  const rowsVerified = useMemo(() =>
+    samplesVerified.map(s => ({
+      ...s,
+      nama_kec: s.kecamatan?.nama_kecamatan ?? '-',
+      tanggal_pengecekan: s.pengecekan?.tanggal_pengecekan ?? '-',
+      nama_responden: s.pengecekan?.nama_responden ?? '-',
+      no_telepon_responden: s.pengecekan?.no_telepon_responden ?? '-',
+      tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
+      keterangan: s.pengecekan?.keterangan ?? '-',
+      status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+    })), [samplesVerified]
+  );
+
+  const rowsCadangan = useMemo(() =>
+    samplesCadangan.map(s => ({
+      ...s,
+      nama_kec: s.kecamatan?.nama_kecamatan ?? '-',
+      tanggal_pengecekan: s.pengecekan?.tanggal_pengecekan ?? '-',
+      nama_responden: s.pengecekan?.nama_responden ?? '-',
+      no_telepon_responden: s.pengecekan?.no_telepon_responden ?? '-',
+      tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
+      keterangan: s.pengecekan?.keterangan ?? '-',
+      status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+    })), [samplesCadangan]
+  );
+
+  // generate columns default (akses langsung ke field di row)
+  const baseColumns = generateColumns<typeof rowsUtama[0]>(
+    'pmlPengecekan',
+    columnTitleMap
+  );
+
+  // action column untuk verifikasi
+  const actionColumn: ColumnDef<typeof rowsUtama[0]> = {
+    id: 'action',
+    header: 'Aksi',
+    cell: ({ row }) => {
+      const p = row.original.pengecekan;
+      const incomplete = !!p && (!p?.status_sampel || p?.status_sampel === 'Belum');
+      return (
+        <Button
+          size="sm"
+          variant={incomplete ? 'default' : 'outline'}
+          disabled={!incomplete}
+          onClick={() => openDialog(row.original as any)}
+        >
+          {incomplete ? 'Verifikasi' : 'Terverifikasi'}
+        </Button>
+      );
+    },
   };
+
+  const columnsWithAction = [...baseColumns, actionColumn];
+  const columnsReadOnly   = [...baseColumns];
 
   const handleSave = async (data: {
     id: number;
@@ -90,104 +139,60 @@ export default function PengecekanPage() {
     }
   };
 
-  // custom renderer for pengecekan fields
-  const customRender = (col: string, row: Sampel) => {
+  const openDialog = (row: Sampel & { pengecekan?: Pengecekan; cadanganOptions?: { id: number; label: string }[] }) => {
     const p = row.pengecekan;
-    const kec = row.kecamatan;
-    switch (col) {
-      case 'nama_kec':           return kec?.nama_kecamatan ?? '-';
-      case 'tanggal_pengecekan':   return p?.tanggal_pengecekan ? dayjsLib(p.tanggal_pengecekan).format('DD/MM/YYYY') : '-';
-      case 'nama_responden':       return p?.nama_responden     ?? '-';
-      case 'no_telepon_responden': return p?.no_telepon_responden ?? '-';
-      case 'tanggal_panen':        return p?.tanggal_panen      ? dayjsLib(p.tanggal_panen).format('DD/MM/YYYY') : '-';
-      case 'keterangan':           return p?.keterangan         ?? '-';
-      case 'status_sampel':        return p?.status_sampel      ?? 'Belum';
-      default: return undefined;
+    if (
+      !p ||
+      !p.tanggal_pengecekan ||
+      !p.nama_responden ||
+      !p.no_telepon_responden ||
+      !p.tanggal_panen
+    ) {
+      return toast.error('Pengecekan oleh Mitra belum lengkap.');
     }
+    // kirim data ke dialog
+    setSelectedCekId(p.id);
+    setCadanganOptions(row.cadanganOptions || []);
+    setIsDialogOpen(true);
   };
-
-  const baseColumns = generateColumns<Sampel>(
-    'pmlPengecekan',
-    columnTitleMap,
-    customRender
-  );
-
-  // action column: only for utama & cadangan tables
-  const actionColumn: ColumnDef<Sampel> = {
-    id: 'action',
-    header: 'Aksi',
-    cell: ({ row }) => {
-      const p = row.original.pengecekan;
-      const incomplete =
-        !p ||
-        !p.tanggal_pengecekan ||
-        !p.nama_responden ||
-        !p.no_telepon_responden ||
-        !p.tanggal_panen;
-      const already = p?.status_sampel && p.status_sampel !== 'Belum';
-      const disabled = incomplete || already;
-
-      return (
-        <Button
-          size="sm"
-          variant={disabled ? 'outline' : 'default'}
-          disabled={disabled}
-          onClick={() => !disabled && openDialog(row.original as any)}
-        >
-          {already ? 'Terverifikasi' : 'Verifikasi'}
-        </Button>
-      );
-    },
-  };
-
-  const columnsWithAction = [...baseColumns, actionColumn];
-  const columnsReadOnly   = [...baseColumns];
 
   return (
     <DashboardLayout>
       <Head title="Verifikasi Pengecekan PML" />
+
       <Card className="mb-6">
-        <CardHeader className="flex items-center justify-between space-x-4">
-          <h2 className="text-lg font-semibold text-center">Sampel Utama</h2>
-        </CardHeader>
+        <CardHeader><h2>Sampel Utama</h2></CardHeader>
         <CardContent>
-          {/* Sampel Utama */}
           <DataTable
             name="Sampel Utama"
-            data={samplesUtama}
+            data={rowsUtama}
             columns={columnsWithAction}
             columnTitleMap={columnTitleMap}
           />
         </CardContent>
       </Card>
-      
+
       <Card className="mb-6">
-        <CardHeader className="flex items-center justify-between space-x-4">
-          <h2 className="text-lg font-semibold text-center">Sampel Terverifikasi</h2>
-        </CardHeader>
+        <CardHeader><h2>Sampel Terverifikasi</h2></CardHeader>
         <CardContent>
-          {/* Sampel Terverifikasi */}
           <DataTable
-          name="Sampel Terverifikasi"
-          data={samplesVerified}
-          columns={columnsReadOnly}
-          columnTitleMap={columnTitleMap}
-        />
+            name="Sampel Terverifikasi"
+            data={rowsVerified}
+            columns={columnsReadOnly}
+            columnTitleMap={columnTitleMap}
+          />
         </CardContent>
       </Card>
 
       <Card className="mb-6">
-        <CardHeader className="flex items-center justify-between space-x-4">
-          <h2 className="text-lg font-semibold text-center">Sampel Cadangan</h2>
-        </CardHeader>
+        <CardHeader><h2>Sampel Cadangan</h2></CardHeader>
         <CardContent>
-          {/* Sampel Cadangan */}
           <DataTable
-          name="Sampel Cadangan"
-          data={samplesCadangan}
-          columns={columnsWithAction}
-          columnTitleMap={columnTitleMap}
-        />
+            name="Sampel Cadangan"
+            data={rowsCadangan}
+            columns={columnsWithAction}
+            columnTitleMap={columnTitleMap}
+          />
         </CardContent>
       </Card>
 
@@ -196,14 +201,10 @@ export default function PengecekanPage() {
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
           onSave={handleSave}
-          pengecekanId={selectedCekId}
+          pengecekanId={selectedCekId ?? 0}
           cadanganOptions={cadanganOptions}
         />
       )}
     </DashboardLayout>
   );
 }
-function dayjs(tanggal_panen: string) {
-  throw new Error('Function not implemented.');
-}
-

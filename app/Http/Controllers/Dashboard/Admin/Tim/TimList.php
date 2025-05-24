@@ -23,6 +23,10 @@ class TimList extends Controller
                 'id' => $item->id,
                 'nama_tim' => $item->nama_tim,
                 'pml' => $item->pml ? $item->pml->nama : '-', // Ambil nama dari PML
+                'pcl'        => $item->pcl->map(fn($p) => [
+                    'id'   => $p->id,
+                    'nama' => $p->nama,
+                ])->toArray(),
                 'pcl_count' => $item->pcl ? $item->pcl->count() : 0, // Hitung jumlah PCL
             ];
         });

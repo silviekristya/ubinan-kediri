@@ -1,0 +1,99 @@
+id,nama_template,text
+1,Pengumuman Alokasi PCL,"🗂️ *Pembagian Tugas Survei Ubinan* 🗂️
+
+Yth. {{nama_pcl}},
+
+Berikut alokasi tugas untuk pencacahan wilayah Anda:
+
+• Kecamatan: {{nama_kec}}  
+• Jumlah sampel: {{jumlah_sampel}}  
+• PML Pendamping: {{nama_pml}}
+
+Mohon:
+1. Cek alokasi lengkap pada web Sinobi {{link}}. 
+2. Hubungi PML pendamping.  
+3. Melakukan pengecekan lahan dan mencatat informasi terkait pada web Sinobi.
+
+Semangat bertugas dan jaga keselamatan!  
+— Tim Survei Ubinan BPS Kab. Kediri"
+2,Pengumuman Alokasi PML,"🗂️ *Pembagian Tugas Survei Ubinan* 🗂️
+
+Yth. {{nama_pml}},
+
+Berikut alokasi tugas untuk pencacahan wilayah Anda:
+
+• Kecamatan: {{nama_kec}}  
+• Jumlah sampel: {{jumlah_sampel}}  
+• Jumlah PCL: {{jumlah_pcl}}
+
+Mohon:
+1. Cek alokasi lengkap pada web Sinobi {{link}}. 
+2. Koordinasi dengan PCL terkait untuk melakukan pengecekan lahan sampel.  
+
+Semangat bertugas dan jaga keselamatan!  
+— Tim Survei Ubinan BPS Kab. Kediri"
+3,Pengumuman Bulan Sampel,"Yth. Seluruh Tim Survei Ubinan,
+
+Selamat memasuki bulan {{nama_bulan}} {{tahun}}!
+Berikut hal-hal penting bulan ini:
+
+Informasi lengkap cek web Sinobi: {{link}}
+
+Daftar sampel yang harus dicek/pencacahan:
+{{daftar_sampel}}
+
+Mohon dicek kembali tugas dan daftar sampel masing-masing.
+Mari sukseskan pencacahan ubinan bulan ini!
+— Tim Survei Ubinan BPS Kab. Kediri"
+4,H-3 Pencacahan PCL,"📣 *Pemberitahuan 3 Hari Menuju Tanggal Panen* 📣
+
+Yth. {{nama_pcl}},
+
+Dalam rangka persiapan pencacahan *Survei Ubinan*:
+nks    : {{nks}}
+lokasi : {{nama_lok}}
+Tanggal: {{tanggal_panen}}  
+
+Mohon dipastikan:
+1. Alat tulis, perangkat pendukung (HP), dan dokumen siap dibawa.  
+2. Menyiapkan peralatan ubinan yang akan digunakan.
+3. Sudah berkoordinasi dengan PML pendamping atas nama {{nama_pml}}.
+
+Terima kasih atas kerjasama dan selamat bertugas.  
+— Tim Survei Ubinan BPS Kab. Kediri"
+5,H-1 Pencacahan PCL,"⏰ *Reminder 1 Hari Lagi!* ⏰
+
+Yth. {{nama_pcl}},
+
+Besok (*{{tanggal_panen}}*) adalah hari pencacahan Survei Ubinan dengan keterangan sebagai berikut:
+nks          : {{nks}}
+lokasi       : {{nama_lok}}
+petani sampel: {{nama_responden}}
+
+Pastikan Anda sudah membaca panduan dan menghubungi petani sampel terkait.  
+Terima kasih dan selamat menjalankan tugas. 
+— Tim Survei Ubinan BPS Kab. Kediri"
+6,H-3 Pencacahan PML,"📣 *Pemberitahuan 3 Hari Menuju Tanggal Panen* 📣
+
+Yth. {{nama_pml}},
+
+Dalam rangka persiapan pencacahan *Survei Ubinan*:
+nks    : {{nks}}
+lokasi : {{nama_lok}}
+Tanggal: {{tanggal_panen}}  
+
+Mohon berkoordinasi dengan PCL atas nama {{nama_pml}}.
+
+Terima kasih atas kerjasama dan selamat bertugas.  
+— Tim Survei Ubinan BPS Kab. Kediri"
+7,H-1 Pencacahan PML,"⏰ *Reminder 1 Hari Lagi!* ⏰
+
+Yth. {{nama_pml}},
+
+Besok (*{{tanggal_panen}}*) adalah hari pencacahan Survei Ubinan dengan keterangan sebagai berikut:
+nks          : {{nks}}
+lokasi       : {{nama_lok}}
+petani sampel: {{nama_responden}}
+
+Silahkan melakukan koordinasi dengan PCL bertugas! 
+— Tim Survei Ubinan BPS Kab. Kediri"

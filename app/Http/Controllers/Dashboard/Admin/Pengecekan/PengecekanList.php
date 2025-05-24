@@ -13,7 +13,7 @@ class PengecekanList extends Controller
     public function index()
     {
         // Semua sampel utama (baik yang sudah dicek maupun belum)
-        $samplesUtama = Sampel::with('pengecekan', 'tim.pml', 'pcl')
+        $samplesUtama = Sampel::with('kecamatan','pengecekan', 'tim.pml', 'pcl')
             ->where('jenis_sampel', 'utama')
             ->orderBy('nama_lok')
             ->get();
@@ -24,7 +24,7 @@ class PengecekanList extends Controller
             ->toArray();
 
         // Sampel cadangan yang belum dipakai
-        $samplesCadangan = Sampel::with('pengecekan', 'tim.pml', 'pcl')
+        $samplesCadangan = Sampel::with('kecamatan','pengecekan', 'tim.pml', 'pcl')
             ->where('jenis_sampel', 'cadangan')
             ->whereNotIn('id', $usedCadIds)
             ->orderBy('nama_lok')

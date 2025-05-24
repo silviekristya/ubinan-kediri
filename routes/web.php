@@ -32,6 +32,9 @@ use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiStore;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiDelete;
 use App\Http\Controllers\Dashboard\Admin\Pegawai\PegawaiUpdate;
 use App\Http\Controllers\Dashboard\Beranda\DashboardController;
+use App\Http\Controllers\Dashboard\Admin\Beranda\DashboardController as DashboardControllerAdmin;
+use App\Http\Controllers\Dashboard\Mitra\Beranda\DashboardController as DashboardControllerMitra;
+use App\Http\Controllers\Dashboard\Pml\Beranda\DashboardController as DashboardControllerPml;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
@@ -72,6 +75,7 @@ use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanVerifikasi as Hasi
 use App\Http\Controllers\Dashboard\Admin\Option\SlsAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\TimAvailableListOption; // Ensure this class exists in the specified namespace
 use App\Http\Controllers\Dashboard\Admin\Option\TimPclAvailableListOption; // Ensure this class exists in the specified namespace
+
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
 Route::post('import', [SampelImportController::class, 'v1'])->name('import');
@@ -246,6 +250,7 @@ Route::middleware('auth')
                 Route::post('store', [HasilUbinanStoreMitra::class, 'v1'])->name('store');
                 Route::post('update{hasilUbinan}', [HasilUbinanUpdateMitra::class, 'v1'])->name('update');
             });
+            // End: Hasil Ubinan
         });
         // End: Mitra
 
@@ -274,6 +279,7 @@ Route::middleware('auth')
                 Route::post('update{hasilUbinan}', [HasilUbinanUpdatePML::class, 'v1'])->name('update');
                 Route::post('verifikasi{hasilUbinan}', [HasilUbinanVerifikasiPML::class, 'v1'])->name('verifikasi');
             });
+            // End: Hasil Ubinan
         });
         // End: PML
 

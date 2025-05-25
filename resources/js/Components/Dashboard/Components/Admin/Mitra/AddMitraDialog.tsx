@@ -67,8 +67,8 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambah Pegawai Baru</DialogTitle>
-          <DialogDescription>Masukkan data pegawai baru</DialogDescription>
+          <DialogTitle>Tambah Mitra Baru</DialogTitle>
+          <DialogDescription>Masukkan data mitra baru</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -134,7 +134,7 @@ export const AddMitraDialog = ({ isOpen, onClose, onSave, users }: AddMitraDialo
 
           {/* Phone */}
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="noTelepon">No HP</Label>
+            <Label htmlFor="noTelepon">No Telepon</Label>
             <Input
               id="noTelepon"
               name="noTelepon"

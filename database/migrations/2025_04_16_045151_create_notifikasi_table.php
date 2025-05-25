@@ -18,15 +18,15 @@ return new class extends Migration
                   ->onDelete('cascade');
             $table->foreignId('tim_id')->constrained('tim')->onDelete('cascade');
             $table->foreignId('pml_id')->constrained('pegawai')->onDelete('cascade');
-            $table->foreignId('pcl_id')->constrained('mitra')->onDelete('cascade');
+            $table->foreignId('pcl_id')->nullable()->constrained('mitra')->onDelete('cascade');
             $table->string('email');
             $table->string('no_wa', 20);
-            $table->foreignId('sampel_id')->constrained('sampel')->onDelete('cascade');
-            $table->foreignId('pengecekan_id')->constrained('pengecekan')->onDelete('cascade');
-            $table->enum('status', ['Terkirim', 'Gagal']);
-            $table->timestamp('tanggal_terkirim')
-                  ->useCurrent()
-                  ->change();
+            $table->foreignId('sampel_id')->nullable()->constrained('sampel')->onDelete('cascade');
+            $table->foreignId('pengecekan_id')->nullable()->constrained('pengecekan')->onDelete('cascade');
+            $table->enum('status', ['Terkirim', 'Pending', 'Gagal'])
+                  ->default('Pending')
+                  ->comment('Status notifikasi: Terkirim, Pending, Gagal');
+            $table->timestamp('tanggal_terkirim')->nullable();
             $table->timestamps();
         });
     }

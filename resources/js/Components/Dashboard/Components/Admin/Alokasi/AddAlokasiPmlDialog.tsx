@@ -46,6 +46,7 @@ const PmlAllocationsDialog: React.FC<AddPmlAllocationsDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     setErrorMessage('');
     console.log("Mengirim payload:", { tim_id: selectedTimId });
@@ -57,7 +58,6 @@ const PmlAllocationsDialog: React.FC<AddPmlAllocationsDialogProps> = ({
       console.log("Update PML berhasil, tim_id:", selectedTimId);
       onAllocationSuccess(selectedTimId);
     } catch (error) {
-      console.error("Error saat menyimpan PML:", error);
       setErrorMessage('Gagal menyimpan PML');
     } finally {
       setLoading(false);

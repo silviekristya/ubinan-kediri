@@ -61,6 +61,7 @@ const PclAllocationDialog: React.FC<PclAllocationDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || !selectedPclId) return; // Cegah submit ganda atau tanpa PCL terpilih
     setLoading(true);
     setErrorMessage('');
     console.log("Mengirim payload:", { pcl_id: selectedPclId });

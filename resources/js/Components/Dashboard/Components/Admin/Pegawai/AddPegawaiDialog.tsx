@@ -143,7 +143,7 @@ export const AddPegawaiDialog = ({ isOpen, onClose, onSave, users }: AddPegawaiD
 
           {/* Phone */}
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="noTelepon">No HP</Label>
+            <Label htmlFor="noTelepon">No Telepon</Label>
             <Input
               id="noTelepon"
               name="noTelepon"

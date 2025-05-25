@@ -24,5 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SlsSeeder::class);
         $this->call(TemplatePesanSeeder::class);
         $this->call(TemplateNotifikasiSeeder::class);
+        $this->call(MitraSeeder::class);
+        $this->call(TimSeeder::class);
     }
 }

@@ -14,7 +14,7 @@ class Produktivitas extends Model
 
     protected $fillable = [
         'id_hasil_ubinan',
-        'luas_perhektar',
+        'konversi',
         'jumlah_luas_ubinan',
         'produktivitas',
     ];

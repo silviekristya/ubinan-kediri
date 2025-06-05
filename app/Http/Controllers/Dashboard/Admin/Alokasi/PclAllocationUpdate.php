@@ -44,8 +44,8 @@ class PclAllocationUpdate extends Controller
                     'tim_id'                 => $sampel->tim_id,
                     'pml_id'                 => $pml->id,
                     'pcl_id'                 => $pcl->id,
-                    'email'                  => $pcl->email ?? '',
-                    'no_wa'                  => $pcl->no_wa ?? '',
+                    'email'                  => $pcl->user->email ?? '',
+                    'no_wa'                  => $pcl->no_telepon ?? '',
                     'sampel_id'              => $sampel->id,
                     'pengecekan_id'          => null, // isi jika ada data
                     'status'                 => 'Pending',

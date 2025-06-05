@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_hasil_ubinan');
             $table->foreign('id_hasil_ubinan')->references('id')->on('hasil_ubinan')
                   ->onDelete('cascade')->unique();
-            $table->double('luas_perhektar')->default(100000);
+            $table->double('konversi')->default(100);
             $table->double('jumlah_luas_ubinan')->default(6.25);
             $table->double('produktivitas');
             $table->timestamps();

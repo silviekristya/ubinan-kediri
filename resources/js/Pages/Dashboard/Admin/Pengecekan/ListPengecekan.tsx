@@ -150,7 +150,7 @@ export default function PengecekanPage() {
 
   return (
     <DashboardLayout>
-      <Head title="Page Pengecekan Admin" />
+      <Head title="Pengecekan Admin" />
 
       <Card className="mb-6">
       <CardHeader className="flex items-center justify-between space-x-4">

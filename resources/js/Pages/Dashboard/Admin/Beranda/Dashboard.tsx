@@ -1,30 +1,36 @@
-import React from "react";
+// resources/js/Pages/Dashboard/Admin/Beranda/Dashboard.tsx
+
+import React, { useMemo } from "react";
 import { Head, usePage } from "@inertiajs/react";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
+import { Card, CardHeader, CardContent } from "@/Components/ui/card";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import isBetween from "dayjs/plugin/isBetween";
 import "dayjs/locale/id";
+import DashboardLayout from "@/Layouts/DashboardLayout";
 import { PageProps, WithCsrf } from "@/types";
 import { ScheduleCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/ScheduleCalendar";
-import DashboardLayout from '@/Layouts/DashboardLayout';
 import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
   TooltipContent,
-} from '@/Components/ui/tooltip';
-import { TooltipCalendar } from '@/Components/Dashboard/Components/ScheduleCalendar/TooltipCalendar';
+} from "@/Components/ui/tooltip";
+import { TooltipCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/TooltipCalendar";
+import { Progress } from "@/Components/ui/progress";
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip as RechartTooltip,
+  Legend,
+} from "recharts";
 
 dayjs.extend(utc);
 dayjs.extend(isBetween);
 dayjs.locale("id");
-
-interface CalendarEvent {
-  date: string;
-  title: string;
-  description: string;
-}
 
 interface RawEvent {
   date: string;
@@ -33,34 +39,58 @@ interface RawEvent {
   pcl: string;
 }
 
-interface DashboardPageProps extends PageProps<{ events: RawEvent[] }>, WithCsrf {
-  [key: string]: any; 
+interface DashboardPageProps
+  extends PageProps<{
+    events: RawEvent[];
+    progress: Record<string, { label: string; done: number; total: number }>;
+    productivityChart: Record<string, any>[];
+  }>,
+    WithCsrf {
+  [key: string]: unknown;
 }
 
 export default function AdminDashboard() {
-  const { events: rawEvents = [] } = usePage<DashboardPageProps>().props;
+  const {
+    events: rawEvents = [],
+    progress = {},
+    productivityChart = [],
+  } = usePage<DashboardPageProps>().props;
 
-  const calendarEvents: CalendarEvent[] = rawEvents.map(ev => ({
-    date: ev.date,
-    title: `Lokasi Panen: ${ev.nama_lok}`,
-    description: `PML: ${ev.pml}\nPCL: ${ev.pcl}`,
-  }));
+  // Prepare calendar events
+  const calendarEvents = useMemo(
+    () =>
+      rawEvents.map((ev) => ({
+        date: ev.date,
+        title: `Lokasi Panen: ${ev.nama_lok}`,
+        description: `PML: ${ev.pml}\nPCL: ${ev.pcl}`,
+      })),
+    [rawEvents]
+  );
+
+  // Collect kecamatan keys for the chart
+  const kecamatans = useMemo(() => {
+    const keys = new Set<string>();
+    productivityChart.forEach((row) => {
+      Object.keys(row).forEach((k) => {
+        if (k !== "subround") keys.add(k);
+      });
+    });
+    return Array.from(keys);
+  }, [productivityChart]);
 
   return (
     <DashboardLayout>
       <Head title="Dashboard" />
-      <div className="flex flex-col gap-4 w-full">
-        <Card className="w-full shadow-md">
-          <CardHeader className="text-base sm:text-xl font-semibold text-center">
+
+      <div className="flex flex-col gap-6 w-full">
+        {/* Calendar */}
+        <Card className="shadow">
+          <CardHeader className="text-center font-semibold text-lg">
             Jadwal Panen
           </CardHeader>
-          {/* Tambahkan `relative` di sini */}
-          <CardContent className="p-0 overflow-visible">
-            {/* Bungkus kalender dengan satu TooltipProvider */}
+          <CardContent className="p-0 overflow-visible relative">
             <TooltipProvider>
-              <div
-                className="relative px-4 py-2"
-              >                
+              <div className="relative px-4 py-2">
                 <ScheduleCalendar
                   events={calendarEvents}
                   tileContent={({ date, view }) => {
@@ -73,6 +103,53 @@ export default function AdminDashboard() {
                 />
               </div>
             </TooltipProvider>
+          </CardContent>
+        </Card>
+
+        {/* 2) Progress bars side-by-side (two columns) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(progress).map(([key, { label, done, total }]) => {
+            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+            return (
+              <Card key={key} className="shadow">
+                <CardHeader className="font-medium text-base">
+                  {label} Progress
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between mb-2">
+                    <span>{done} / {total}</span>
+                    <span>{percent}%</span>
+                  </div>
+                  <Progress value={percent} className="h-2" />
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* 3) Productivity Chart */}
+        <Card className="shadow">
+          <CardHeader className="text-center font-semibold text-lg">
+            Produktivitas per Kecamatan per Subround
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={productivityChart}>
+                <XAxis dataKey="subround" stroke="#8884d8" />
+                <YAxis stroke="#8884d8" />
+                <RechartTooltip />
+                <Legend />
+                {kecamatans.map((kec) => (
+                  <Line
+                    key={kec}
+                    type="monotone"
+                    dataKey={kec}
+                    connectNulls
+                    strokeWidth={2}
+                  />
+                ))}
+              </ComposedChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>

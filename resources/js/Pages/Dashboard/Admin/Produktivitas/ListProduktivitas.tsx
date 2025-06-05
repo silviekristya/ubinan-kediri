@@ -1,107 +1,195 @@
-import React, { useState, useEffect, useMemo } from 'react';
+// resources/js/Pages/Dashboard/Admin/Produktivitas/ListProduktivitas.tsx
+
+import React, { useState, useMemo } from 'react';
 import { Head, usePage }                  from '@inertiajs/react';
 import DashboardLayout                    from '@/Layouts/DashboardLayout';
 import { DataTable }                      from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { Card, CardHeader, CardContent }  from '@/Components/ui/card';
-import { Button }                         from '@/Components/ui/button';
-import { Copy }                           from 'lucide-react';
 import { toast }                          from 'react-toastify';
 import { generateColumns }                from '@/Components/Dashboard/Components/DataTable/Components/Columns';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
 import type { ColumnDef }                 from '@tanstack/react-table';
 import type { PageProps }                 from '@/types';
 
-interface RecordType {
+// Record per sampel
+type SampelRecord = {
   id_hasil_ubinan:   number;
-  luas_perhektar:    number;
+  tanggal_ubinan:    string | null;
+  nama_lok:          string | null;
+  konversi:          number;
   jumlah_luas_ubinan:number;
   berat_hasil_ubinan:number | null;
   produktivitas:     number | null;
-//   created_at:        string;
-//   updated_at:        string;
-}
+};
+
+// Record per kecamatan
+type KecamatanRecord = {
+  tahun_listing:  string;
+  subround:       string;
+  kecamatan:      string;
+  produktivitas:  number;
+};
+
+// Record per kabupaten
+type KabupatenRecord = {
+  tahun_listing:  string;
+  subround:       string;
+  kabupaten:      string;
+  produktivitas:  number;
+};
 
 type Props = PageProps & {
-  records: RecordType[];
+  records: SampelRecord[];
+  byKecamatan: KecamatanRecord[];
+  byKabupaten: KabupatenRecord[];
 };
 
 export default function ListProduktivitas() {
-  // ambil data dari server
-  const { records = [] } = usePage<Props>().props;
+  const {
+    records = [],
+    byKecamatan = [],
+    byKabupaten = [],
+  } = usePage<Props>().props;
 
-  // local state mirror
-  const [data, setData] = useState<RecordType[]>(records);
-  useEffect(() => { setData(records); }, [records]);
+  const [viewMode, setViewMode] = useState<'sampel' | 'kecamatan' | 'kabupaten'>('sampel');
 
-  // transform data → row (bisa dipakai customRender nanti)
-  const rows = useMemo(
-    () => data.map(r => ({
-      ...r,
-      // jika mau override format tanggal nanti bisa customRender
-    })),
-    [data]
+  // Unified copy handler
+  const handleCopy = (row: any) => {
+    const payload = { ...row };
+    delete payload.id_hasil_ubinan;
+    toast.promise(
+      navigator.clipboard.writeText(JSON.stringify(payload, null, 2)),
+      { pending: 'Menyalin data…', success: 'Berhasil disalin!', error: 'Gagal menyalin.' }
+    );
+  };
+
+  // Column title maps
+  const sampelTitleMap = useMemo(() => ({
+    id_hasil_ubinan:    'ID Hasil Ubinan',
+    tanggal_ubinan:     'Tanggal Ubinan',
+    kecamatan_id:      'ID Kecamatan',
+    nama_kecamatan:    'Kecamatan',
+    nama_lok:           'Lokasi Sampel',
+    konversi:           'Konversi',
+    jumlah_luas_ubinan: 'Luas Ubinan (m²)',
+    berat_hasil_ubinan: 'Berat Ubinan (kg)',
+    produktivitas:      'Produktivitas (kw/ha)',
+  }), []);
+
+  const kecamatanTitleMap = useMemo(() => ({
+    tahun_listing:  'Tahun',
+    subround:       'Subround',
+    kecamatan_id:   'ID Kecamatan',
+    kecamatan:      'Kecamatan',
+    jumlah_sampel: 'Jumlah Sampel',
+    rata2_berat: 'Rata-rata Berat (kg)',
+    produktivitas:  'Produktivitas (kw/ha)',
+  }), []);
+
+  const kabupatenTitleMap = useMemo(() => ({
+    tahun_listing:  'Tahun',
+    subround:       'Subround',
+    kabupaten_id: 'Kode Kab/Kota',
+    kabupaten:      'Kabupaten',
+    jumlah_sampel: 'Jumlah Sampel',
+    rata2_berat: 'Rata-rata Berat (kg)',
+    produktivitas:  'Produktivitas (kw/ha)',
+  }), []);
+
+  // Generate columns
+  const columnsSampel: ColumnDef<SampelRecord>[] = useMemo(
+    () => generateColumns<SampelRecord>(
+      'produktivitassAdmin',
+      sampelTitleMap,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      handleCopy,
+      undefined
+    ), [sampelTitleMap]
   );
 
-  // judul kolom
-  const columnTitleMap: Record<string,string> = {
-    id_hasil_ubinan:    'ID Hasil Ubinan',
-    luas_perhektar:     'Luas per Ha (m²)',
-    jumlah_luas_ubinan: 'Luas Ubinan (m²)',
-    berat_hasil_ubinan: 'Berat Hasil Ubinan',
-    produktivitas:      'Produktivitas',
-    // created_at:         'Dibuat',
-    // updated_at:         'Diubah',
-  };
+  const columnsKecamatan: ColumnDef<KecamatanRecord>[] = useMemo(
+    () => generateColumns<KecamatanRecord>(
+      'produktivitaskecamatanAdmin',
+      kecamatanTitleMap,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      handleCopy,
+      undefined
+    ), [kecamatanTitleMap]
+  );
 
-  // 5) copy‐to‐clipboard action
-  const handleCopy = (row: RecordType) => {
-    const { id_hasil_ubinan, ...rest } = row;
-    toast.promise(
-      navigator.clipboard.writeText(JSON.stringify(rest, null, 2)),
-      {
-        pending: 'Menyalin data…',
-        success: 'Berhasil disalin!',
-        error:   'Gagal menyalin.',
-      }
-    );
-  };
+  const columnsKabupaten: ColumnDef<KabupatenRecord>[] = useMemo(
+    () => generateColumns<KabupatenRecord>(
+      'produktivitaskabupatenAdmin',
+      kabupatenTitleMap,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      handleCopy,
+      undefined
+    ), [kabupatenTitleMap]
+  );
 
-  // 6) generate base columns + opsi copy
-  const columns: ColumnDef<RecordType>[] =
-    generateColumns<RecordType>(
-      'produkvitiasAdmin',
-      columnTitleMap,
-      undefined,      // no customRender
-      undefined,      // no detail
-      undefined,      // no updateStatus
-      undefined,      // no edit
-      handleCopy,     // onCopy
-      undefined       // no delete
-    );
-
-    const beratColIndex = columns.findIndex(c => (c as any).accessorKey === 'berat_hasil_ubinan');
-    if (beratColIndex >= 0) {
-    columns[beratColIndex] = {
-        ...columns[beratColIndex],
-        cell: ({ row }) => String(row.getValue('berat_hasil_ubinan') ?? '—'),
-    };
+  // Default cell for nulls
+  [...columnsSampel, ...columnsKecamatan, ...columnsKabupaten].forEach(col => {
+    if (!col.cell) {
+      col.cell = ({ row }: { row: any }) => {
+        const key = (col as any).accessorKey as string;
+        const value = row.getValue(key);
+        return value != null ? String(value) : '—';
+      };
     }
+  });
 
-  // render
   return (
     <DashboardLayout>
       <Head title="Daftar Produktivitas" />
 
-      <Card className="mb-6">
-        <CardHeader className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Daftar Produktivitas</h2>
+      <Card>
+        <CardHeader>
+          <h2 className="text-base sm:text-xl font-semibold text-center">Daftar Produktivitas</h2>
         </CardHeader>
         <CardContent>
-          <DataTable
-            name="Produktivitas"
-            data={rows}
-            columns={columns}
-            columnTitleMap={columnTitleMap}
-          />
+          <Tabs value={viewMode} onValueChange={(val) => setViewMode(val as 'sampel' | 'kecamatan' | 'kabupaten')}>
+            <TabsList>
+              <TabsTrigger value="sampel">Sampel</TabsTrigger>
+              <TabsTrigger value="kecamatan">Kecamatan</TabsTrigger>
+              <TabsTrigger value="kabupaten">Kabupaten</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sampel">
+              <DataTable
+                name="ProduktivitasSampel"
+                data={records}
+                columns={columnsSampel}
+                columnTitleMap={sampelTitleMap}
+              />
+            </TabsContent>
+
+            <TabsContent value="kecamatan">
+              <DataTable
+                name="ProduktivitasKecamatan"
+                data={byKecamatan}
+                columns={columnsKecamatan}
+                columnTitleMap={kecamatanTitleMap}
+              />
+            </TabsContent>
+
+            <TabsContent value="kabupaten">
+              <DataTable
+                name="ProduktivitasKabupaten"
+                data={byKabupaten}
+                columns={columnsKabupaten}
+                columnTitleMap={kabupatenTitleMap}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </DashboardLayout>

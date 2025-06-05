@@ -44,11 +44,11 @@ class PmlAllocationUpdate extends Controller
                     'tim_id'                 => $sampel->tim_id,
                     'pml_id'                 => $pml->id,
                     'pcl_id'                 => null,
-                    'email'                  => $pml->email ?? '',
-                    'no_wa'                  => $pml->no_wa ?? '',
+                    'email'                  => $pml->user->email ?? '',
+                    'no_wa'                  => $pml->no_telepon ?? '',
                     'sampel_id'              => $sampel->id,
                     'pengecekan_id'          => null, // isi jika ada data
-                    'status'                 => 'Terkirim',
+                    'status'                 => 'Pending',
                     'tanggal_terkirim'       => now(),
                 ]);
             }

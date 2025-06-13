@@ -74,7 +74,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   const handleAddSls = async (formData: { nama_sls: string; bs_id: string }) => {
     try {
       const { data } = await axios.post(
-        '/dashboard/admin/segmen-blok-sensus/nama-sls/store',
+        '/dashboard/admin/wilayah/nama-sls/store',
         formData
       );
       if (data.status === 'success') {
@@ -106,7 +106,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   const handleConfirmUpdateSls = async (id: string, formData: Partial<Sls>) => {
     try {
       const { data } = await axios.post(
-        `/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`,
+        `/dashboard/admin/wilayah/nama-sls/update/${id}`,
         formData
       );
       if (data.status === 'success') {
@@ -135,7 +135,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   const handleConfirmDeleteSls = async (id: string) => {
     try {
       const { data } = await axios.delete(
-        `/dashboard/admin/segmen-blok-sensus/nama-sls/delete/${id}`
+        `/dashboard/admin/wilayah/nama-sls/delete/${id}`
       );
       if (data.status === 'success') {
         setSlsData((prev) => prev.filter((s) => s.id_sls !== id));

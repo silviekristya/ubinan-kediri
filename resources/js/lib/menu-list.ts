@@ -99,9 +99,9 @@ type Group = {
                 submenus: []
             },
             {
-              href: route('dashboard.admin.segmen-blok-sensus.index'),
-              label: "Segmen & Blok Sensus",
-              active: pathname.includes("/dashboard/admin/segmen-blok-sensus"),
+              href: route('dashboard.admin.wilayah.index'),
+              active: pathname.includes("/dashboard/admin/wilayah"),
+              label: "Wilayah",
               icon: LuMapPin,
               submenus: []
             },
@@ -140,7 +140,7 @@ type Group = {
               icon: LuMail,
               submenus: []
             },
-      
+
           ]
         }
       ] : userRole === 'MITRA' ? [

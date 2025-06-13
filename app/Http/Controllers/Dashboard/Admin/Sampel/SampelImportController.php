@@ -28,14 +28,14 @@ class SampelImportController extends Controller
             Excel::import($import, $path);
             Log::info('[SampelImport] Import selesai');
             $warnings = $import->getWarnings();
+            // dd($warnings); // Debugging: tampilkan isi warnings
             if (! empty($warnings)) {
-                $list = implode(', ', $warnings);
-                $message = "Beberapa baris dengan nomor BS tidak ditemukan: $list. Baris tersebut dilewati.";
-                Log::warning("[SampelImport] Ditemukan peringatan:\n{$message}");
-                // redirect dengan flash warning
+                $list = implode('<br>', $warnings); // Biar baris per baris
+                $message = "Beberapa baris gagal diimpor:<br>{$list}<br>Baris tersebut dilewati.";
+                Log::warning("[SampelImport] Ditemukan warning:\n{$message}");
                 return redirect()
                     ->route('dashboard.admin.sampel.index')
-                    ->with('warning', $message);
+                    ->with('error', $message); // gunakan .with('error', ...) untuk munculkan error
             }
             return redirect()
                 ->route('dashboard.admin.sampel.index')

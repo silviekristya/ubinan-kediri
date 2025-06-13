@@ -147,8 +147,11 @@ class SampelImport implements ToModel, WithHeadingRow
                 $errors[] = "Desa/Kel '{$row['desa_kel']}' invalid or missing for Palawija";
             }
             // Blok Sensus
-            $blok = BlokSensus::where('nomor_bs', $row['nbs'] ?? null)->first();
-            if (! $blok) {
+            // $blok = BlokSensus::where('nomor_bs', $row['nbs'] ?? null)->first();
+            $blok = BlokSensus::where('kel_desa_id', $desa->id)
+                ->where('nomor_bs', $row['nbs'] ?? null)
+                ->first();
+            if (!$blok) {
                 $errors[] = "NBS '{$row['nbs']}' invalid or missing for Palawija";
             }
 
@@ -167,27 +170,32 @@ class SampelImport implements ToModel, WithHeadingRow
         }
 
         // 8. Siapkan entitas SLS
-        if ($tanaman === 'Padi') {
-            // $sls = Sls::updateOrCreate([
-            //     'bs_id'    => $blok->id_bs,
-            //     'nama_sls' => $row['namalok']
-            // ], []);
-            // $slsId = $sls->id;
-            $slsId = null;
-        } else {
-            $sls = Sls::firstOrCreate([
-                'bs_id'    => $blok->id_bs,
-                'nama_sls' => $row['nama_krt'],
-            ]);
-            $slsId = $sls->id;
+        $slsId = null;
+        if ($tanaman !== 'Padi') {
+            if ($blok) {
+                $namaSLS = $row['nama_sls'] ?? null;
+                $sls = Sls::where('nama_sls', $namaSLS)
+                    ->whereHas('blokSensus', function ($query) use ($blok) {
+                        $query->where('id_bs', $blok->id_bs);
+                    })
+                    ->first();
+                if ($sls) {
+                    $slsId = $sls->id;
+                } else {
+                    $errors[] = "SLS '{$namaSLS}' invalid or missing untuk blok sensus '{$row['nbs']}'";
+                }
+            } else {
+                $errors[] = "Blok sensus untuk Palawija tidak ditemukan. Tidak dapat mencari SLS.";
+            }
         }
 
         if ($errors) {
             $msg = "[SampelImport] {$identifier}: " . implode('; ', $errors);
             Log::warning($msg);
             $this->warnings[] = $msg;
-            return null;
+            return null; // Penting! Jangan lempar exception, biar lanjut baris berikutnya
         }
+
 
         $namaDesa  = $row['desa_kel'] ?? $row['nmdesa'] ?? null;
         $namaLokasi = $tanaman === 'Padi'

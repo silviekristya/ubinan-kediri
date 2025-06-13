@@ -27,6 +27,29 @@ export interface Mitra {
     tim?: Tim
 }
 
+export interface Provinsi {
+  kode_provinsi: string;
+  nama_provinsi: string;
+}
+export interface KabKota {
+  id: string;
+  kode_kab_kota: string;
+  nama_kab_kota: string;
+  provinsi_id: string;
+}
+export interface Kecamatan {
+  id: string;
+  kode_kecamatan: string;
+  nama_kecamatan: string;
+  kab_kota_id: string;
+}
+export interface KelurahanDesa {
+  id: string;
+  kode_kel_desa: string;
+  nama_kel_desa: string;
+  kecamatan_id: string;
+}
+
 export interface Segmen {
     id_segmen: string
     nama_segmen: string
@@ -49,7 +72,6 @@ export interface BlokSensusOption {
   id_bs: string;
   nomor_bs: string;
 }
-
 
 export interface Sls {
     id_sls: string
@@ -79,7 +101,7 @@ export interface Pengecekan {
     tim?: Tim;
     sampel?: Sampel;
     hasil_ubinan?: HasilUbinan;
-} 
+}
 
 export interface Fenomena {
     id: number;

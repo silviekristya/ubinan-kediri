@@ -49,7 +49,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
 
   const handleAddSegmen = async (formData: any) => {
     try {
-      const response = await axios.post('/dashboard/admin/segmen-blok-sensus/segmen/store', formData);
+      const response = await axios.post('/dashboard/admin/wilayah/segmen/store', formData);
       if (response.data.status === 'success') {
         const newSegmen = response.data.data;
         setSegmenData((prev) => [...prev, newSegmen]);
@@ -92,7 +92,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
 
   const handleDeleteConfirm = async (id: string) => {
     try {
-      const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/segmen/delete/${id}`);
+      const response = await axios.delete(`/dashboard/admin/wilayah/segmen/delete/${id}`);
       if (response.data.status === 'success') {
         setSegmenData((prevData) => prevData.filter((item) => item.id_segmen !== id));
         setIsDeleteDialogOpen(false);
@@ -112,7 +112,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
 
   const handleConfirmUpdate = async (id: string, formData: Partial<Segmen>) => {
     try {
-      const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/segmen/update/${id}`, formData);
+      const response = await axios.post(`/dashboard/admin/wilayah/segmen/update/${id}`, formData);
       if (response.data.status === 'success') {
         setSegmenData((prevData) =>
           prevData.map((item) => (item.id_segmen === id ? { ...item, ...formData } : item))

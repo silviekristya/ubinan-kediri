@@ -47,7 +47,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   const handleAddBlok = async (formData: any) => {
     try {
       const response = await axios.post(
-        '/dashboard/admin/segmen-blok-sensus/blok-sensus/store',
+        '/dashboard/admin/wilayah/blok-sensus/store',
         formData
       );
 
@@ -83,7 +83,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
 
   const handleConfirmUpdateBlok = async (id: string, formData: Partial<BlokSensus>) => {
     try {
-      const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/blok-sensus/update/${id}`, formData);
+      const response = await axios.post(`/dashboard/admin/wilayah/blok-sensus/update/${id}`, formData);
       if (response.data.status === 'success') {
         const newBlk: BlokSensus = response.data.data;
         const newKelDesa = response.data.data.kel_desa;
@@ -119,7 +119,7 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
 
   const handleConfirmDeleteBlok = async (id: string) => {
     try {
-      const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/blok-sensus/delete/${id}`);
+      const response = await axios.delete(`/dashboard/admin/wilayah/blok-sensus/delete/${id}`);
       if (response.data.status === 'success') {
         setBlokData((prev) => prev.filter((b) => b.id_bs !== id.toString()));
         toast.success('Berhasil menghapus blok sensus!');

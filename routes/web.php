@@ -39,14 +39,14 @@ use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusStore;
 use App\Http\Controllers\Dashboard\Admin\Alokasi\PclAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusDelete;
 use App\Http\Controllers\Dashboard\Admin\BlokSensus\BlokSensusUpdate;
-use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate; 
+use App\Http\Controllers\Dashboard\Admin\Alokasi\PmlAllocationUpdate;
 use App\Http\Controllers\Dashboard\Admin\Option\BsAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\PclAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\PmlAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Sampel\SampelImportController;
 use App\Http\Controllers\Dashboard\Admin\Option\UserAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\SegmenAvailableListOption;
-use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanList; 
+use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanList;
 use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanStore;
 use App\Http\Controllers\Dashboard\Pml\Sampel\SampelList as PmlSampelList;
 use App\Http\Controllers\Dashboard\Admin\Option\KabKotaAvailableListOption;
@@ -56,8 +56,8 @@ use App\Http\Controllers\Dashboard\Admin\TemplatePesan\TemplatePesanUpdate;
 use App\Http\Controllers\Dashboard\Admin\Option\ProvinsiAvailableListOption;
 use App\Http\Controllers\Dashboard\Admin\Option\KecamatanAvailableListOption;
 use App\Http\Controllers\Dashboard\Mitra\Sampel\SampelList as MitraSampelList;
-use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList; 
-use App\Http\Controllers\Dashboard\Admin\SegmenBlokSensus\SegmenBlokSensusController;
+use App\Http\Controllers\Dashboard\Admin\Sampel\SampelList as AdminSampelList;
+use App\Http\Controllers\Dashboard\Admin\Wilayah\WilayahController;
 use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanList as PengecekanListPml;
 use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanStorePml;
 use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanList as HasilUbinanListPML;
@@ -85,7 +85,7 @@ Route::middleware('auth')
     ->name('dashboard.')
     ->group(function () {
         Route::get('', [DashboardController::class, 'v1'])->name('beranda');
-        
+
         // Start: Profil
         Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');
         Route::patch('profil', [ProfilController::class, 'update'])->name('profil.update');
@@ -134,26 +134,26 @@ Route::middleware('auth')
             // End: Tim
 
             // Start: Segmen & Blok Sensus
-            Route::prefix('segmen-blok-sensus')->name('segmen-blok-sensus.')->group(function () {
-                    
+            Route::prefix('wilayah')->name('wilayah.')->group(function () {
+
                 // Tambahkan route index untuk halaman utama
-                Route::get('', [SegmenBlokSensusController::class, 'index'])
+                Route::get('', [WilayahController::class, 'index'])
                     ->name('index');
-                
+
                 // Sub-route segmen
                 Route::prefix('segmen')->name('segmen.')->group(function () {
                     Route::post('store', [SegmenStore::class, 'v1']);
                     Route::post('update/{segmen}', [SegmenUpdate::class, 'v1']);
                     Route::delete('delete/{segmen}', [SegmenDelete::class, 'v1'])->name('delete');
                 });
-                
+
                 // Sub-route blok-sensus
                 Route::prefix('blok-sensus')->name('blok-sensus.')->group(function () {
                     Route::post('store', [BlokSensusStore::class, 'v1']);
                     Route::post('update/{blokSensus}', [BlokSensusUpdate::class, 'v1']);
                     Route::delete('delete/{blokSensus}', [BlokSensusDelete::class, 'v1'])->name('delete');
                 });
-                
+
                 // Sub-route nama-sls
                 Route::prefix('nama-sls')->name('nama-sls.')->group(function () {
                     Route::post('store', [SlsStore::class, 'v1']);
@@ -170,7 +170,7 @@ Route::middleware('auth')
                 Route::post('update/{sampel}', [SampelUpdate::class, 'v1']);
                 Route::delete('delete/{sampel}', [SampelDelete::class, 'v1'])->name('delete');
             });
-            // End: Sampel  
+            // End: Sampel
 
             // Start: Option
              Route::prefix('option')->name('option.')->group(function () {
@@ -192,7 +192,7 @@ Route::middleware('auth')
 
             // Start: Alokasi
             Route::prefix('alokasi')->name('alokasi.')->group(function () {
-                Route::put('update/sampel/{sampel}/pml', [PmlAllocationUpdate::class, 'v1']) -> name('alokasi-pml'); 
+                Route::put('update/sampel/{sampel}/pml', [PmlAllocationUpdate::class, 'v1']) -> name('alokasi-pml');
                 Route::put('update/sampel/{sampel}/pcl', [PclAllocationUpdate::class, 'v1']) -> name('alokasi-pcl');
             });
             // End: Alokasi
@@ -208,19 +208,19 @@ Route::middleware('auth')
 
             // Start: Pengecekan
             Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
-                Route::get('', [PengecekanListAdmin::class, 'index'])->name('index'); 
+                Route::get('', [PengecekanListAdmin::class, 'index'])->name('index');
             });
             // End: Pengecekan
 
             // Start: Hasil Ubinan
             Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
-                Route::get('', [HasilUbinanListAdmin::class, 'index'])->name('index'); 
+                Route::get('', [HasilUbinanListAdmin::class, 'index'])->name('index');
             });
             // End: Hasil Ubinan
 
             //Start: Produktivitas
             Route::prefix('produktivitas')->name('produktivitas.')->group(function () {
-                Route::get('', [ProduktivitasListAdmin::class, 'index'])->name('index'); 
+                Route::get('', [ProduktivitasListAdmin::class, 'index'])->name('index');
             });
             // End: Produktivitas
         });
@@ -246,7 +246,7 @@ Route::middleware('auth')
 
             // Start: Hasil Ubinan
             Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
-                Route::get('', [HasilUbinanListMitra::class, 'index'])->name('index'); 
+                Route::get('', [HasilUbinanListMitra::class, 'index'])->name('index');
                 Route::post('store', [HasilUbinanStoreMitra::class, 'v1'])->name('store');
                 Route::post('update{hasilUbinan}', [HasilUbinanUpdateMitra::class, 'v1'])->name('update');
             });
@@ -267,14 +267,14 @@ Route::middleware('auth')
 
             // Start: Pengecekan
             Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
-                Route::get('', [PengecekanListPml::class, 'index'])->name('index'); 
-                Route::post('store', [PengecekanStorePml::class, 'v1'])->name('store'); 
+                Route::get('', [PengecekanListPml::class, 'index'])->name('index');
+                Route::post('store', [PengecekanStorePml::class, 'v1'])->name('store');
             });
             // End: Pengecekan
 
             // Start: Hasil Ubinan
             Route::prefix('hasil-ubinan')->name('hasil-ubinan.')->group(function () {
-                Route::get('', [HasilUbinanListPML::class, 'index'])->name('index'); 
+                Route::get('', [HasilUbinanListPML::class, 'index'])->name('index');
                 Route::post('store', [HasilUbinanStorePML::class, 'v1'])->name('store');
                 Route::post('update{hasilUbinan}', [HasilUbinanUpdatePML::class, 'v1'])->name('update');
                 Route::post('verifikasi{hasilUbinan}', [HasilUbinanVerifikasiPML::class, 'v1'])->name('verifikasi');

@@ -61,6 +61,10 @@ class DashboardController extends Controller
             $chartData[] = $row;
         }
 
+        if (!isset($chartData)) {
+            $chartData = [];
+        }
+
         return Inertia::render('Dashboard/Admin/Beranda/Dashboard', [
             'events'            => $events,
             'progress'          => [

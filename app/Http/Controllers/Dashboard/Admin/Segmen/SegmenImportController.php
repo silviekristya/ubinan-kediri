@@ -1,17 +1,16 @@
 <?php
-namespace App\Http\Controllers\Dashboard\Admin\Sampel;
+namespace App\Http\Controllers\Dashboard\Admin\Segmen;
 
-use Illuminate\Http\Request;
-use App\Imports\SampelImport;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Imports\SegmenImport;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
-class SampelImportController extends Controller
+class SegmenImportController extends Controller
 {
     public function v1(Request $request)
     {
-        // Validasi file
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls'
         ]);
@@ -21,35 +20,34 @@ class SampelImportController extends Controller
         }
 
         $path = $request->file('file')->getRealPath();
-        Log::info("[SampelImport] Mulai import dari: {$path}");
+        Log::info("[SegmenImport] Mulai import dari: {$path}");
 
-        $import = new SampelImport();
+        $import = new SegmenImport();
         try {
             Excel::import($import, $path);
-            Log::info('[SampelImport] Import selesai');
+            Log::info('[SegmenImport] Import selesai');
             $warnings = $import->getWarnings();
-            // dd($warnings); // Debugging: tampilkan isi warnings
             if (! empty($warnings)) {
-                $list = implode('<br>', $warnings); // Biar baris per baris
+                $list = implode('<br>', $warnings);
                 $message = "Beberapa baris gagal diimpor:<br>{$list}<br>Baris tersebut dilewati.";
-                Log::warning("[SampelImport] Ditemukan warning:\n{$message}");
+                Log::warning("[SegmenImport] Ditemukan warning:\n{$message}");
                 return redirect()
-                    ->route('dashboard.admin.sampel.index')
-                    ->with('error', $message); // gunakan .with('error', ...) untuk munculkan error
+                    ->route('dashboard.admin.segmen.index') // route ke segmen, bukan sampel!
+                    ->with('error', $message);
             }
             return redirect()
-                ->route('dashboard.admin.sampel.index')
-                ->with('success','Data sampel berhasil diimpor');
+                ->route('dashboard.admin.segmen.index')
+                ->with('success','Data segmen berhasil diimpor');
         }
         catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = collect($e->failures())->map(fn($f) =>
                 "Baris {$f->row()}: kolom “{$f->attribute()}” — {$f->errors()[0]}"
             )->implode('<br>');
-            Log::warning("[SampelImport] Beberapa baris gagal: {$failures}");
+            Log::warning("[SegmenImport] Beberapa baris gagal: {$failures}");
             return back()->with('error',"Import selesai dengan peringatan:<br>{$failures}");
         }
         catch (\Exception $e) {
-            Log::error("[SampelImport] Error saat import: {$e->getMessage()}");
+            Log::error("[SegmenImport] Error saat import: {$e->getMessage()}");
             return back()->with('error','Import gagal: '.$e->getMessage());
         }
     }

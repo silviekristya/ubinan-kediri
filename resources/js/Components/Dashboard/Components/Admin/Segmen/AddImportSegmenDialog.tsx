@@ -26,12 +26,12 @@ interface ImportFormValues {
   file: FileList
 }
 
-interface AddImportSampelDialogProps {
+interface AddImportSegmenDialogProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export function AddImportSampelDialog({ isOpen, onClose }: AddImportSampelDialogProps) {
+export function AddImportSegmenDialog({ isOpen, onClose }: AddImportSegmenDialogProps) {
   // Ambil CSRF token
   const { csrf_token } = usePage().props as any
 
@@ -57,7 +57,7 @@ export function AddImportSampelDialog({ isOpen, onClose }: AddImportSampelDialog
 
   // Submit handler
   const onSubmit = () => {
-    post("/dashboard/admin/sampel/import", {
+    post("/dashboard/admin/segmen/import", {
       forceFormData: true,
       onSuccess: ({props}) => {
         // toast.success('Import berhasil!');

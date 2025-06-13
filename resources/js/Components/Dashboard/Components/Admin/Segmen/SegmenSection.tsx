@@ -18,6 +18,7 @@ import {
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
+import { AddImportSegmenDialog } from './AddImportSegmenDialog';
 
 interface SegmenSectionProps {
   segmenData: Segmen[];
@@ -42,7 +43,7 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
   const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
+  const [isImportOpen, setIsImportOpen] = useState(false);
   useEffect(() => {
     setData(segmenData);
   }, [segmenData]);
@@ -147,10 +148,16 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     <div className="space-y-4">
       <div className="flex justify-end">
         {canEditDelete && (
-          <Button className="gap-1 flex items-center justify-center" onClick={() => setIsAddDialogOpen(true)}>
-            <CirclePlus className="h-4 w-4" />
-            Tambah
-          </Button>
+            <div className="flex justify-end space-x-2">
+                <Button onClick={() => setIsImportOpen(true)}>
+                    Import Excel
+                </Button>
+                <Button className="gap-1 flex items-center justify-center" onClick={() => setIsAddDialogOpen(true)}>
+                    <CirclePlus className="h-4 w-4" />
+                    Tambah
+                </Button>
+            </div>
+
         )}
       </div>
       <DataTable
@@ -160,7 +167,11 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
         columnTitleMap={columnTitleMap}
         name="segmen"
       />
-
+      {/* Dialog untuk pilih & upload file Excel */}
+        <AddImportSegmenDialog
+                isOpen={isImportOpen}
+                onClose={() => setIsImportOpen(false)}
+        />
       <AddSegmenDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}

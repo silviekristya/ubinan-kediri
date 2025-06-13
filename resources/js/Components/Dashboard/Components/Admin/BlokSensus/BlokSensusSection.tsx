@@ -2,7 +2,7 @@ import React, { useState, useEffect, FormEventHandler } from 'react';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
-import { CirclePlus } from 'lucide-react';
+import { CirclePlus, TriangleAlert } from 'lucide-react';
 import { BlokSensus } from '@/types';
 import { AddBlokSensusDialog } from '@/Components/Dashboard/Components/Admin/BlokSensus/AddBlokSensusDialog';
 import { EditBlokSensusDialog } from '@/Components/Dashboard/Components/Admin/BlokSensus/EditBlokSensusDialog';
@@ -191,8 +191,11 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
             <AlertDialogTitle className="text-center">
               Hapus blok sensus {deleteData?.nomor}?
             </AlertDialogTitle>
+            <div>
+                <TriangleAlert className="h-32 w-32 text-red-500" />
+            </div>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan.
+            Tindakan ini tidak dapat dibatalkan. Ini akan menghapus blok sensus {deleteData?.id} secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

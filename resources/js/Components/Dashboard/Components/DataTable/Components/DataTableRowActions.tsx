@@ -53,8 +53,8 @@ export function DataTableRowActions<TData>({
   onRilis,
 }: DataTableRowActionsProps<TData>) {
   let data: TData = row.original;
-  const canEdit    = ['user','pegawai','mitra','tim','sampel','segmen','pengecekanUtama','mitraHasilUbinan','templatePesan','blokSensus'].includes(name)
-  const canDelete  = ['user','pegawai','mitra','tim','sampel','segmen','templatePesan', 'blokSensus'].includes(name)
+  const canEdit    = ['user','pegawai','mitra','tim','sampel','segmen','pengecekanUtama','mitraHasilUbinan','templatePesan','blokSensus', 'sls'].includes(name)
+  const canDelete  = ['user','pegawai','mitra','tim','sampel','segmen','templatePesan', 'blokSensus', 'sls'].includes(name)
   const canDetail  = name === 'name'
   const handleDetail = () => {
     onDetail?.((data as any).id, data);

@@ -15,66 +15,69 @@ import { Sls, WithCsrf, PageProps, BlokSensus } from '@/types'
 interface SlsFormData extends Sls, WithCsrf {
 }
 
+interface BlokSensusOption {
+  id_bs: string;
+  nomor_bs: string;
+}
 interface EditSlsDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (formData: SlsFormData) => Promise<void>
-  data: Sls
+    isOpen: boolean
+    onClose: () => void
+    onSave: (formData: Partial<Sls>) => Promise<void>
+    data: Sls
+    blokSensusOptions: BlokSensusOption[] // <-- TERIMA PROPS INI
 }
 
-export const EditSlsDialog = ({ isOpen, onClose, onSave, data }: EditSlsDialogProps) => {
-  const { csrf_token } = usePage<PageProps>().props
+export const EditSlsDialog = ({ isOpen, onClose, onSave, data, blokSensusOptions }: EditSlsDialogProps) => {
+    const { csrf_token } = usePage<PageProps>().props
 
-  // form state
-  const [namaSls, setNamaSls] = useState(data.nama_sls)
-  const [blokList, setBlokList] = useState<BlokSensus[]>([])
-  const [blokOpen, setBlokOpen] = useState(false)
-  const [blokSearch, setBlokSearch] = useState("")
-  const [selectedBs, setSelectedBs] = useState<BlokSensus | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+    // form state
+    const [namaSls, setNamaSls] = useState(data.nama_sls)
+    const [blokOpen, setBlokOpen] = useState(false)
+    const [blokSearch, setBlokSearch] = useState("")
+    const [selectedBs, setSelectedBs] = useState<BlokSensusOption | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
-  // load available blok sensus for dropdown
-  useEffect(() => {
-    axios.get('/dashboard/admin/option/bs-available-list')
-      .then(res => setBlokList(res.data.bs ?? []))
-      .catch(console.error)
-  }, [])
+    // HAPUS: useEffect untuk fetch data, karena data sudah didapat dari props.
+    // useEffect(() => {
+    //   axios.get('/dashboard/admin/option/bs-available-list')
+    //     .then(res => setBlokList(res.data.bs ?? []))
+    //     .catch(console.error)
+    // }, [])
 
-  // when dialog opens reset fields
-  useEffect(() => {
-    if (isOpen) {
-      setNamaSls(data.nama_sls)
-      // find the current bs in blokList
-      const cur = blokList.find(b => b.id_bs === data.bs_id) || null
-      setSelectedBs(cur)
-      setBlokSearch("")
+    // PERBAIKAN: Gunakan `blokSensusOptions` dari props untuk inisialisasi state.
+    useEffect(() => {
+        if (isOpen) {
+            setNamaSls(data.nama_sls)
+            // Cari blok sensus yang saat ini terpilih dari props
+            const currentBs = blokSensusOptions.find(b => b.id_bs === data.bs_id) || null
+            setSelectedBs(currentBs)
+            setBlokSearch("")
+        }
+    }, [isOpen, data, blokSensusOptions])
+
+    // PERBAIKAN: Filter dari `blokSensusOptions`
+    const filteredBlok = blokSearch
+        ? blokSensusOptions.filter(b => b.nomor_bs.toLowerCase().includes(blokSearch.toLowerCase()))
+        : blokSensusOptions
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        if (!selectedBs || !namaSls) return
+
+        setIsLoading(true)
+        try {
+            await onSave({
+                // Tidak perlu mengirim id_sls dan _token karena onSave sudah menanganinya
+                bs_id:    selectedBs.id_bs,
+                nama_sls: namaSls,
+            })
+            onClose()
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+        }
     }
-  }, [isOpen, data, blokList])
-
-  // filter blokList
-  const filteredBlok = blokSearch
-    ? blokList.filter(b => b.nomor_bs.toLowerCase().includes(blokSearch.toLowerCase()))
-    : blokList
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!selectedBs || !namaSls) return
-
-    setIsLoading(true)
-    try {
-      await onSave({
-        id_sls:      data.id_sls,
-        bs_id:   selectedBs.id_bs,
-        nama_sls: namaSls,
-        _token:  csrf_token,
-      })
-      onClose()
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(o) => { if (!o) onClose() }}>
@@ -116,14 +119,12 @@ export const EditSlsDialog = ({ isOpen, onClose, onSave, data }: EditSlsDialogPr
                     <CommandGroup>
                       {filteredBlok.map(bs => (
                         <CommandItem
-                          key={bs.id_bs}
-                          value={bs.id_bs}
-                          onPointerDown={e => { e.preventDefault(); e.stopPropagation() }}
-                          onSelect={(value: string) => {
-                            const sel = blokList.find(b => b.id_bs === value)!
-                            setSelectedBs(sel)
-                            setBlokOpen(false)
-                          }}
+                            key={bs.id_bs}
+                            value={bs.id_bs}
+                            onSelect={() => {
+                                setSelectedBs(bs)
+                                setBlokOpen(false)
+                            }}
                         >
                           {bs.nomor_bs}
                           <Check className={`ml-auto ${selectedBs?.id_bs === bs.id_bs ? 'opacity-100' : 'opacity-0'}`} />

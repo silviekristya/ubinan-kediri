@@ -28,6 +28,7 @@ interface SegmenSectionProps {
 
 const columnTitleMap: { [key: string]: string } = {
   id_segmen: 'Kode Segmen',
+  kode_segmen: 'No Segmen',
   nama_segmen: 'Nama Segmen',
   nama_kecamatan: 'Kecamatan',
 };
@@ -157,7 +158,6 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
                     Tambah
                 </Button>
             </div>
-
         )}
       </div>
       <DataTable

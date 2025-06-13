@@ -89,18 +89,18 @@ export function DataTableRowActions<TData>({
       <DropdownMenuContent align="end" className="w-[160px]">
         {canDetail && (
           <>
-            <DropdownMenuItem onClick={handleDetail} className='cursor-pointer'>Lihat Detail</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleDetail} className='cursor-pointer'>Lihat Detail</DropdownMenuItem>
           </>
         )}
         {canEdit && (
             <>
-            <DropdownMenuItem onClick={handleEdit} className='cursor-pointer'>Edit</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleEdit} className='cursor-pointer'>Edit</DropdownMenuItem>
             </>
         )}
-        <DropdownMenuItem onClick={handleCopy} className='cursor-pointer'>Salin</DropdownMenuItem>
+        <DropdownMenuItem onSelect={handleCopy} className='cursor-pointer'>Salin</DropdownMenuItem>
         {canDelete && (
           <>
-            <DropdownMenuItem onClick={handleDelete} className='cursor-pointer'>Hapus</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleDelete} className='cursor-pointer'>Hapus</DropdownMenuItem>
           </>
         )}
 

@@ -74,7 +74,7 @@ export interface BlokSensusOption {
 }
 
 export interface Sls {
-    id_sls: string
+    id: string
     nama_sls: string
     bs_id: string
     blokSensus?: BlokSensus

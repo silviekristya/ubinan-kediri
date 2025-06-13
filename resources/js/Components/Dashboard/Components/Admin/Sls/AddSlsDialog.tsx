@@ -41,7 +41,7 @@ export const AddSlsDialog: React.FC<AddSlsDialogProps> = ({
     if (!selectedBs || !namaSls) return
     setIsLoading(true)
     try {
-      await onSave({ id_sls: '', bs_id: selectedBs.id_bs, nama_sls: namaSls, _token: csrf_token })
+      await onSave({ id: '', bs_id: selectedBs.id_bs, nama_sls: namaSls, _token: csrf_token })
       setNamaSls('')
       setSelectedBs(null)
       setBlokSearch('')

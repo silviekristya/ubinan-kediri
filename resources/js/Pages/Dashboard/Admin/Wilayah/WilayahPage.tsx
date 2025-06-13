@@ -47,7 +47,13 @@ const WilayahPage: React.FC = () => {
     setKelData(kelurahanDesa);
     setSegmenData(segmen);
     setBlokData(blokSensus);
-    setSlsData(sls);
+    setSlsData(
+    sls.map((item: any) => ({
+      id: item.id?.toString() || item.id_sls?.toString() || '', // fallback ke id_sls kalau ada
+      nama_sls: item.nama_sls,
+      bs_id: item.bs_id?.toString() || '',
+    }))
+  );
   }, [segmen, blokSensus, sls]);
 
   // Karena properti auth tidak ada, tetapkan canEditDelete default (misal: true)

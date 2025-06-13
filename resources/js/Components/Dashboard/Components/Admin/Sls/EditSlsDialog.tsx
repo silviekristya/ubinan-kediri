@@ -68,6 +68,7 @@ export const EditSlsDialog = ({ isOpen, onClose, onSave, data, blokSensusOptions
         try {
             await onSave({
                 // Tidak perlu mengirim id_sls dan _token karena onSave sudah menanganinya
+                id: data.id, // id dari data yang diedit
                 bs_id:    selectedBs.id_bs,
                 nama_sls: namaSls,
             })

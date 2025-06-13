@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Input } from '@/Components/ui/input';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { CirclePlus } from 'lucide-react';
@@ -20,14 +19,12 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 
-// Tipe untuk mapping API bs
-interface BlokSensusOption {
-  id_bs: string;
-  nomor_bs: string;
-}
+// Type untuk opsi blok sensus
+type BlokSensusOption = { id_bs: string; nomor_bs: string };
 
-const columnTitleMap: Record<string, string> = {
-  id_sls: 'Kode SLS',
+// Peta judul kolom sesuai field database
+const columnTitleMap: Record<string,string> = {
+  id: 'Kode SLS',
   nama_sls: 'Nama SLS',
   bs_id: 'Kode Blok Sensus',
 };
@@ -38,195 +35,170 @@ interface NamaSlsSectionProps {
   canEditDelete: boolean;
 }
 
-const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
-  slsData,
-  setSlsData,
-  canEditDelete,
-}) => {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [filteredBlokSensus, setFilteredBlokSensus] = useState<BlokSensusOption[]>([]);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editSls, setEditSls] = useState<Sls | null>(null);
-  const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, canEditDelete }) => {
+  const [blokOptions, setBlokOptions] = useState<BlokSensusOption[]>([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editItem, setEditItem] = useState<Sls | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{ id: string; nama: string } | null>(null);
 
-  // Fetch daftar blok sensus untuk dropdown
-  async function fetchBlokSensus() {
+  // Ambil opsi blok sensus
+  useEffect(() => {
+    axios.get('/dashboard/admin/option/bs-available-list')
+      .then(res => setBlokOptions(res.data.bs.map((b: any) => ({ id_bs: b.id, nomor_bs: b.text }))))
+      .catch(e => console.error('Fetch blok sensus error:', e));
+  }, []);
+
+  // Tambah entri baru
+  const handleAdd = async (form: { nama_sls: string; bs_id: string }) => {
     try {
-      const response = await axios.get('/dashboard/admin/option/bs-available-list');
-      // API returns { bs: [ { id, text }, … ] }
-      const raw: { id: string; text: string }[] = response.data.bs;
-      const options = raw.map(item => ({
-        id_bs:      item.id,    // sesuai field di BlokSensusOption
-        nomor_bs:   item.text,  // ini yang nanti ditampilkan jika perlu
-      }));
-      setFilteredBlokSensus(options);
-    } catch (error) {
-      console.error('Error fetching blok sensus:', error);
+      const { data } = await axios.post('/dashboard/admin/wilayah/nama-sls/store', form);
+      if (data.status === 'success') {
+        setSlsData(prev => [
+          ...prev,
+          { id: data.newNamaSls.id.toString(), nama_sls: data.newNamaSls.nama_sls, bs_id: data.newNamaSls.bs_id.toString() }
+        ]);
+        toast.success('SLS berhasil ditambahkan');
+        setIsAddOpen(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (e) {
+      console.error('Add SLS error:', e);
+      toast.error('Gagal menambah SLS');
     }
-  }
-
-  const handleOpenAddDialog = async () => {
-    await fetchBlokSensus();
-    setIsAddDialogOpen(true);
   };
 
-  // Tambah SLS
-  const handleAddSls = async (formData: { nama_sls: string; bs_id: string }) => {
+  // Handler edit: id & data
+  const handleEditOpen = (id: string, item: Sls) => {
+    setEditItem(item);
+    setIsEditOpen(true);
+  };
+
+  // Simpan perubahan edit
+  const handleEditSave = async (form: Partial<Sls>) => {
+    if (!editItem) return;
     try {
       const { data } = await axios.post(
-        '/dashboard/admin/wilayah/nama-sls/store',
-        formData
+        `/dashboard/admin/wilayah/nama-sls/update/${editItem.id}`,
+        form
       );
       if (data.status === 'success') {
-        const rawSls = data.newNamaSls;
-        const formatted: Sls = {
-          id_sls: rawSls.id_sls.toString(),
-          nama_sls: rawSls.nama_sls,
-          bs_id: rawSls.bs_id.toString(),
-          // nomor_bs: rawSls.nomor_bs,
-        };
-        setSlsData((prev) => [...prev, formatted]);
-        toast.success(data.message || 'SLS berhasil ditambahkan.');
-        setIsAddDialogOpen(false);
+        setSlsData(prev => prev.map(s =>
+          s.id === editItem.id
+            ? { ...s, ...data.updatedNamaSls, id: data.updatedNamaSls.id?.toString() || s.id }
+            : s
+        ));
+        toast.success('SLS berhasil diperbarui');
+        setIsEditOpen(false);
       } else {
-        toast.error(data.message || 'Terjadi kesalahan.');
+        toast.error(data.message);
       }
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Gagal menambah nama SLS. ' + err.response?.data?.message);
+    } catch (e) {
+      console.error('Update SLS error:', e);
+      toast.error('Gagal memperbarui SLS');
     }
   };
 
-  // Edit SLS
-    // PERBAIKAN: Buka dialog edit dan pastikan data blok sensus sudah siap.
-    const handleEditSls = async (_id: string, item: Sls) => {
-        await fetchBlokSensus(); // Fetch data blok sensus jika belum ada
-        setEditSls(item);
-        setIsEditDialogOpen(true);
-    };
+  // Handler delete open: hanya terima id
+  const handleDeleteOpen = (id: string) => {
+    const item = slsData.find(s => s.id === id);
+    if (!item) return;
+    setDeleteItem({ id: item.id, nama: item.nama_sls });
+    setIsDeleteOpen(true);
+  };
 
-    // PERBAIKAN: Gunakan `id_sls` untuk mencocokkan data saat update.
-    const handleConfirmUpdateSls = async (id: string, formData: Partial<Sls>) => {
-        try {
-            const { data } = await axios.post(`/dashboard/admin/wilayah/nama-sls/update/${id}`, formData);
-            if (data.status === 'success') {
-                const updatedSls = data.updatedNamaSls;
-                setSlsData((prev) =>
-                    prev.map((s) =>
-                        s.id_sls === id ? { ...s, ...updatedSls, id_sls: updatedSls.id_sls ?? s.id_sls } : s
-                    )
-                );
-                toast.success('Berhasil memperbarui nama SLS!');
-                setIsEditDialogOpen(false);
-            } else {
-                toast.error(data.message || 'Terjadi kesalahan.');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Gagal memperbarui nama SLS.');
-        }
-    };
+  // Konfirmasi hapus
+  const handleDeleteConfirm = async () => {
+    if (!deleteItem) return;
+    try {
+      const { data } = await axios.delete(
+        `/dashboard/admin/wilayah/nama-sls/delete/${deleteItem.id}`
+      );
+      if (data.status === 'success') {
+        setSlsData(prev => prev.filter(s => s.id !== deleteItem.id));
+        toast.success('SLS berhasil dihapus');
+        setIsDeleteOpen(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (e) {
+      console.error('Delete SLS error:', e);
+      toast.error('Gagal menghapus SLS');
+    }
+  };
 
-    // PERBAIKAN: Gunakan `id_sls` untuk mencari data yang akan dihapus.
-    const handleDeleteSls = (id: string) => {
-        const item = slsData.find((s) => s.id_sls === id);
-        setDeleteData({ id, nama: item?.nama_sls });
-        setIsDeleteDialogOpen(true);
-    };
-
-    // PERBAIKAN: Gunakan `id_sls` untuk memfilter data setelah hapus.
-    const handleConfirmDeleteSls = async (id: string) => {
-        try {
-            const { data } = await axios.delete(`/dashboard/admin/wilayah/nama-sls/delete/${id}`);
-            if (data.status === 'success') {
-                setSlsData((prev) => prev.filter((s) => s.id_sls !== id));
-                toast.success('Berhasil menghapus nama SLS!');
-                setIsDeleteDialogOpen(false);
-            } else {
-                toast.error(data.message || 'Terjadi kesalahan.');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Gagal menghapus nama SLS.');
-        }
-    };
-
+  // Definisi kolom DataTable
   const columns = generateColumns(
     'sls',
     columnTitleMap,
     undefined,
     undefined,
     undefined,
-    handleEditSls,
+    handleEditOpen,
     undefined,
-    handleDeleteSls
+    handleDeleteOpen
   );
 
   return (
-    <div>
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-            <div className="flex items-center gap-2">
-            <Button variant="outline">Unduh</Button>
-            <Button variant="outline">Unggah</Button>
-            {canEditDelete && (
-                <Button onClick={handleOpenAddDialog} className="gap-1 flex items-center">
-                <CirclePlus className="h-4 w-4" />
-                Tambah
-                </Button>
-            )}
-            </div>
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex gap-2">
+          <Button variant="outline">Unduh</Button>
+          <Button variant="outline">Unggah</Button>
+          {canEditDelete && (
+            <Button onClick={() => setIsAddOpen(true)} className="flex items-center gap-1">
+              <CirclePlus className="h-4 w-4" /> Tambah
+            </Button>
+          )}
         </div>
+      </div>
 
-        <DataTable
-            data={slsData}
-            columns={columns}
-            name="namaSLS"
-            columnTitleMap={columnTitleMap}
+      <DataTable
+        data={slsData}
+        columns={columns}
+        name="sls"
+        columnTitleMap={columnTitleMap}
+      />
+
+      <AddSlsDialog
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        blokSensusOptions={blokOptions}
+        onSave={handleAdd}
+      />
+
+      {editItem && (
+        <EditSlsDialog
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          data={editItem}
+          blokSensusOptions={blokOptions}
+          onSave={handleEditSave}
         />
+      )}
 
-        <AddSlsDialog
-            isOpen={isAddDialogOpen}
-            onClose={() => setIsAddDialogOpen(false)}
-            blokSensusOptions={filteredBlokSensus}
-            onSave={handleAddSls}
-        />
-
-            {editSls && (
-                <EditSlsDialog
-                    isOpen={isEditDialogOpen}
-                    onClose={() => setIsEditDialogOpen(false)}
-                    data={editSls}
-                    blokSensusOptions={filteredBlokSensus} // <-- TAMBAHKAN INI
-                    onSave={(formData) => handleConfirmUpdateSls(editSls.id_sls, formData)}
-                />
-            )}
-
-
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-            <AlertDialogContent>
-                <AlertDialogHeader className="flex flex-col items-center">
-                    <AlertDialogTitle className="text-center">
-                    Hapus nama SLS {deleteData?.nama}?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                    Tindakan ini tidak dapat dibatalkan.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>
-                    Batal
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                    onClick={() => deleteData && handleConfirmDeleteSls(deleteData.id)}
-                    >
-                    Lanjutkan
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-        </div>
-    );
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus SLS {deleteItem?.nama}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsDeleteOpen(false)}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Lanjutkan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
 
 export default NamaSlsSection;

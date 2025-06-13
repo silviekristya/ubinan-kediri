@@ -45,6 +45,12 @@ export interface BlokSensus {
     text?: string
 }
 
+export interface BlokSensusOption {
+  id_bs: string;
+  nomor_bs: string;
+}
+
+
 export interface Sls {
     id_sls: string
     nama_sls: string

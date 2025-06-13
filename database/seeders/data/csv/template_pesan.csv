@@ -4,10 +4,12 @@ id,nama_template,text
 Yth. {{nama_pcl}},
 
 Berikut alokasi tugas untuk pencacahan wilayah Anda:
-
 • Kecamatan: {{nama_kec}}  
 • Jumlah sampel: {{jumlah_sampel}}  
 • PML Pendamping: {{nama_pml}}
+
+Daftar sampel yang harus dicek:
+{{daftar_sampel}}
 
 Mohon:
 1. Cek alokasi lengkap pada web Sinobi {{link}}. 
@@ -21,10 +23,12 @@ Semangat bertugas dan jaga keselamatan!
 Yth. {{nama_pml}},
 
 Berikut alokasi tugas untuk pencacahan wilayah Anda:
-
 • Kecamatan: {{nama_kec}}  
 • Jumlah sampel: {{jumlah_sampel}}  
 • Jumlah PCL: {{jumlah_pcl}}
+
+Daftar sampel yang harus dicek:
+{{daftar_sampel}}
 
 Mohon:
 1. Cek alokasi lengkap pada web Sinobi {{link}}. 

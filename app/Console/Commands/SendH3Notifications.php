@@ -6,39 +6,24 @@ use Illuminate\Console\Command;
 use App\Models\Pengecekan;
 use App\Models\Notifikasi;
 use App\Models\TemplateNotifikasi;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-
 class SendH3Notifications extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'notifications:send-h3-notifications';
+    protected $signature   = 'notifications:send-h3-notifications';
+    protected $description = 'Generate dan kirim notifikasi otomatis H-3 (3 hari sebelum tanggal panen)';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generate notifikasi otomatis H-3 (3 hari sebelum tanggal panen)';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(NotificationService $service)
     {
-    // Ambil tanggal hari ini
+        // Hitung tanggal H-3
         $today  = Carbon::today();
-        $h3Date = $today->copy()->addDays(3); // tanggal panen yang 3 hari lagi
+        $h3Date = $today->copy()->addDays(3);
 
-        // Log informasi untuk debugging (Hapus jika tidak diperlukan)
         Log::info("SendH3Notifications berjalan. Mencari pengecekan dengan tanggal_panen = {$h3Date->toDateString()}");
 
-        // Query Pengecekan yang tanggal_panen = H-3
+        // Ambil Pengecekan tanggal_panen = H-3
         $pengecekans = Pengecekan::with(['sampel.tim.pml', 'sampel.pcl'])
             ->whereDate('tanggal_panen', $h3Date->toDateString())
             ->get();
@@ -49,48 +34,104 @@ class SendH3Notifications extends Command
                 continue;
             }
 
-            $pcl = $sampel->pcl;                        // Model Mitra (PCL)
-            $tim = $sampel->tim;                        // Model Tim (relasi ke pml)
-            $pml = $tim ? $tim->pml : null;             // Model Pegawai (PML)
+            $pcl = $sampel->pcl;        
+            $tim = $sampel->tim;        
+            $pml = $tim ? $tim->pml : null;
 
-            // NOTIFIKASI UNTUK PCL (H-3)
+            // Data dasar untuk replacement
+            $nks          = $sampel->nks ?? '';
+            $namaLok      = $sampel->nama_lok ?? '';
+            $tanggalPanen = $pengecekan->tanggal_panen
+                ? Carbon::parse($pengecekan->tanggal_panen)->format('d-m-Y')
+                : '';
+
+            //
+            //  NOTIFIKASI UNTUK PCL (H-3)
+            //
             if ($pcl && $pcl->id) {
-                $tipeNotifPCL = 'H3PencacahanPCL'; // sesuai di template_notifikasi.csv
+                $tipeNotifPCL = 'H3PencacahanPCL';
                 $templatesPCL = TemplateNotifikasi::where('tipe_notifikasi', $tipeNotifPCL)->get();
 
                 foreach ($templatesPCL as $tmpl) {
-                    Notifikasi::create([
-                        'template_notifikasi_id' => $tmpl->getKey(),
+                    $not = Notifikasi::create([
+                        'template_notifikasi_id' => $tmpl->id,
                         'tim_id'         => $tim ? $tim->id : null,
                         'pml_id'         => $pml ? $pml->id : null,
                         'pcl_id'         => $pcl->id,
-                        'email'          => $pcl->email ?? null,
+                        'email'          => optional($pcl->user)->email ?: '',
                         'no_wa'          => $pcl->no_telepon ?? null,
                         'sampel_id'      => $sampel->id,
                         'pengecekan_id'  => $pengecekan->id,
-                        'status'         => 'pending',
+                        'status'         => 'Pending',
                         'tanggal_terkirim' => null,
                     ]);
+
+                    // Build replacement sesuai template H-3 Pencacahan PCL
+                    $replacements = [
+                        '{{nama_pcl}}'      => $pcl->nama ?? '',
+                        '{{nks}}'           => $nks,
+                        '{{nama_lok}}'      => $namaLok,
+                        '{{tanggal_panen}}' => $tanggalPanen,
+                        '{{nama_pml}}'      => $pml->nama ?? '',
+                    ];
+
+                    $sent = $service->sendTemplatedNotification(
+                        $tipeNotifPCL,
+                        strtoupper($tmpl->jenis),
+                        $replacements + [
+                            '$PHONE' => $pcl->no_telepon ?? '',
+                            '$EMAIL' => $pcl->email ?? '',
+                        ]
+                    );
+
+                    $not->status = $sent ? 'Terkirim' : 'Gagal';
+                    $not->tanggal_terkirim = $sent ? now() : null;
+                    $not->save();
                 }
             }
+
+            //
             // NOTIFIKASI UNTUK PML (H-3)
+            //
             if ($pml && $pml->id) {
-                $tipeNotifPML = 'H3PencacahanPML'; // sesuai di template_notifikasi.csv
+                $tipeNotifPML = 'H3PencacahanPML';
                 $templatesPML = TemplateNotifikasi::where('tipe_notifikasi', $tipeNotifPML)->get();
 
                 foreach ($templatesPML as $tmpl) {
-                    Notifikasi::create([
-                        'template_notifikasi_id' => $tmpl->getKey(),
+                    $not = Notifikasi::create([
+                        'template_notifikasi_id' => $tmpl->id,
                         'tim_id'         => $tim ? $tim->id : null,
                         'pml_id'         => $pml->id,
                         'pcl_id'         => $pcl ? $pcl->id : null,
-                        'email'          => $pml->email ?? null,
+                        'email'         => optional($pml->user)->email ?: '',
                         'no_wa'          => $pml->no_telepon ?? null,
                         'sampel_id'      => $sampel->id,
                         'pengecekan_id'  => $pengecekan->id,
-                        'status'         => 'pending',
+                        'status'         => 'Pending',
                         'tanggal_terkirim' => null,
                     ]);
+
+                    // Build replacement sesuai template H-3 Pencacahan PML
+                    $replacements = [
+                        '{{nama_pml}}'      => $pml->nama ?? '',
+                        '{{nks}}'           => $nks,
+                        '{{nama_lok}}'      => $namaLok,
+                        '{{tanggal_panen}}' => $tanggalPanen,
+                        '{{nama_pcl}}'      => $pcl->nama ?? '',
+                    ];
+
+                    $sent = $service->sendTemplatedNotification(
+                        $tipeNotifPML,
+                        strtoupper($tmpl->jenis),
+                        $replacements + [
+                            '$PHONE' => $pml->no_telepon ?? '',
+                            '$EMAIL' => $pml->email ?? '',
+                        ]
+                    );
+
+                    $not->status = $sent ? 'Terkirim' : 'Gagal';
+                    $not->tanggal_terkirim = $sent ? now() : null;
+                    $not->save();
                 }
             }
         }

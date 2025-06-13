@@ -6,127 +6,163 @@ use Illuminate\Console\Command;
 use App\Models\Notifikasi;
 use App\Models\TemplateNotifikasi;
 use App\Models\Sampel;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class SendMonthlyNotifications extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'notifications:send-monthly';
+    protected $signature   = 'notifications:send-monthly';
+    protected $description = 'Buat dan kirim notifikasi pengingat pengecekan dan pencacahan setiap awal bulan';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Buat notifikasi pengingat pengecekan dan pencacahan setiap awal bulan';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(NotificationService $service)
     {
         $now = Carbon::now();
         Log::info("Menjalankan SendMonthlyNotifications pada {$now}");
 
-        // Tentukan rentang “bulan berjalan”:
+        // Tentukan rentang “bulan berjalan”
         $firstOfMonth = $now->copy()->startOfMonth();
         $lastOfMonth  = $now->copy()->endOfMonth();
 
-        //  Ambil semua Sampel yang status_sampel != 'NonEligible'
-        //    lalu filter: hanya yang BELUM punya HasilUbinan di rentang bulan ini
-        $daftarSampel = Sampel::with(['tim.pml', 'pcl', 'pengecekan.hasilUbinan'])
-            ->where('status_sampel', '!=', 'NonEligible')
+        // Ambil semua Sampel (status_sampel != 'NonEligible')
+        $daftarSampel = Sampel::with(['tim.pml.user', 'pcl.user', 'kecamatan', 'pengecekan', 'pengecekan.hasilUbinan'])
             ->get()
-            ->filter(function($s) use ($firstOfMonth, $lastOfMonth) {
-                // Jika sampel sudah punya HasilUbinan di rentang bulan ini, skip
-                if (! $s->pengecekan) {
-                    return true;
+            ->filter(function ($s) use ($firstOfMonth, $lastOfMonth) {
+                // skip jika pengecekan ada dan status_sampel = NonEligible
+                if ($s->pengecekan && $s->pengecekan->status_sampel === 'NonEligible') {
+                    return false;
                 }
-                $adaHasil = $s->pengecekan->hasilUbinan()
-                    ->whereBetween('tanggal_pencacahan', [$firstOfMonth, $lastOfMonth])
-                    ->exists();
-                return ! $adaHasil;
+                // skip jika sudah punya hasil di bulan ini
+                if ($s->pengecekan
+                    && $s->pengecekan->hasilUbinan()
+                        ->whereBetween('tanggal_pencacahan', [$firstOfMonth, $lastOfMonth])
+                        ->exists()
+                ) {
+                    return false;
+                }
+                return true;
             });
 
         if ($daftarSampel->isEmpty()) {
             Log::info("Tidak ada sampel yang perlu diingatkan pencacahan bulan ini.");
             return;
         }
-        Log::info("Ditemukan ". $daftarSampel->count() ." sampel yang perlu diingatkan.");
+        Log::info("Ditemukan " . $daftarSampel->count() . " sampel untuk notifikasi bulan ini.");
 
-        // Ambil baris template_notifikasi untuk BulanSampelPML dan BulanSampelPCL
+        // Ambil template untuk BulanSampelPML dan BulanSampelPCL (Email & WhatsApp)
         $templatesPML = TemplateNotifikasi::where('tipe_notifikasi', 'BulanSampelPML')
-                            ->whereIn('jenis', ['Email','WhatsApp'])
+                            ->whereIn('jenis', ['Email', 'WhatsApp'])
                             ->get();
         $templatesPCL = TemplateNotifikasi::where('tipe_notifikasi', 'BulanSampelPCL')
-                            ->whereIn('jenis', ['Email','WhatsApp'])
+                            ->whereIn('jenis', ['Email', 'WhatsApp'])
                             ->get();
 
-        // Grouping per PML (tipe BulanSampelPML)
+        //
+        // Grouping per PML dan kirim notifikasi BulanSampelPML
+        //
         $byPml = $daftarSampel->filter(fn($s) => optional($s->tim->pml)->id)
             ->groupBy(fn($s) => $s->tim->pml->id);
 
-        foreach ($byPml as $pmlId => $groupSampel) {
-            // Contoh: grupSampel hanya berisi Sampel milik PML tertentu
-            $pmlObj = $groupSampel->first()->tim->pml;
+         foreach ($byPml as $pmlId => $groupSampel) {
+            $pml    = $groupSampel->first()->tim->pml;
+            // Bullet list: mapping langsung pada objek Sampel
+            $daftar = $groupSampel->map(fn($s) =>
+                "• NKS {$s->nks} – Kecamatan: {$s->kecamatan->nama_kecamatan} Desa: {$s->nama_lok}"
+            )->implode("\n");
 
-            // Kita buat “daftar_sampel” (bullet list) nanti di template
-            $lines = $groupSampel->map(function($s) {
-                // Misal: gunakan NKS & nama_lok, kecamatan ID untuk men‐identify sampel
-                return "• NKS {$s->nks} – Lokasi: {$s->nama_lok} (Kec. {$s->kecamatan_id})";
-            })->toArray();
-            $daftarText = implode("\n", $lines);
+            // Build replacement dasar
+            $repls = [
+                '{{daftar_sampel}}' => $daftar,
+                '{{nama_bulan}}'    => $now->format('F'),
+                '{{tahun}}'         => $now->year,
+                '{{link}}'          => config('app.url') . '/sinobi',
+            ];
 
-            // Buat satu entri Notifikasi untuk tiap template (Email & WhatsApp)
+            // Kirim untuk tiap template (Email & WhatsApp)
             foreach ($templatesPML as $template) {
-                Notifikasi::create([
+                // Simpan record Notifikasi
+                $not = Notifikasi::create([
                     'template_notifikasi_id' => $template->id,
                     'tim_id'                 => $groupSampel->first()->tim_id,
-                    'pml_id'                 => $pmlObj->id,
-                    'pcl_id'                 => null,
-                    'email'                  => $pmlObj->user->email  ?? '',
-                    'no_wa'                  => $pmlObj->no_telepon  ?? '',
-                    'sampel_id'              => $groupSampel->first()->id,
-                    'pengecekan_id'          => $groupSampel->first()->pengecekan_id,
+                    'pml_id'                 => $pml->id,
+                    'pcl_id'                 => $groupSampel->first()->pcl_id,
+                    'email'                  => $pml->user->email ?? '',
+                    'no_wa'                  => $pml->no_telepon ?? '',
+                    'sampel_id'              => null,
+                    'pengecekan_id'          => null,
                     'status'                 => 'Pending',
-                    'tanggal_terkirim'       => now(),
+                    'tanggal_terkirim'       => null,
                 ]);
+
+                // Tambahkan target pada replacements
+                $replsWithTarget = $repls + [
+                    '$PHONE' => $pml->no_telepon ?? '',
+                    '$EMAIL' => $pml->user->email ?? '',
+                ];
+
+                $sent = $service->sendTemplatedNotification(
+                    'BulanSampelPML',
+                    strtoupper($template->jenis),
+                    $replsWithTarget
+                );
+
+                $not->status = $sent ? 'Terkirim' : 'Gagal';
+                $not->tanggal_terkirim = $sent ? now() : null;
+                $not->save();
             }
         }
 
-        // Grouping per PCL (tipe BulanSampelPCL)
+        //
+        // Grouping per PCL dan kirim notifikasi BulanSampelPCL
+        //
         $byPcl = $daftarSampel->filter(fn($s) => optional($s->pcl)->id)
             ->groupBy(fn($s) => $s->pcl->id);
 
         foreach ($byPcl as $pclId => $groupSampel) {
-            $pclObj = $groupSampel->first()->pcl;
-            $lines = $groupSampel->map(function($s) {
-                return "• NKS {$s->nks} – Lokasi: {$s->nama_lok} (Kec. {$s->kecamatan_id})";
-            })->toArray();
-            $daftarText = implode("\n", $lines);
+            $pcl   = $groupSampel->first()->pcl;
+            $daftar = $groupSampel->map(fn($s) =>
+                "• NKS {$s->nks} – Kecamatan: {$s->kecamatan->nama_kecamatan} Desa: {$s->nama_lok}"
+            )->implode("\n");
+
+            $repls = [
+                '{{daftar_sampel}}' => $daftar,
+                '{{nama_bulan}}'    => $now->format('F'),
+                '{{tahun}}'         => $now->year,
+                '{{link}}'          => config('app.url') . '/sinobi',
+            ];
 
             foreach ($templatesPCL as $template) {
-                Notifikasi::create([
+                $not = Notifikasi::create([
                     'template_notifikasi_id' => $template->id,
                     'tim_id'                 => $groupSampel->first()->tim_id,
-                    'pml_id'                 => null,
-                    'pcl_id'                 => $pclObj->id,
-                    'email'                  => $pclObj->user->email ?? '',
-                    'no_wa'                  => $pclObj->no_telepon ?? '',
-                    'sampel_id'              => $groupSampel->first()->id,
-                    'pengecekan_id'          => $groupSampel->first()->pengecekan_id,
+                    'pml_id'                 => $groupSampel->first()->tim->pml_id,
+                    'pcl_id'                 => $pcl->id,
+                    'email'                  => $pcl->user->email ?? '',
+                    'no_wa'                  => $pcl->no_telepon ?? '',
+                    'sampel_id'              => null,
+                    'pengecekan_id'          => null,
                     'status'                 => 'Pending',
-                    'tanggal_terkirim'       => now(),
+                    'tanggal_terkirim'       => null,
                 ]);
+
+                $replsWithTarget = $repls + [
+                    '$PHONE' => $pcl->no_telepon ?? '',
+                    '$EMAIL' => $pcl->user->email ?? '',
+                ];
+
+                $sent = $service->sendTemplatedNotification(
+                    'BulanSampelPCL',
+                    strtoupper($template->jenis),
+                    $replsWithTarget
+                );
+
+                $not->status = $sent ? 'Terkirim' : 'Gagal';
+                $not->tanggal_terkirim = $sent ? now() : null;
+                $not->save();
             }
         }
 
-        $this->info("SendMonthlyNotifications selesai: entri Notifikasi bulan ini sudah dibuat (status=Pending).");
+        $this->info("SendMonthlyNotifications selesai: entri Notifikasi bulan ini telah dibuat dan dikirim.");
         Log::info("SendMonthlyNotifications selesai.");
     }
 }

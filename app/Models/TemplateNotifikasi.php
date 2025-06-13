@@ -45,6 +45,6 @@ class TemplateNotifikasi extends Model
      */
     public function notifikasi()
     {
-        return $this->hasMany(Notifikasi::class, 'template_notifikasi_id');
+        return $this->hasMany(Notifikasi::class, 'template_notifikasi_id', 'template_pesan_id');
     }
 }

@@ -39,18 +39,22 @@ class PmlAllocationUpdate extends Controller
 
         if ($pml) {
             foreach ($templates as $template) {
-                Notifikasi::create([
-                    'template_notifikasi_id' => $template->id,
-                    'tim_id'                 => $sampel->tim_id,
-                    'pml_id'                 => $pml->id,
-                    'pcl_id'                 => null,
-                    'email'                  => $pml->user->email ?? '',
-                    'no_wa'                  => $pml->no_telepon ?? '',
-                    'sampel_id'              => $sampel->id,
-                    'pengecekan_id'          => null, // isi jika ada data
-                    'status'                 => 'Pending',
-                    'tanggal_terkirim'       => now(),
-                ]);
+                Notifikasi::firstOrCreate(
+                    [
+                        'template_notifikasi_id' => $template->id,
+                        'sampel_id'              => $sampel->id,
+                        'tim_id'                 => $sampel->tim_id,
+                        'pml_id'                 => $pml->id,
+                        'pcl_id'                 => null,
+                    ],
+                    [
+                        'email'            => $pml->user->email ?? '',
+                        'no_wa'            => $pml->no_telepon ?? '',
+                        'pengecekan_id'    => null,
+                        'status'           => 'Pending',
+                        'tanggal_terkirim' => now(),
+                    ]
+                );
             }
         }
 

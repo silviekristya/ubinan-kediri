@@ -20,7 +20,13 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 
-const columnTitleMap: { [key: string]: string } = {
+// Tipe untuk mapping API bs
+interface BlokSensusOption {
+  id_bs: string;
+  nomor_bs: string;
+}
+
+const columnTitleMap: Record<string, string> = {
   nama_sls: 'Nama SLS',
   bs_id: 'Kode Blok Sensus',
 };
@@ -28,7 +34,7 @@ const columnTitleMap: { [key: string]: string } = {
 interface NamaSlsSectionProps {
   slsData: Sls[];
   setSlsData: React.Dispatch<React.SetStateAction<Sls[]>>;
-  canEditDelete: boolean; // Boleh edit/hapus?
+  canEditDelete: boolean;
 }
 
 const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
@@ -37,35 +43,61 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
   canEditDelete,
 }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [filteredBlokSensus, setFilteredBlokSensus] = useState([]);
+  const [filteredBlokSensus, setFilteredBlokSensus] = useState<BlokSensusOption[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editSls, setEditSls] = useState<Sls | null>(null);
-
   const [deleteData, setDeleteData] = useState<{ id: string; nama?: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // CRUD
-  const handleAddSls = async (formData: any) => {
+  // Fetch daftar blok sensus untuk dropdown
+  async function fetchBlokSensus() {
     try {
-      const response = await axios.post('/dashboard/admin/segmen-blok-sensus/nama-sls/store', formData);
-      if (response.data.status === 'success') {
-        // setSlsData((prev) => [...prev, response.data.newNamaSls]);
-        const newSls = response.data.newNamaSls;
-        if (!newSls.nomor_bs) {
-          console.warn("nomor_bs tidak tersedia pada response:", newSls);
-        }
-        setSlsData((prev) => [...prev, newSls]);
-        toast.success('Berhasil menambah nama SLS!');
+      const response = await axios.get('/dashboard/admin/option/bs-available-list');
+      // API returns { bs: [ { id, text }, … ] }
+      const raw: { id: string; text: string }[] = response.data.bs;
+      const options = raw.map(item => ({
+        id_bs:      item.id,    // sesuai field di BlokSensusOption
+        nomor_bs:   item.text,  // ini yang nanti ditampilkan jika perlu
+      }));
+      setFilteredBlokSensus(options);
+    } catch (error) {
+      console.error('Error fetching blok sensus:', error);
+    }
+  }
+
+  const handleOpenAddDialog = async () => {
+    await fetchBlokSensus();
+    setIsAddDialogOpen(true);
+  };
+
+  // Tambah SLS
+  const handleAddSls = async (formData: { nama_sls: string; bs_id: string }) => {
+    try {
+      const { data } = await axios.post(
+        '/dashboard/admin/segmen-blok-sensus/nama-sls/store',
+        formData
+      );
+      if (data.status === 'success') {
+        const rawSls = data.newNamaSls;
+        const formatted: Sls = {
+          id_sls: rawSls.id.toString(),
+          nama_sls: rawSls.nama_sls,
+          bs_id: rawSls.bs_id.toString(),
+          // nomor_bs: rawSls.nomor_bs,
+        };
+        setSlsData((prev) => [...prev, formatted]);
+        toast.success(data.message || 'SLS berhasil ditambahkan.');
         setIsAddDialogOpen(false);
       } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
+        toast.error(data.message || 'Terjadi kesalahan.');
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Gagal menambahkan nama SLS. ' + (error as any)?.response?.data?.message);
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Gagal menambah nama SLS. ' + err.response?.data?.message);
     }
   };
 
+  // Edit SLS
   const handleEditSls = (id: string, item: Sls) => {
     setEditSls(item);
     setIsEditDialogOpen(true);
@@ -73,24 +105,27 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
 
   const handleConfirmUpdateSls = async (id: string, formData: Partial<Sls>) => {
     try {
-      const response = await axios.post(`/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`, formData);
-      if (response.data.status === 'success') {
-        const updatedSls = response.data.updatedNamaSls;
-  
-        setSlsData((prev) => prev.map((s) =>
-          s.id_sls === id.toString() ? { ...s, ...updatedSls } : s
-        ));
+      const { data } = await axios.post(
+        `/dashboard/admin/segmen-blok-sensus/nama-sls/update/${id}`,
+        formData
+      );
+      if (data.status === 'success') {
+        const upd = data.updatedNamaSls;
+        setSlsData((prev) =>
+          prev.map((s) => (s.id_sls === id ? { ...s, ...upd } : s))
+        );
         toast.success('Berhasil memperbarui nama SLS!');
         setIsEditDialogOpen(false);
       } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
+        toast.error(data.message || 'Terjadi kesalahan.');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       toast.error('Gagal memperbarui nama SLS.');
     }
   };
 
+  // Hapus SLS
   const handleDeleteSls = (id: string) => {
     const item = slsData.find((s) => s.id_sls === id);
     setDeleteData({ id, nama: item?.nama_sls });
@@ -99,35 +134,22 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
 
   const handleConfirmDeleteSls = async (id: string) => {
     try {
-      const response = await axios.delete(`/dashboard/admin/segmen-blok-sensus/nama-sls/delete/${id}`);
-      if (response.data.status === 'success') {
-        setSlsData((prev) => prev.filter((s) => s.id_sls !== id.toString()));
+      const { data } = await axios.delete(
+        `/dashboard/admin/segmen-blok-sensus/nama-sls/delete/${id}`
+      );
+      if (data.status === 'success') {
+        setSlsData((prev) => prev.filter((s) => s.id_sls !== id));
         toast.success('Berhasil menghapus nama SLS!');
         setIsDeleteDialogOpen(false);
       } else {
-        toast.error(response.data.message || 'Terjadi kesalahan.');
+        toast.error(data.message || 'Terjadi kesalahan.');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       toast.error('Gagal menghapus nama SLS.');
     }
   };
 
-  async function fetchBlokSensus() {
-    try {
-      const { data } = await axios.get('/dashboard/admin/option/bs-available-list');
-      setFilteredBlokSensus(data.blok_sensus);
-    } catch (error) {
-      console.error('Error fetching blok sensus:', error);
-    }
-  }
-
-  async function handleOpenAddDialog() {
-    await fetchBlokSensus();
-    setIsAddDialogOpen(true);
-  }
-  
-  // Kolom Tabel
   const columns = generateColumns(
     'segmen',
     columnTitleMap,
@@ -136,7 +158,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     undefined,
     handleEditSls,
     undefined,
-    handleDeleteSls,
+    handleDeleteSls
   );
 
   return (
@@ -147,28 +169,27 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
           <Button variant="outline">Unggah</Button>
           {canEditDelete && (
             <Button onClick={handleOpenAddDialog} className="gap-1 flex items-center">
-               <CirclePlus className="h-4 w-4" />
-               Tambah
+              <CirclePlus className="h-4 w-4" />
+              Tambah
             </Button>
           )}
         </div>
       </div>
 
-      <DataTable 
-        data={slsData} 
-        columns={columns} 
-        name="namaSLS" 
-        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'SLS', aksi: 'Aksi' }} 
+      <DataTable
+        data={slsData}
+        columns={columns}
+        name="namaSLS"
+        columnTitleMap={{ nomor_bs: 'Nomor Blok Sensus', nama_sls: 'SLS', aksi: 'Aksi' }}
       />
 
-      {/* Dialog Tambah */}
       <AddSlsDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
+        blokSensusOptions={filteredBlokSensus}
         onSave={handleAddSls}
       />
 
-      {/* Dialog Edit */}
       {editSls && (
         <EditSlsDialog
           isOpen={isEditDialogOpen}
@@ -178,7 +199,6 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
         />
       )}
 
-      {/* Dialog Hapus */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader className="flex flex-col items-center">
@@ -190,7 +210,9 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>
+              Batal
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteData && handleConfirmDeleteSls(deleteData.id)}
             >
@@ -202,6 +224,5 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({
     </div>
   );
 };
+
 export default NamaSlsSection;
-
-

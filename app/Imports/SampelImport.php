@@ -81,11 +81,19 @@ class SampelImport implements ToModel, WithHeadingRow
         }
 
         // 4. Validasi jenis_komoditas
-        $komoditas = $row['jenis_komoditas'] ?? null;
-        if ($komoditas !== null
-            && ! in_array($komoditas, ['Padi','Jagung','Kedelai','Kacang Tanah','Ubi Kayu','Ubi Jalar','Lainnya'], true)
-        ) {
-            $errors[] = "Jenis komoditas '{$komoditas}' invalid";
+        $komoditasRaw = strtoupper($row['jenis_komoditas'] ?? '');
+        $komoditasMap = [
+            'PADI'         => 'Padi',
+            'JAGUNG'       => 'Jagung',
+            'KEDELAI'      => 'Kedelai',
+            'KACANG TANAH' => 'Kacang Tanah',
+            'UBI KAYU'     => 'Ubi Kayu',
+            'UBI JALAR'    => 'Ubi Jalar',
+            'LAINNYA'      => 'Lainnya',
+        ];
+        $komoditas = $komoditasMap[$komoditasRaw] ?? null;
+        if (! $komoditas) {
+            $errors[] = "Jenis komoditas '{$row['jenis_komoditas']}' invalid";
         }
 
         // 5. Validasi wilayah
@@ -108,8 +116,14 @@ class SampelImport implements ToModel, WithHeadingRow
             $errors[] = "Kec '{$row['kec']}' invalid";
         }
 
+        // Inisialisasi untuk conditional Palawija
+        $desa = null;
+        $blok = null;
+        $weekNum = null;
+
         // 6. Validasi conditional berdasarkan jenis_tanaman
         if ($tanaman === 'Padi') {
+            // Segmen, subsegmen, strata
             if (empty($row['idsegmen']) || ! Segmen::where('id_segmen', $row['idsegmen'])->exists()) {
                 $errors[] = "Segmen '{$row['idsegmen']}' invalid or missing for Padi";
             }
@@ -119,30 +133,34 @@ class SampelImport implements ToModel, WithHeadingRow
             if (empty($row['strata'])) {
                 $errors[] = "Strata missing for Padi";
             }
-        } elseif ($tanaman === 'Palawija') {
+            // Padi tidak boleh punya NBS
+            if (! empty($row['nbs'])) {
+                $errors[] = "NBS tidak boleh diisi untuk Padi";
+            }
+        }
+        elseif ($tanaman === 'Palawija') {
+            // Desa / Kelurahan
             $desa = KelDesa::where('nama_kel_desa', $row['desa_kel'] ?? null)
                 ->where('kecamatan_id', $kec->id)
                 ->first();
             if (! $desa) {
                 $errors[] = "Desa/Kel '{$row['desa_kel']}' invalid or missing for Palawija";
             }
-
+            // Blok Sensus
             $blok = BlokSensus::where('nomor_bs', $row['nbs'] ?? null)->first();
             if (! $blok) {
                 $errors[] = "NBS '{$row['nbs']}' invalid or missing for Palawija";
             }
 
-            $weekNum = null;
-            foreach (range(1, 5) as $i) {
-                if (isset($row["m$i"]) && strtoupper($row["m$i"]) === 'V') {
-                    $weekNum = $i;
-                    break;
-                }
-            }
-            if (! $weekNum) {
-                $errors[] = "Perkiraan minggu panen (M1–M5) missing or invalid for Palawija";
-            }
+            // minggu panen: cek kolom "1","2","3","4","5"
+            $weekNum = is_numeric($row['perkiraan_minggu_panen'])
+                ? (int) $row['perkiraan_minggu_panen']
+                : null;
 
+            if (! $weekNum || $weekNum < 1 || $weekNum > 5) {
+                $errors[] = "Perkiraan minggu panen '{$row['perkiraan_minggu_panen']}' invalid for Palawija";
+            }
+            // Nama KRT
             if (empty($row['nama_krt'])) {
                 $errors[] = "Nama KRT missing for Palawija";
             }
@@ -170,6 +188,16 @@ class SampelImport implements ToModel, WithHeadingRow
             $this->warnings[] = $msg;
             return null;
         }
+
+        $namaDesa  = $row['desa_kel'] ?? $row['nmdesa'] ?? null;
+        $namaLokasi = $tanaman === 'Padi'
+            ? ($row['namalok'] ?? null)
+            : $namaDesa;
+
+        // (opsional) validasi namaLokasi
+        if (! $namaLokasi) {
+            $errors[] = "Nama lokasi (namalok/desa_kel) missing for {$tanaman}";
+        }
         // 10. Bangun data Sampel
         return new Sampel([
             'jenis_sampel'           => $jenisSampel,
@@ -180,7 +208,8 @@ class SampelImport implements ToModel, WithHeadingRow
             'kab_kota_id'            => $kab->id,               // pakai ID model
             'kecamatan_id'           => $kec->id,               // pakai ID model
             'kel_desa_id'            => $desa->id ?? null,
-            'nama_lok'               => $row['namalok'] ?? null,
+            // 'nama_lok'               => $row['namalok'] ?? null,
+            'nama_lok'               => $namaLokasi,
             'segmen_id'              => $tanaman === 'Padi' ? $row['idsegmen'] : null,
             'subsegmen'              => $tanaman === 'Padi' ? $row['subsegmen'] : null,
             'strata'                 => $tanaman === 'Padi' ? $row['strata']    : null,

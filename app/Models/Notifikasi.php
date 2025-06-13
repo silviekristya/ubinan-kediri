@@ -32,7 +32,7 @@ class Notifikasi extends Model
      */
     public function templateNotifikasi()
     {
-        return $this->belongsTo(TemplateNotifikasi::class, 'template_notifikasi_id');
+        return $this->belongsTo(TemplateNotifikasi::class, 'template_notifikasi_id', 'template_pesan_id');
     }
 
     /**

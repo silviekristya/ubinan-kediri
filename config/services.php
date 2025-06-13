@@ -40,5 +40,9 @@ return [
         'base_url' => 'https://webapi.bps.go.id/v1/api',
     ],
 
+    'fonnter' => [
+        'api_key' => env('1r8V7ty7DcxnqQgLcSAg'),
+        'url' => env('FONNTE_API_URL', 'https://api.fonnte.com/send'),
+    ],
 
 ];

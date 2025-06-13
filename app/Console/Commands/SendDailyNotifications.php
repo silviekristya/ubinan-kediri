@@ -6,53 +6,109 @@ use Illuminate\Console\Command;
 use App\Models\Notifikasi;
 use App\Services\NotificationService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SendDailyNotifications extends Command
 {
-    protected $signature = 'notifications:send-daily';
-    protected $description = 'Kirimkan semua notifikasi pending setiap pagi jam 07:00';
+    protected $signature   = 'notifications:send-daily';
+    protected $description = 'Kirimkan Pengumuman Alokasi Sampel (PML & PCL) setiap pagi jam 07:00';
 
     public function handle(NotificationService $service)
     {
         $now = Carbon::now();
-        // ambil Notifikasi yang status=Pending
-        $pending = Notifikasi::where('status','Pending')->get();
 
-        // group by tipe & penerima (pcl_id atau pml_id)
-        $grouped = $pending->groupBy(function($n) {
-            return "{$n->templateNotifikasi->tipe_notifikasi}_{$n->pcl_id}_{$n->pml_id}";
-        });
+        // Ambil hanya notifikasi “PengumumanSampelPML” & “PengumumanSampelPCL”
+        $pending = Notifikasi::with([
+                'templateNotifikasi.templatePesan',
+                'sampel',
+                'sampel.tim.pml',  // untuk nama_pml di PCL
+                'sampel.kecamatan',          // untuk nama_kec & daftar_sampel
+                'sampel.pcl',    // untuk nama_pcl
+            ])
+            ->where('status', 'Pending')
+            ->whereHas('templateNotifikasi', function($q) {
+                $q->whereIn('tipe_notifikasi', [
+                    'PengumumanSampelPCL',
+                    'PengumumanSampelPML',
+                ]);
+            })
+            ->get();
+
+        Log::info("DEBUG: ada {$pending->count()} notifikasi Pengumuman Alokasi Sampel pending.");
+
+        // Grouping per penerima unik (tipe + pcl_id + pml_id)
+         $grouped = $pending->groupBy(function($n) {
+        return "{$n->templateNotifikasi->tipe_notifikasi}"
+             ."_{$n->templateNotifikasi->jenis}"
+             ."_{$n->pcl_id}"
+             ."_{$n->pml_id}";
+    });
 
         foreach ($grouped as $key => $records) {
             $first = $records->first();
-            $tipe    = $first->templateNotifikasi->tipe_notifikasi;
-            $channel = $first->templateNotifikasi->jenis;
+            $tipe  = $first->templateNotifikasi->tipe_notifikasi; // PCL atau PML
+            $channel = strtoupper($first->templateNotifikasi->jenis);
 
-            // buat daftar sampel dinamis
-            $lines = $records->map(fn($r) => 
-                "• Sampel nks {$r->sampel->nks} – Lokasi Kec. {$r->sampel->kecamatan_id} Desa {$r->sampel->nama_lok}"
-            )->toArray();
-            $daftar = implode("\n", $lines);
+            // Siapkan daftar sampel (bullet list)
+            $lines = $records->map(function($r) {
+                $s = $r->sampel;
+                return "• NKS {$s->nks} – Kecamatan: {$s->kecamatan->nama_kecamatan} Desa: {$s->nama_lok}";
+            })->toArray();
+            $daftarSampel = implode("\n", $lines);
 
-            // build replacements
-            $repls = [
-                '{{daftar_sampel}}' => $daftar,
-                '{{nama_bulan}}'    => $now->format('F'),
-                '{{tahun}}'         => $now->year,
-                '{{link}}'          => config('app.url').'/sinobi',
-            ];
+            // Unique kecamatan + jumlah sampel + jumlah PCL (untuk PML)
+            $kecList       = $records->pluck('sampel.kecamatan.nama_kecamatan')->unique()->implode(', ');
+            $jumlahSampel  = $records->count();
+            $jumlahPcl     = $records->pluck('sampel.pcl_id')->filter()->unique()->count();
 
-            // kirim via NotificationService
-            $sent = $service->sendTemplatedNotification($tipe, strtoupper($channel), $repls);
+            // Build replacements sesuai template baru
+            if ($tipe === 'PengumumanSampelPCL') {
+                $repls = [
+                    '{{nama_pcl}}'      => $first->sampel->pcl->nama ?? '',               // nama PCL
+                    '{{nama_kec}}'      => $kecList,
+                    '{{jumlah_sampel}}' => $jumlahSampel,
+                    '{{nama_pml}}'      => $first->sampel->tim->pml->nama ?? '',    // nama PML pendamping
+                    '{{daftar_sampel}}' => $daftarSampel,
+                    '{{link}}'          => config('app.url') . '/sinobi',
+                ];
+                // **target** WA/Email PCL
+                $toPhone = optional($first->sampel->pcl)->no_telepon ?: '';
+                $toEmail = optional($first->sampel->pcl->user)->email    ?: '';
+            } else {
+                // PengumumanSampelPML
+                $repls = [
+                    '{{nama_pml}}'      => $first->sampel->tim->pml->nama ?? '',   // nama PML
+                    '{{nama_kec}}'      => $kecList,
+                    '{{jumlah_sampel}}' => $jumlahSampel,
+                    '{{jumlah_pcl}}'    => $jumlahPcl,
+                    '{{daftar_sampel}}' => $daftarSampel,
+                    '{{link}}'          => config('app.url') . '/sinobi',
+                ];
+                // **target** WA/Email PML
+                $toPhone = optional($first->sampel->tim->pml)->no_telepon ?: '';
+                $toEmail = optional($first->sampel->tim->pml->user)->email    ?: '';
+            }
 
-            // update status & tanggal_terkirim
-            $records->each(function($r) use($sent) {
-                $r->status = $sent ? 'Terkirim' : 'Gagal';
-                $r->tanggal_terkirim = now();
+            Log::info("DEBUG: Kirim $tipe via $channel → WA:$toPhone / Email:$toEmail, repls=".json_encode($repls));
+
+            // Panggil service
+            $sent = $service->sendTemplatedNotification(
+                $tipe,
+                $channel,
+                $repls + [
+                    '$PHONE' => $toPhone,
+                    '$EMAIL' => $toEmail,
+                ]
+            );
+
+            // Update status untuk semua record di grup
+            $records->each(function($r) use ($sent) {
+                $r->status           = $sent ? 'Terkirim' : 'Gagal';
+                $r->tanggal_terkirim = $sent ? now() : null;
                 $r->save();
             });
         }
 
-        $this->info('Daily notifications processed.');
+        $this->info('SendDailyNotifications selesai.');
     }
 }

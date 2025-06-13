@@ -28,9 +28,9 @@ class Kernel extends ConsoleKernel
 
     
         // debugging purpose
-        $schedule->call(function () {
-            Log::info("Scheduler OK di " . now()->toDateTimeString());
-        })->everyMinute();
+        // $schedule->call(function () {
+        //     Log::info("Scheduler OK di " . now()->toDateTimeString());
+        // })->everyMinute();
     }
 
     /**

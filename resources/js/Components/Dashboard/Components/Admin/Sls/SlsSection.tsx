@@ -46,7 +46,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
   // Ambil opsi blok sensus
   useEffect(() => {
     axios.get('/dashboard/admin/option/bs-available-list')
-      .then(res => setBlokOptions(res.data.bs.map((b: any) => ({ id_bs: b.id, nomor_bs: b.text }))))
+      .then(res => setBlokOptions(res.data.bs.map((b: any) => ({ id_bs: b.id, nomor_bs: b.id }))))
       .catch(e => console.error('Fetch blok sensus error:', e));
   }, []);
 

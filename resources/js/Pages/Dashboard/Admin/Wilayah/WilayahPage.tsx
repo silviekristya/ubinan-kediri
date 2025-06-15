@@ -7,6 +7,11 @@ import { PageProps, Provinsi, KabKota, Kecamatan, KelurahanDesa, Segmen, BlokSen
 import SegmenSection from '@/Components/Dashboard/Components/Admin/Segmen/SegmenSection';
 import BlokSensusSection from '@/Components/Dashboard/Components/Admin/BlokSensus/BlokSensusSection';
 import SlsSection from '@/Components/Dashboard/Components/Admin/Sls/SlsSection';
+import ProvinsiSection from "@/Components/Dashboard/Components/Admin/Provinsi/ProvinsiSection";
+import KabKotaSection from "@/Components/Dashboard/Components/Admin/KabKota/KabKotaSection";
+import KecamatanSection from "@/Components/Dashboard/Components/Admin/Kecamatan/KecamatanSection";
+import KelDesaSection from "@/Components/Dashboard/Components/Admin/KelDesa/KelDesaSection";
+
 
 
 interface WilayahProps extends PageProps {
@@ -73,7 +78,7 @@ const WilayahPage: React.FC = () => {
                 <TabsTrigger value="kel-desa">Kelurahan/Desa</TabsTrigger>
                 </TabsList>
 
-            {/* Dynamics Header Card */}
+                {/* Dynamics Header Card */}
                 <CardHeader className="flex flex-col items-center text-base sm:text-xl font-semibold justify-between">
                 <h2>
                     {activeTab1 === 'prov' && 'Daftar Provinsi'}
@@ -84,34 +89,18 @@ const WilayahPage: React.FC = () => {
                 </CardHeader>
 
                 <TabsContent value="prov">
-                    <div>
-                    {provData.map((prov) => (
-                        <div key={prov.kode_provinsi} className="border-b p-2">{prov.nama_provinsi} ({prov.kode_provinsi})</div>
-                    ))}
-                    </div>
+                    <ProvinsiSection provData={provData} />
                 </TabsContent>
                 <TabsContent value="kab-kota">
-                    <div>
-                    {kabKotaData.map((kabKota) => (
-                        <div key={kabKota.id} className="border-b p-2">{kabKota.nama_kab_kota} ({kabKota.id})</div>
-                    ))}
-                    </div>
+                    <KabKotaSection kabKotaData={kabKotaData} />
                 </TabsContent>
                 <TabsContent value="kec">
-                    <div>
-                    {kecData.map((kec) => (
-                        <div key={kec.id} className="border-b p-2">{kec.nama_kecamatan} ({kec.kode_kecamatan})</div>
-                    ))}
-                    </div>
+                    <KecamatanSection kecData={kecData} />
                 </TabsContent>
                 <TabsContent value="kel-desa">
-                    <div>
-                    {kelData.map((kel) => (
-                        <div key={kel.id} className="border-b p-2">{kel.nama_kel_desa} ({kel.kode_kel_desa})</div>
-                    ))}
-                    </div>
+                    <KelDesaSection kelData={kelData} />
                 </TabsContent>
-                </Tabs>
+            </Tabs>
             </CardContent>
         </Card>
         <Card className="w-full shadow-md overflow-x-auto">

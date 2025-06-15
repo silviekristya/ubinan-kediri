@@ -107,7 +107,6 @@ export const EditSlsDialog = ({ isOpen, onClose, onSave, data, blokSensusOptions
                     <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-
                 <PopoverContent onOpenAutoFocus={e => e.preventDefault()} className="w-full p-0">
                     <Command>
                     <CommandInput

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/Components/ui/button';
 import { DataTable } from '@/Components/Dashboard/Components/DataTable/DataTable';
 import { CirclePlus, TriangleAlert } from 'lucide-react';
-import { Segmen } from '@/types';
+import { Provinsi, KabKota, Kecamatan, Segmen } from '@/types';
 import { AddSegmenDialog } from '@/Components/Dashboard/Components/Admin/Segmen/AddSegmenDialog';
 import { EditSegmenDialog } from '@/Components/Dashboard/Components/Admin/Segmen/EditSegmenDialog';
 import {
@@ -21,6 +21,9 @@ import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Com
 import { AddImportSegmenDialog } from './AddImportSegmenDialog';
 
 interface SegmenSectionProps {
+  provData: Provinsi[];
+  kabKotaData: KabKota[];
+  kecData: Kecamatan[];
   segmenData: Segmen[];
   setSegmenData: React.Dispatch<React.SetStateAction<Segmen[]>>;
   canEditDelete: boolean;
@@ -34,6 +37,9 @@ const columnTitleMap: { [key: string]: string } = {
 };
 
 const SegmenSection: React.FC<SegmenSectionProps> = ({
+    provData,
+    kabKotaData,
+    kecData,
   segmenData,
   setSegmenData,
   canEditDelete,
@@ -112,27 +118,33 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     }
   };
 
-  const handleConfirmUpdate = async (id: string, formData: Partial<Segmen>) => {
+    const handleConfirmUpdate = async (id: string, formData: Partial<Segmen>) => {
     try {
-      const response = await axios.post(`/dashboard/admin/wilayah/segmen/update/${id}`, formData);
-      if (response.data.status === 'success') {
+        const response = await axios.post(`/dashboard/admin/wilayah/segmen/update/${id}`, formData);
+
+        if (response.data.status === 'success') {
+        const updatedSegmen = response.data.data; // harus dari backend
+
         setSegmenData((prevData) =>
-          prevData.map((item) => (item.id_segmen === id ? { ...item, ...formData } : item))
+            prevData.map((item) =>
+            item.id_segmen === id ? updatedSegmen : item
+            )
         );
         setIsEditDialogOpen(false);
         toast.success(response.data.message);
-      } else {
+        } else {
         toast.error(response.data.message || 'Terjadi kesalahan.');
-      }
+        }
     } catch (error: any) {
-      if (error.response && error.response.data.errors) {
-        const errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+        if (error.response && error.response.data.status === 'error' && error.response.data.message) {
+        const errorMessage = Object.values(error.response.data.errors || {}).flat().join(', ') || error.response.data.message;
         toast.error(`Gagal: ${errorMessage}`);
-      } else {
-        toast.error('Gagal memperbarui segmen.');
-      }
+        } else {
+        toast.error('Gagal memperbarui segmen.' + (error instanceof Error ? error.message : ''));
+        }
     }
-  };
+    };
+
 
   const columns = generateColumns(
     'segmen',
@@ -169,23 +181,29 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
       />
       {/* Dialog untuk pilih & upload file Excel */}
         <AddImportSegmenDialog
-                isOpen={isImportOpen}
-                onClose={() => setIsImportOpen(false)}
+            isOpen={isImportOpen}
+            onClose={() => setIsImportOpen(false)}
         />
       <AddSegmenDialog
+        provData={provData}
+        kabKotaData={kabKotaData}
+        kecData={kecData}
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={handleAddSegmen}
       />
 
-      {editData && (
+    {editData && (
         <EditSegmenDialog
-          isOpen={isEditDialogOpen}
-          onClose={() => {setIsEditDialogOpen(false); setEditData(null);}}
-          segmen={editData!}
-          onSave={(formData) => handleConfirmUpdate(editData!.id_segmen, formData)}
+            isOpen={isEditDialogOpen}
+            onClose={() => { setIsEditDialogOpen(false); setEditData(null); }}
+            segmen={editData}
+            provData={provData}
+            kabKotaData={kabKotaData}
+            kecData={kecData}
+            onSave={(formData) => handleConfirmUpdate(editData.id_segmen, formData)}
         />
-      )}
+    )}
 
       {isDeleteDialogOpen && deleteData && (
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

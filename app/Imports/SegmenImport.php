@@ -50,6 +50,12 @@ class SegmenImport implements ToModel, WithHeadingRow
             return null;
         }
 
+        if (Segmen::where('id_segmen', $row['idsegmen'])->exists()) {
+            $msg = "[SegmenImport] {$identifier}: Segmen dengan id '{$row['idsegmen']}' sudah ada.";
+            Log::warning($msg);
+            $this->warnings[] = $msg;
+            return null;
+        }
         // 3. Build Segmen baru
         return new Segmen([
             'id_segmen'     => $row['idsegmen'],

@@ -57,7 +57,7 @@ export function AddImportSegmenDialog({ isOpen, onClose }: AddImportSegmenDialog
 
   // Submit handler
   const onSubmit = () => {
-    post("/dashboard/admin/segmen/import", {
+    post("/dashboard/admin/wilayah/segmen/import", {
       forceFormData: true,
       onSuccess: ({props}) => {
         // toast.success('Import berhasil!');

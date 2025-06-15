@@ -91,52 +91,52 @@ export const EditSlsDialog = ({ isOpen, onClose, onSave, data, blokSensusOptions
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <Input type="hidden" name="_token" value={csrf_token} />
 
-          {/* Blok Sensus dropdown */}
-          <div className="space-y-1">
-            <Label>Blok Sensus</Label>
-            <Popover open={blokOpen} onOpenChange={setBlokOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={blokOpen}
-                  className="w-full justify-between"
-                  type="button"
-                >
-                  {selectedBs?.nomor_bs ?? "Pilih Blok Sensus"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
+            {/* Blok Sensus */}
+            <div className="space-y-1">
+                <Label>Blok Sensus</Label>
+                <Popover open={blokOpen} onOpenChange={setBlokOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={blokOpen}
+                    className="w-full justify-between"
+                    type="button"
+                    >
+                    {selectedBs?.id_bs ?? "Pilih Blok Sensus"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
 
-              <PopoverContent onOpenAutoFocus={e => e.preventDefault()} className="w-full p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Cari blok sensus..."
-                    value={blokSearch}
-                    onValueChange={setBlokSearch}
-                  />
-                  <CommandList>
-                    <CommandEmpty>Tidak ada blok sensus.</CommandEmpty>
-                    <CommandGroup>
-                      {filteredBlok.map(bs => (
-                        <CommandItem
-                            key={bs.id_bs}
-                            value={bs.id_bs}
-                            onSelect={() => {
-                                setSelectedBs(bs)
-                                setBlokOpen(false)
-                            }}
-                        >
-                          {bs.nomor_bs}
-                          <Check className={`ml-auto ${selectedBs?.id_bs === bs.id_bs ? 'opacity-100' : 'opacity-0'}`} />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+                <PopoverContent onOpenAutoFocus={e => e.preventDefault()} className="w-full p-0">
+                    <Command>
+                    <CommandInput
+                        placeholder="Cari blok sensus..."
+                        value={blokSearch}
+                        onValueChange={setBlokSearch}
+                    />
+                    <CommandList>
+                        <CommandEmpty>Tidak ada blok sensus.</CommandEmpty>
+                        <CommandGroup>
+                        {filteredBlok.map(bs => (
+                            <CommandItem
+                                key={bs.id_bs}
+                                value={bs.id_bs}
+                                onSelect={() => {
+                                    setSelectedBs(bs)
+                                    setBlokOpen(false)
+                                }}
+                            >
+                            {bs.nomor_bs} ({bs.id_bs})
+                            <Check className={`ml-auto ${selectedBs?.id_bs === bs.id_bs ? 'opacity-100' : 'opacity-0'}`} />
+                            </CommandItem>
+                        ))}
+                        </CommandGroup>
+                    </CommandList>
+                    </Command>
+                </PopoverContent>
+                </Popover>
+            </div>
 
           {/* Nama SLS */}
           <div className="space-y-1">

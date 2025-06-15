@@ -32,11 +32,11 @@ class SegmenImportController extends Controller
                 $message = "Beberapa baris gagal diimpor:<br>{$list}<br>Baris tersebut dilewati.";
                 Log::warning("[SegmenImport] Ditemukan warning:\n{$message}");
                 return redirect()
-                    ->route('dashboard.admin.segmen.index') // route ke segmen, bukan sampel!
+                    ->route('dashboard.admin.wilayah.index') // route ke segmen, bukan sampel!
                     ->with('error', $message);
             }
             return redirect()
-                ->route('dashboard.admin.segmen.index')
+                ->route('dashboard.admin.wilayah.index')
                 ->with('success','Data segmen berhasil diimpor');
         }
         catch (\Maatwebsite\Excel\Validators\ValidationException $e) {

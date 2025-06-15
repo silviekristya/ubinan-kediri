@@ -38,9 +38,20 @@ class SegmenUpdate extends Controller
                     'errors'  => $validator->errors(),
                 ], 422);
             }
-
-            // Hitung ulang primary key id_segmen
             $newIdSegmen = $request->input('kecamatan_id') . $request->input('kode_segmen');
+
+            if (
+            Segmen::where('id_segmen', $newIdSegmen)
+                ->where('id_segmen', '!=', $segmen->id_segmen)
+                ->exists()
+            ) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Segmen dengan ID tersebut sudah ada. Silakan gunakan kode segmen lain.',
+                ], 409);
+            }
+            // Hitung ulang primary key id_segmen
 
             // Update fields
             $segmen->update([
@@ -55,8 +66,15 @@ class SegmenUpdate extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Segmen berhasil diperbarui.',
-                'data'    => $segmen->fresh(),
+                'data' => [
+                    'id_segmen'      => $segmen->id_segmen,
+                    'kode_segmen'    => $segmen->kode_segmen,
+                    'nama_segmen'    => $segmen->nama_segmen,
+                    'kecamatan_id'   => $segmen->kecamatan_id,
+                    'nama_kecamatan' => optional($segmen->kecamatan)->nama_kecamatan,
+                ],
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

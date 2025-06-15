@@ -135,6 +135,9 @@ const WilayahPage: React.FC = () => {
                 {/* Tab Segmen */}
                 <TabsContent value="segmen">
                     <SegmenSection
+                        provData={provData}
+                        kabKotaData={kabKotaData}
+                        kecData={kecData}
                         segmenData={segmenData}
                         setSegmenData={setSegmenData}
                         canEditDelete={canEditDelete}

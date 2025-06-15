@@ -59,7 +59,13 @@ class SegmenStore extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Segmen berhasil ditambahkan.',
-                'data'    => $segmen,
+                'data'    => [
+                    'id_segmen'      => $segmen->id_segmen,
+                    'kode_segmen'    => $segmen->kode_segmen,
+                    'nama_segmen'    => $segmen->nama_segmen,
+                    'kecamatan_id'   => $segmen->kecamatan_id,
+                    'nama_kecamatan' => optional($segmen->kecamatan)->nama_kecamatan,
+                ],
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();

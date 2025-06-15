@@ -32,7 +32,7 @@ class SlsUpdate extends Controller
             ]);
 
             // Load relasi blokSensus agar nomor_bs tersedia
-            $sls->load('blokSensus:id,nomor_bs');
+            $sls->load('blokSensus:id_bs,nomor_bs');
 
             DB::commit();
 

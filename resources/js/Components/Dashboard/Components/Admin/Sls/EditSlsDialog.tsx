@@ -103,7 +103,7 @@ export const EditSlsDialog = ({ isOpen, onClose, onSave, data, blokSensusOptions
                   className="w-full justify-between"
                   type="button"
                 >
-                  {selectedBs?.nomor_bs ?? "Pilih Blok Sensus"}
+                  {selectedBs?.id_bs ?? "Pilih Blok Sensus"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>

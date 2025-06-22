@@ -77,7 +77,7 @@ export const DataTableAccordion = ({
       [id]: !prev[id],
     }));
   };
-
+const hasActions = columns.some(col => col.id === "actions");
   return (
     <div className="space-y-4 w-full overflow-x-auto p-2">
       <DataTableToolbar table={table} columnTitleMap={columnTitleMap} name={name} />
@@ -92,13 +92,24 @@ export const DataTableAccordion = ({
                       key={header.id}
                       colSpan={header.colSpan}
                       className={
-                        header.id === 'actions' || header.id === 'select'
+                        header.id === 'actions'
                           ? 'w-10 max-w-[64px] text-center'
-                          : ''
+                          : header.id === 'select'
+                            ? hasActions
+                              ? 'w-10 max-w-[64px] text-center'
+                              : 'w-[32px] max-w-[40px] text-center'
+                            : ''
                       }
                       style={{
                         position: header.id === 'actions' || header.id === 'select' ? 'sticky' : 'static',
-                        left: header.id === 'actions' ? 0 : header.id === 'select' ? '47px' : 'auto',
+                        left:
+                        header.id === 'actions'
+                          ? 0
+                          : header.id === 'select'
+                          ? hasActions
+                            ? '47px'
+                            : '0px'
+                          : 'auto',
                         zIndex: 2,
                         background: 'white',
                         borderRight: '1px solid #e5e7eb',
@@ -134,13 +145,24 @@ export const DataTableAccordion = ({
                       <TableCell
                         key={cell.id}
                         className={
-                          cell.column.id === 'actions' || cell.column.id === 'select'
+                          cell.column.id === 'actions'
                             ? 'w-10 max-w-[64px] text-center'
-                            : ''
+                            : cell.column.id === 'select'
+                              ? hasActions
+                                ? 'w-10 max-w-[64px] text-center'
+                                : 'w-[32px] max-w-[40px] text-center'
+                              : ''
                         }
                         style={{
                           position: cell.column.id === 'actions' || cell.column.id === 'select' ? 'sticky' : 'static',
-                          left: cell.column.id === 'actions' ? 0 : cell.column.id === 'select' ? '47px' : 'auto',
+                          left:
+                          cell.column.id === 'actions'
+                            ? 0
+                            : cell.column.id === 'select'
+                            ? hasActions
+                              ? '47px'
+                              : '0px'
+                            : 'auto',
                           zIndex: 1,
                           background: 'white',
                           borderRight: '1px solid #e5e7eb',

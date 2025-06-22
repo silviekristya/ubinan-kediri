@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 import { PageProps, Pengecekan, Sampel } from '@/types';
 import { AddPengecekanDialog } from '@/Components/Dashboard/Components/Mitra/Pengecekan/AddPengecekanDialog';
+import { EditPengecekanDialog } from '@/Components/Dashboard/Components/Mitra/Pengecekan/EditPengecekanDialog';
 import { Inertia } from '@inertiajs/inertia';
 import { Row } from '@tanstack/react-table';
 import axios from 'axios';
@@ -38,6 +39,7 @@ const columnTitleMap: Record<string, string> = {
   rilis: 'Rilis',
   nks: 'NKS',
   pml_nama: 'Nama PML',
+  pengecekan_id: 'ID Pengecekan',
   tanggal_pengecekan: 'Tanggal Pengecekan',
   nama_responden: 'Responden',
   no_telepon_responden: 'No. Telepon',
@@ -60,7 +62,7 @@ const PengecekanPage: React.FC = () => {
   useEffect(() => { setMainData(mainSamples); }, [mainSamples]);
   useEffect(() => { setBackupData(backupSamples); }, [backupSamples]);
 
-  // flatten + memoize
+  // flatten
   const makeRows = (
     arr: Array<Sampel & { pengecekan?: Pengecekan }>
   ) =>
@@ -76,6 +78,7 @@ const PengecekanPage: React.FC = () => {
       nama_krt:             s.nama_krt,
       rilis:                s.rilis,
       nks:                  s.nks,
+      pengecekan_id:        s.pengecekan?.id,
       tanggal_pengecekan:   s.pengecekan?.tanggal_pengecekan ?? '-',
       nama_responden:       s.pengecekan?.nama_responden     ?? '-',
       no_telepon_responden: s.pengecekan?.no_telepon_responden ?? '-',
@@ -126,7 +129,7 @@ const PengecekanPage: React.FC = () => {
 
   const handleAddPengecekan = async (formData: any) => {
     try {
-      console.log("Mengirim data pengecekan:", formData);
+      // console.log("Mengirim data pengecekan:", formData);
   
       const response = await axios.post(
         '/dashboard/mitra/pengecekan/store',
@@ -153,53 +156,121 @@ const PengecekanPage: React.FC = () => {
       throw error;
     }
   };
-  
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+
+  const openEditDialog = (row: any) => {
+    setEditData(row);
+    setIsEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setEditData(null);
+    setIsEditDialogOpen(false);
+  };
+
+  // Handler submit update
+  const handleEditTanggalPanen = async (payload: { id: any; tanggal_panen: any; }) => {
+    try {
+      const res = await axios.post(`/dashboard/mitra/pengecekan/update/${payload.id}`, {
+        tanggal_panen: payload.tanggal_panen,
+      });
+      if (res.data.status === "success") {
+        toast.success(res.data.message);
+        setIsEditDialogOpen(false);
+
+        // Update state data di tabel langsung, TANPA reload
+        setMainData(prev =>
+          prev.map(item => {
+            // Ubah pengecekan pada sampel yang sesuai
+            if (item.pengecekan && item.pengecekan.id === payload.id) {
+              return {
+                ...item,
+                pengecekan: {
+                  ...item.pengecekan,
+                  tanggal_panen: payload.tanggal_panen,
+                },
+              };
+            }
+            return item;
+          })
+        );
+      } else {
+        toast.error(res.data.message || "Gagal update.");
+      }
+    } catch (e) {
+      const err = e as any;
+      if (err.response?.status === 403) {
+        toast.error(err.response.data.message || "Tidak bisa update saat ini.");
+      } else {
+        toast.error("Gagal update.");
+      }
+    }
+  };
 
 
-  // generateColumns: name, titleMap, customRender?, onDetail, onUpdateStatus, onEdit, onCopy, onDelete
-  const baseColumnsMain = generateColumns<Sampel>(
-    'pengecekanUtama',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined
-  );
+  // generateColumns: name, titleMap, customRender?, onDetail, onUpdateStatus, onEdit, onDelete
+  const baseColumnsMain = generateColumns<Sampel>({
+    name : 'pengecekanUtamaMitra',
+    columnTitleMap:columnTitleMap,
+  });
 
 const [actionsColumn, checkboxColumn, ...dataColumns] = baseColumnsMain;
 
   // Tambahkan kolom aksi terakhir dengan tombol pengecekan
   const actionColumn: ColumnDef<Sampel> = {
-    id: 'tambaah-pengecekan',
-    header: ({ column }) => (
+  id: 'aksi-pengecekan',
+  header: ({ column }) => (
     <DataTableColumnHeader
       column={column}
-      title="Tambah Pengecekan"
-      className="text-xs font-medium min-w-[130px]"  // disesuaikan dengan header default
+      title="Pengecekan"
+      className="text-xs font-medium min-w-[180px]"
     />
   ),
-    cell: ({ row }) => {
-      const isDisabled = row.getValue('status_sampel') !== 'Belum' || row.getValue('tanggal_pengecekan') !== '-';    
-      return (
-        <div className="min-w-[130px] flex justify-center">
-          <Button
-            size="sm"
-            variant={isDisabled ? 'outline' : 'default'}
-            onClick={() => 
-              !isDisabled && openAddDialog(row.original)
-            }
-            disabled={isDisabled}
-          >
-            Tambah
-          </Button>
-        </div>
-      );
-    },
-    enableSorting: false,
-    enableColumnFilter: false,
+  cell: ({ row }) => {
+    // Ambil tanggal_panen dari pengecekan (atau dari row.getValue jika sudah flatten)
+    const rawTanggalPanen = row.getValue('tanggal_panen');
+    const tanggalPanen =
+      typeof rawTanggalPanen === 'string' && rawTanggalPanen !== '-'
+        ? dayjs(rawTanggalPanen).startOf('day')
+        : null;
+    const today = dayjs().startOf('day');
+    const diff = tanggalPanen ? tanggalPanen.diff(today, 'day') : null;
+    // Debugging log
+    console.log('tanggalPanen:', tanggalPanen?.format('YYYY-MM-DD'), '| today:', today.format('YYYY-MM-DD'), '| diff:', diff);
+  const canEdit = tanggalPanen && diff !== null && (diff >= 1 && diff <= 3);
+
+    // Tombol tambah hanya jika status Belum
+    const isDisabledTambah = row.getValue('status_sampel') !== 'Belum' || row.getValue('tanggal_pengecekan') !== '-';
+    
+    const pengecekanId = row.getValue('pengecekan_id');
+
+    return (
+      <div className="min-w-[180px] flex gap-2 justify-center">
+        <Button
+          size="sm"
+          variant={isDisabledTambah ? 'outline' : 'default'}
+          onClick={() => !isDisabledTambah && openAddDialog(row.original)}
+          disabled={isDisabledTambah}
+        >
+          Tambah
+        </Button>
+        <Button
+          size="sm"
+          variant={canEdit ? 'default' : 'outline'}
+          onClick={() => canEdit && openEditDialog({ id: row.getValue('pengecekan_id'), tanggal_panen: row.getValue('tanggal_panen')})}
+          disabled={!canEdit || !pengecekanId}
+        >
+          Perbarui
+        </Button>
+      </div>
+    );
+  },
+  enableSorting: false,
+  enableColumnFilter: false,
   };
+
   
   // gabungkan jadi columnsMain
   const columnsMain: ColumnDef<Sampel>[] = [
@@ -209,16 +280,10 @@ const [actionsColumn, checkboxColumn, ...dataColumns] = baseColumnsMain;
     ...dataColumns,
   ];
 
-  const columnsBackup = generateColumns<Sampel>(
-    'pengecekanCadangan',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined
-  );
+  const columnsBackup = generateColumns<Sampel>({
+    name : 'pengecekanCadangan',
+    columnTitleMap : columnTitleMap,
+  });
 
   return (
     <DashboardLayout>
@@ -262,10 +327,18 @@ const [actionsColumn, checkboxColumn, ...dataColumns] = baseColumnsMain;
           samples={dialogSamples}
         />
       )}
+
+      {isEditDialogOpen && editData && (
+        <EditPengecekanDialog
+          isOpen={isEditDialogOpen}
+          onClose={closeEditDialog}
+          data={editData}
+          onSave={handleEditTanggalPanen}
+        />
+      )}
+
     </DashboardLayout>
   );
 };
 
 export default PengecekanPage;
-
-

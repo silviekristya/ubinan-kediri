@@ -131,16 +131,12 @@ const UserPage = () => {
         );
     };
 
-    const columns = generateColumns<User>(
-        'user',
-        columnTitleMap,
-        undefined,
-        undefined,
-        undefined,
-        handleEdit,
-        handleCopy,
-        handleDelete
-    );
+    const columns = generateColumns<User>({
+        name:'user',
+        columnTitleMap:columnTitleMap,
+        onEdit:handleEdit,
+        onDelete:handleDelete
+    });
 
   return (
     <DashboardLayout>

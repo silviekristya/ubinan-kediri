@@ -60,31 +60,26 @@ const SampelPage: React.FC = () => {
   }, [sampel]);
 
   // Fungsi untuk menyalin data baris ke clipboard
-  const handleCopy = (rowData: any) => {
-    const { id, created_at, updated_at, ...dataWithoutId } = rowData;
-    toast.promise(
-      () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
-      {
-        pending: "Menyalin data ke clipboard...",
-        success: "Data berhasil disalin ke clipboard",
-        error: {
-          render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
-        },
-      }
-    );
-  };
+  // const handleCopy = (rowData: any) => {
+  //   const { id, created_at, updated_at, ...dataWithoutId } = rowData;
+  //   toast.promise(
+  //     () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
+  //     {
+  //       pending: "Menyalin data ke clipboard...",
+  //       success: "Data berhasil disalin ke clipboard",
+  //       error: {
+  //         render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
+  //       },
+  //     }
+  //   );
+  // };
 
   // Generate kolom dengan mengoper onCopy, dan mengoper onEdit serta onDelete sebagai undefined
-  const columns = generateColumns<Sampel>(
-    "sampelMitra",           // Prefix atau nama context kolom
-    columnTitleMap,
-    customRender,       // Custom render untuk kolom "tim_id"
-    undefined,          // onDetail
-    undefined,          // onUpdateStatus
-    undefined,          // onEdit 
-    handleCopy,         // onCopy
-    undefined           // onDelete 
-  );
+  const columns = generateColumns<Sampel>({
+    name : "sampelMitra",
+    columnTitleMap : columnTitleMap,
+    customRender : customRender,  
+  });
 
   // console.log("Kolom yang dihasilkan:", columns);
 

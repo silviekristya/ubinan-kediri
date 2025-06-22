@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             // Menggunakan nullable karena id_sampel_cadangan mungkin tidak ada
             $table->foreignId('id_sampel_cadangan')->nullable()->constrained('sampel')->onDelete('set null');
+            $table->timestamp('verif_at')->nullable();
             $table->timestamps();
         });
     }

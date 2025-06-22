@@ -64,6 +64,7 @@ use App\Http\Controllers\Dashboard\Pml\Pengecekan\PengecekanStore as PengecekanS
 use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanList as HasilUbinanListPML;
 use App\Http\Controllers\Dashboard\Admin\Pengecekan\PengecekanList as PengecekanListAdmin;
 use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanList as PengecekanListMitra;
+use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanUpdate as PengecekanUpdateMitra;
 use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanStore as HasilUbinanStorePML;
 use App\Http\Controllers\Dashboard\Mitra\Pengecekan\PengecekanStore as PengecekanStoreMitra;
 use App\Http\Controllers\Dashboard\Admin\HasilUbinan\HasilUbinanList as HasilUbinanListAdmin;
@@ -240,6 +241,7 @@ Route::middleware('auth')
             Route::prefix('pengecekan')->name('pengecekan.')->group(function () {
                 Route::get('', [PengecekanListMitra::class, 'index'])->name('index'); // Ensure the class and method exist
                 Route::post('store', [PengecekanStoreMitra::class, 'v1'])->name('store'); // Ensure the class and method exist
+                Route::post('update/{pengecekan}', [PengecekanUpdateMitra::class, 'v1'])->name('update'); // Ensure the class and method exist
             });
             // End: Pengecekan
 

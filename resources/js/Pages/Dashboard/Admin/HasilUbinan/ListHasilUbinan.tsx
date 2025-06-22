@@ -119,11 +119,10 @@ export default function ListHasilUbinanAdmin() {
   }
 
   // 4. Generate columns, dengan custom untuk is_verif
-  const columns = generateColumns<FlatHasilUbinanRow>(
-    'Hasil Ubinan Admin',
-    columnTitleMap,
-    undefined, // no customRender needed
-  )
+  const columns = generateColumns<FlatHasilUbinanRow>({
+    name:'Hasil Ubinan Admin',
+    columnTitleMap:columnTitleMap,
+  })
 
   return (
     <DashboardLayout>

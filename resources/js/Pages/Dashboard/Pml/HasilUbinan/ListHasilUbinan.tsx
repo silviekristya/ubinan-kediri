@@ -160,11 +160,11 @@ export default function HasilUbinanPage() {
     is_verif:           'Verifikasi',
   };
 
-  const baseColumns = generateColumns<typeof rows[0]>(
-    'mitraHasilUbinan',
-    columnTitleMap,
-    customRender
-  );
+  const baseColumns = generateColumns<typeof rows[0]>({
+    name:'mitraHasilUbinan',
+    columnTitleMap:columnTitleMap,
+    customRender:customRender
+  });
 
   const columns = [...baseColumns, actionColumn];
 

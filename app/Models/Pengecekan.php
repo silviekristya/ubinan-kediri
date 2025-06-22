@@ -14,6 +14,7 @@ class Pengecekan extends Model
     protected $dates = [
         'tanggal_panen',
         'tanggal_pengecekan',
+        'verif_at',
     ];
     // protected $casts = [
     //     'tanggal_pengecekan' => 'date:d-m-Y',
@@ -30,6 +31,7 @@ class Pengecekan extends Model
         'keterangan',
         'status_sampel',
         'id_sampel_cadangan',
+        'verif_at',
     ];
 
     // Relasi ke sampel: Pengecekan milik satu Sampel

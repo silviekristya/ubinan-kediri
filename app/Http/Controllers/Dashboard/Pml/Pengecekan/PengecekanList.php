@@ -31,11 +31,22 @@ class PengecekanList extends Controller
               });
         };
 
-        // Sampel Utama asli yg belum dicek
+       // Untuk sample utama, menampilkan yang sudah diverifikasi tapi ADA UPDATE DARI MITRA setelah verifikasi (perlu verif ulang)
         $utama = Sampel::with(['pengecekan', 'kecamatan'])
             ->whereHas('tim', fn($q) => $q->where('pml_id', $pmlId))
             ->where('jenis_sampel', 'utama')
-            ->where($unChecked)
+            ->where(function($q) {
+                $q->doesntHave('pengecekan')
+                ->orWhereHas('pengecekan', function($q2) {
+                    $q2->whereNull('status_sampel')
+                        ->orWhere('status_sampel', 'Belum')
+                        // Tambahan: perlu verifikasi ulang!
+                        ->orWhere(function($q3) {
+                            $q3->whereIn('status_sampel', ['Eligible', 'NonEligible'])
+                                ->whereColumn('updated_at', '>', 'verif_at');
+                        });
+                });
+            })
             ->get();
 
         // Sampel Cadangan yg sudah dipromote (tampil di tabel Utama juga)
@@ -59,11 +70,12 @@ class PengecekanList extends Controller
             ->whereNotIn('id', $usedCadIds)
             ->get();
 
-        // 4. Sampel Terverifikasi: status_sampel hanya Eligible atau NonEligible
+        // Sampel Terverifikasi: status_sampel hanya Eligible atau NonEligible atau sudah dicek, TIDAK ADA update setelah verifikasi
         $samplesVerified = Sampel::with(['pengecekan', 'kecamatan'])
             ->whereHas('tim', fn($q) => $q->where('pml_id', $pmlId))
             ->whereHas('pengecekan', function($q) {
-                $q->whereIn('status_sampel', ['Eligible', 'NonEligible']);
+                $q->whereIn('status_sampel', ['Eligible', 'NonEligible'])
+                ->whereColumn('updated_at', '<=', 'verif_at'); // Tidak ada update setelah verifikasi
             })
             ->get();
 

@@ -146,16 +146,12 @@ const SegmenSection: React.FC<SegmenSectionProps> = ({
     };
 
 
-  const columns = generateColumns(
-    'segmen',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    handleEdit,
-    handleCopy,
-    handleDelete,
-  );
+  const columns = generateColumns({
+    name:'segmen',
+    columnTitleMap:columnTitleMap,
+    onEdit:handleEdit,
+    onDelete:handleDelete,
+  });
 
   return (
     <div className="space-y-4">

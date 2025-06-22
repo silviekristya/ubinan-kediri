@@ -248,16 +248,13 @@ const TimPage = () => {
     };
 
 
-    const columns = generateColumns<RowTim>(
-        'tim',
-        columnTitleMap,
-        customRender,
-        undefined,
-        undefined,
-        handleEdit,
-        handleCopy,
-        handleDelete
-    );
+    const columns = generateColumns<RowTim>({
+        name:'tim',
+        columnTitleMap:columnTitleMap,
+        customRender:customRender,
+        onEdit:handleEdit,
+        onDelete:handleDelete
+    });
 
     return (
         <DashboardLayout>

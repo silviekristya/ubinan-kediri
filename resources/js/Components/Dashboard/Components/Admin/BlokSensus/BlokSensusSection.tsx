@@ -134,16 +134,12 @@ const BlokSensusSection: React.FC<BlokSensusSectionProps> = ({
   };
 
   // Kolom Tabel
-  const columns = generateColumns(
-    'blokSensus',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    handleEditBlok,
-    undefined,
-    handleDeleteBlok,
-  );
+  const columns = generateColumns({
+    name:'blokSensus',
+    columnTitleMap:columnTitleMap,
+    onEdit:handleEditBlok,
+    onDelete:handleDeleteBlok,
+  });
 
 
   return (

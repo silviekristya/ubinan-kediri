@@ -90,16 +90,11 @@ const SampelPage: React.FC = () => {
   };
 
   // Generate kolom dengan mengoper onCopy, dan onEdit serta onDelete tidak dioper (undefined)
-  const columns = generateColumns<Sampel>(
-    "sampelPml",             // Prefix atau nama context kolom
-    columnTitleMap,
-    customRender,         // Custom render untuk kolom "tim_id"
-    undefined,            // onDetail
-    undefined,            // onUpdateStatus
-    undefined,            // onEdit (tidak mengoper tombol edit)
-    handleCopy,           // onCopy (tombol salin akan muncul)
-    undefined             // onDelete (tidak mengoper tombol hapus)
-  );
+  const columns = generateColumns<Sampel>({
+    name: "sampelPml",   
+    columnTitleMap : columnTitleMap,
+    customRender: customRender,
+  });
 
   // console.log("Kolom yang dihasilkan:", columns);
 

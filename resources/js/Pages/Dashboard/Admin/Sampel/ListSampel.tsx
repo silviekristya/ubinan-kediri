@@ -61,7 +61,6 @@ const columnTitleMap: { [key: string]: string } = {
   lat: "Latitude",
   subround: "Subround",
   perkiraan_minggu_panen: "Perkiraan Minggu Panen",
-
 };
 
 const SampelPage = () => {
@@ -385,16 +384,13 @@ const SampelPage = () => {
   };
 
   // Generate kolom tabel, tambahkan kolom untuk menampilkan relasi
-  const columns = generateColumns<Sampel>(
-    "sampel",
-    columnTitleMap,
-    customRender,
-    undefined,
-    undefined,
-    handleEdit,
-    handleCopy,
-    handleDelete
-  );
+  const columns = generateColumns<Sampel>({
+    name:"sampel",
+    columnTitleMap:columnTitleMap,
+    customRender:customRender,
+    onEdit:handleEdit,
+    onDelete:handleDelete
+  });
 
   // console.log("Kolom yang dihasilkan:", columns);
   return (

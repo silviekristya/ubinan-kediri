@@ -130,16 +130,12 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
   };
 
   // Definisi kolom DataTable
-  const columns = generateColumns(
-    'sls',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    handleEditOpen,
-    undefined,
-    handleDeleteOpen
-  );
+  const columns = generateColumns({
+    name:'sls',
+    columnTitleMap:columnTitleMap,
+    onEdit:handleEditOpen,
+    onDelete:handleDeleteOpen
+  });
 
   return (
     <>

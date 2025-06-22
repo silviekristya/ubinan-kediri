@@ -32,7 +32,7 @@ interface DataTableRowActionsProps<TData> {
   onDetail?: (id: string, data: any) => void;
   onUpdateStatus?: (id: string, status: string) => void;
   onEdit?: (id: string, data: any, dataUser?: any) => void
-  onCopy?: (data: any) => void;
+  // onCopy?: (data: any) => void;
   onDelete?: (id: string) => void;
   onRilis?: (id: string, data: any) => void,
 }
@@ -48,12 +48,12 @@ export function DataTableRowActions<TData>({
   onDetail,
   onUpdateStatus,
   onEdit,
-  onCopy,
+  // onCopy,
   onDelete,
   onRilis,
 }: DataTableRowActionsProps<TData>) {
   let data: TData = row.original;
-  const canEdit    = ['user','pegawai','mitra','tim','sampel','segmen','pengecekanUtama','mitraHasilUbinan','templatePesan','blokSensus', 'sls'].includes(name)
+  const canEdit    = ['user','pegawai','mitra','tim','sampel','segmen','mitraHasilUbinan','templatePesan','blokSensus', 'sls'].includes(name)
   const canDelete  = ['user','pegawai','mitra','tim','sampel','segmen','templatePesan', 'blokSensus', 'sls'].includes(name)
   const canDetail  = name === 'name'
   const handleDetail = () => {
@@ -66,9 +66,9 @@ export function DataTableRowActions<TData>({
     }
   };
 
-  const handleCopy = () => {
-    onCopy?.(data);
-  };
+  // const handleCopy = () => {
+  //   onCopy?.(data);
+  // };
 
   const handleDelete = () => {
     onDelete?.((data as any).id);
@@ -97,7 +97,7 @@ export function DataTableRowActions<TData>({
             <DropdownMenuItem onSelect={handleEdit} className='cursor-pointer'>Edit</DropdownMenuItem>
             </>
         )}
-        <DropdownMenuItem onSelect={handleCopy} className='cursor-pointer'>Salin</DropdownMenuItem>
+        {/* <DropdownMenuItem onSelect={handleCopy} className='cursor-pointer'>Salin</DropdownMenuItem> */}
         {canDelete && (
           <>
             <DropdownMenuItem onSelect={handleDelete} className='cursor-pointer'>Hapus</DropdownMenuItem>

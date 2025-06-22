@@ -147,21 +147,21 @@ const PegawaiPage = () => {
         }
     };
 
-    const handleCopy = (data: any) => {
-        // Hilangkan properti id, created_at, dan updated_at
-        const { id, created_at, updated_at, ...dataWithoutId } = data;
+    // const handleCopy = (data: any) => {
+    //     // Hilangkan properti id, created_at, dan updated_at
+    //     const { id, created_at, updated_at, ...dataWithoutId } = data;
 
-        toast.promise(
-            () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
-            {
-                pending: 'Menyalin data ke clipboard...',
-                success: 'Data berhasil disalin ke clipboard',
-                error: {
-                    render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
-                },
-            }
-        );
-    };
+    //     toast.promise(
+    //         () => navigator.clipboard.writeText(JSON.stringify(dataWithoutId)),
+    //         {
+    //             pending: 'Menyalin data ke clipboard...',
+    //             success: 'Data berhasil disalin ke clipboard',
+    //             error: {
+    //                 render: (err) => `Gagal menyalin data ke clipboard: ${err}`,
+    //             },
+    //         }
+    //     );
+    // };
 
 
     const handleDeleteConfirm = async (id: string) => {
@@ -187,16 +187,12 @@ const PegawaiPage = () => {
     };
 
     // Definisikan kolom tabel
-    const columns = generateColumns(
-        'pegawai',
-        columnTitleMap,
-        undefined,
-        undefined,
-        undefined,
-        handleEdit,
-        handleCopy,
-        handleDelete
-    );
+    const columns = generateColumns({
+        name:'pegawai',
+        columnTitleMap:columnTitleMap,
+        onEdit:handleEdit,
+        onDelete:handleDelete
+    });
 
     // Render Komponen
     return (

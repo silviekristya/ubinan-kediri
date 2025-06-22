@@ -111,42 +111,30 @@ export default function PengecekanPage() {
   };
 
   // copy-to-clipboard handler
-  const handleCopy = (row: typeof rowsMain[0]) => {
-    const { id, ...rest } = row;
-    toast.promise(
-      navigator.clipboard.writeText(JSON.stringify(rest, null, 2)),
-      {
-        pending: 'Menyalin baris ke clipboard…',
-        success: 'Berhasil disalin!',
-        error:   'Gagal menyalin.',
-      }
-    );
-  };
+  // const handleCopy = (row: typeof rowsMain[0]) => {
+  //   const { id, ...rest } = row;
+  //   toast.promise(
+  //     navigator.clipboard.writeText(JSON.stringify(rest, null, 2)),
+  //     {
+  //       pending: 'Menyalin baris ke clipboard…',
+  //       success: 'Berhasil disalin!',
+  //       error:   'Gagal menyalin.',
+  //     }
+  //   );
+  // };
 
   // generate base columns + add "Copy" action
   const baseColumnsMain: ColumnDef<typeof rowsMain[0]>[] =
-    generateColumns<typeof rowsMain[0]>(
-      'adminPengecekanMain',
-      columnTitleMap,
-      undefined,   // no customRender needed
-      undefined,   // no detail action
-      undefined,   // no update status action
-      undefined,   // no edit
-      handleCopy,  // copy
-      undefined    // no delete
-    );
+    generateColumns<typeof rowsMain[0]>({
+      name:'adminPengecekanMain',
+      columnTitleMap:columnTitleMap,
+  });
 
   const baseColumnsBackup: ColumnDef<typeof rowsBackup[0]>[] =
-    generateColumns<typeof rowsBackup[0]>(
-      'adminPengecekanBackup',
-      columnTitleMap,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      handleCopy,
-      undefined
-    );
+    generateColumns<typeof rowsBackup[0]>({
+      name:'adminPengecekanBackup',
+      columnTitleMap:columnTitleMap,
+  });
 
   return (
     <DashboardLayout>

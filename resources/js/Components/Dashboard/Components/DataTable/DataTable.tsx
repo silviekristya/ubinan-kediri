@@ -25,6 +25,7 @@ import {
 
 import { DataTablePagination } from "@/Components/Dashboard/Components/DataTable/Components/DataTablePagination"
 import { DataTableToolbar } from "@/Components/Dashboard/Components/DataTable/Components/DataTableToolbar"
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface DataTableProps {
   data: any[]
@@ -69,6 +70,13 @@ export const DataTable = ({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+  const isMobile = useIsMobile();
+  const mainColumnCount = isMobile ? 4 : columns.length;
+  const [expandedRows, setExpandedRows] = React.useState<{ [rowId: string]: boolean }>({});
+  const toggleRow = (rowId: string) => {
+    setExpandedRows(prev => ({ ...prev, [rowId]: !prev[rowId] }));
+  };
+  const hasActions = columns.some(col => col.id === "actions");
   return (
     <div className="space-y-4 w-full overflow-x-auto p-2">
       <DataTableToolbar table={table} columnTitleMap={columnTitleMap} name={name} />
@@ -77,19 +85,40 @@ export const DataTable = ({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
+                {isMobile ? (
+                  // Expanded column di KIRI, lalu mainColumnCount kolom utama
+                  <>
+                    {headerGroup.headers.length > mainColumnCount && (
+                      <TableHead key="expand-head" className="w-10 text-center"></TableHead>
+                    )}
+                    {headerGroup.headers.slice(0, mainColumnCount).map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    ))}
+                  </>
+                ) : (
+                  // Desktop: semua kolom
+                  headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
                       className={
-                        header.id === 'actions' || header.id === 'select'
+                        header.id === 'actions'
                           ? 'w-10 max-w-[64px] text-center'
+                          : header.id === 'select'
+                          ? hasActions
+                            ? 'w-10 max-w-[64px] text-center'
+                            : 'w-[32px] max-w-[40px] text-center'
                           : ''
                       }
                       style={{
                         position: header.id === 'actions' || header.id === 'select' ? 'sticky' : 'static',
-                        left: header.id === 'actions' ? 0 : header.id === 'select' ? '47px' : 'auto',
+                        left: header.id === 'actions' ? 0 : header.id === 'select'
+                          ? hasActions ? '47px' : '0px'
+                          : 'auto',
                         zIndex: 2,
                         background: 'white',
                         borderRight: '1px solid #e5e7eb',
@@ -97,61 +126,138 @@ export const DataTable = ({
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
-                })}
+                  ))
+                )}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody className="text-xs md:text-sm">
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
+            {isMobile ? (
+              table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => {
+                  const visibleCells = row.getVisibleCells();
+                  const mainCells = visibleCells.slice(0, mainColumnCount);
+                  const hiddenCells = visibleCells.slice(mainColumnCount);
+
+                  return (
+                    <React.Fragment key={row.id}>
+                      <TableRow data-state={row.getIsSelected() && "selected"}>
+                        {hiddenCells.length > 0 && (
+                          <TableCell
+                            key="expand"
+                            className="w-10 text-center cursor-pointer"
+                            onClick={() => toggleRow(row.id)}
+                          >
+                            {/* <span>{expandedRows[row.id] ? "▲" : "▼"}</span> */}
+                            <span
+                              className={
+                                "inline-block transition-transform duration-200 font-bold" +
+                                (expandedRows[row.id] ? " rotate-180 text-black" : " text-gray-400 hover:text-black")
+                              }
+                            >
+                              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={3}    // lebih tebal
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </span>
+                          </TableCell>
+                        )}
+                        {mainCells.map(cell => (
+                          <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {expandedRows[row.id] && (
+                        <TableRow className="bg-gray-50">
+                          <TableCell colSpan={mainColumnCount + 1}>
+                            <div className="space-y-2">
+                              {hiddenCells.map(cell => {
+                                const header = table.getLeafHeaders().find(h => h.column.id === cell.column.id);
+                                return (
+                                  <div key={cell.id} className="flex">
+                                    <span className="font-semibold min-w-[160px] flex justify-start mr-2 border-r-2">
+                                      {columnTitleMap[cell.column.id] || cell.column.id}
+                                    </span>
+                                    <span>
+                                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={mainColumnCount + 1} className="h-24 text-center">
+                    Tidak ada data yang ditemukan.
+                  </TableCell>
+                </TableRow>
+              )
+            ) : (
+              // DESKTOP/DEFAULT
+              table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
                         key={cell.id}
                         className={
-                            cell.column.id === 'actions' || cell.column.id === 'select'
+                          cell.column.id === 'actions'
+                            ? 'w-10 max-w-[64px] text-center'
+                            : cell.column.id === 'select'
+                            ? hasActions
                               ? 'w-10 max-w-[64px] text-center'
-                              : ''
-                          }
+                              : 'w-[32px] max-w-[40px] text-center'
+                            : ''
+                        }
                         style={{
-                            position: cell.column.id === 'actions' || cell.column.id === 'select' ? 'sticky' : 'static',
-                            left: cell.column.id === 'actions' ? 0 : cell.column.id === 'select' ? '47px' : 'auto', // Atur posisi left
-                            zIndex: 1,
-                            background: 'white',
-                            borderRight: '1px solid #e5e7eb',
+                          position: cell.column.id === 'actions' || cell.column.id === 'select' ? 'sticky' : 'static',
+                          left: cell.column.id === 'actions' ? 0 : cell.column.id === 'select'
+                          ? hasActions ? '47px' : '0px'
+                          : 'auto',
+                          zIndex: 1,
+                          background: 'white',
+                          borderRight: '1px solid #e5e7eb',
                         }}
-                        >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Tidak ada data yang ditemukan.
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Tidak ada data yang ditemukan.
-                </TableCell>
-              </TableRow>
+              )
             )}
           </TableBody>
         </Table>
       </div>
       <DataTablePagination table={table} />
     </div>
-  )
+  );
 }

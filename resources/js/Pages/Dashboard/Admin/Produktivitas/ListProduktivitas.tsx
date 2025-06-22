@@ -98,42 +98,24 @@ export default function ListProduktivitas() {
 
   // Generate columns
   const columnsSampel: ColumnDef<SampelRecord>[] = useMemo(
-    () => generateColumns<SampelRecord>(
-      'produktivitassAdmin',
-      sampelTitleMap,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      handleCopy,
-      undefined
-    ), [sampelTitleMap]
+    () => generateColumns<SampelRecord>({
+      name:'produktivitasAdmin',
+      columnTitleMap:sampelTitleMap,
+    }), [sampelTitleMap]
   );
 
   const columnsKecamatan: ColumnDef<KecamatanRecord>[] = useMemo(
-    () => generateColumns<KecamatanRecord>(
-      'produktivitaskecamatanAdmin',
-      kecamatanTitleMap,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      handleCopy,
-      undefined
-    ), [kecamatanTitleMap]
+    () => generateColumns<KecamatanRecord>({
+      name:'produktivitaskecamatanAdmin',
+      columnTitleMap:kecamatanTitleMap,
+    }), [kecamatanTitleMap]
   );
 
   const columnsKabupaten: ColumnDef<KabupatenRecord>[] = useMemo(
-    () => generateColumns<KabupatenRecord>(
-      'produktivitaskabupatenAdmin',
-      kabupatenTitleMap,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      handleCopy,
-      undefined
-    ), [kabupatenTitleMap]
+    () => generateColumns<KabupatenRecord>({
+      name:'produktivitaskabupatenAdmin',
+      columnTitleMap:kabupatenTitleMap,
+    }), [kabupatenTitleMap]
   );
 
   // Default cell for nulls

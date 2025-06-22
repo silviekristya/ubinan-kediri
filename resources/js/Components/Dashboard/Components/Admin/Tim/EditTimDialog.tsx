@@ -157,7 +157,7 @@ export const EditTimDialog = ({ isOpen, onClose, onSave, data, pegawai = [], mit
                     {/* PCL Selection */}
                     <div className="flex flex-col space-y-2">
                         <Label>PCL</Label>
-                        <div className="max-h-[400px] overflow-y-auto space-y-2">
+                        <div className="max-h-[300px] overflow-y-auto space-y-2">
                             {pclSelections.map((pclId, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <Popover>

@@ -27,80 +27,87 @@ interface ColumnTitleMap {
 }
 
 export type DataTableColumnDef<TData> = ColumnDef<TData, any>;
+export type GenerateColumnsOptions<TData> = {
+  name?: string;
+  columnTitleMap: ColumnTitleMap;
+  customRender?: (columnKey: string, row: TData) => ReactNode;
+  onDetail?: (id: string, data: any) => void;
+  onUpdateStatus?: (id: string, status: string) => void;
+  onEdit?: (id: string, data: any) => void;
+  onDelete?: (id: string) => void;
+};
+
 
 // Parameter customRender bersifat opsional dan default akan mengembalikan undefined.
-export const generateColumns = <TData,>(
-  name: string | undefined,
-  columnTitleMap: ColumnTitleMap,
-  customRender?: (columnKey: string, row: TData) => ReactNode,
-  onDetail?: (id: string, data: any) => void,
-  onUpdateStatus?: (id: string, status: string) => void,
-  onEdit?: (id: string, data: any) => void,
-  onCopy?: (data: any) => void,
-  onDelete?: (id: string) => void,
-  onRilis?: (id: string, data: any) => void
-): DataTableColumnDef<TData>[] => {
-  // Mulai dengan kolom-kolom statis: aksi dan checkbox
-  const baseColumns: DataTableColumnDef<TData>[] = [
-    {
-      id: "actions",
-      header: ({ column }: { column: any }) => (
-        <div className="flex space-x-2 items-center justify-center">
-          <DataTableColumnHeader column={column} title="Aksi" />
-        </div>
-      ),
-      cell: ({ row }: { row: any }) => (
-        <div className="flex space-x-2 items-center justify-center">
-          <DataTableRowActions
-            name={name ?? ""}
-            row={row}
-            onDetail={onDetail}
-            onUpdateStatus={onUpdateStatus}
-            onEdit={onEdit}
-            onCopy={onCopy}
-            onDelete={onDelete}
-            onRilis={onRilis}
-          />
-        </div>
-      ),
-    },
-    {
-      id: "select",
-      header: ({ table }: { table: any }) => (
-        <div className="flex space-x-2 items-center justify-center">
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-            className="translate-y-[2px]"
-          />
-        </div>
-      ),
-      cell: ({ row }: { row: any }) => (
-        <div className="flex space-x-2 items-center justify-center">
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-            className="translate-y-[2px]"
-          />
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-  ];
+export function generateColumns<TData>({
+  name,
+  columnTitleMap,
+  customRender,
+  onDetail,
+  onUpdateStatus,
+  onEdit,
+  onDelete,
+}: GenerateColumnsOptions<TData>): DataTableColumnDef<TData>[] {
+  const hasActions = onDetail || onUpdateStatus || onEdit || onDelete;
 
+  // Kolom select (selalu ada di kiri)
+  const selectColumn: DataTableColumnDef<TData> = {
+    id: "select",
+    header: ({ table }: { table: any }) => (
+      <div className="flex space-x-2 items-center justify-center">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="translate-y-[2px]"
+        />
+      </div>
+    ),
+    cell: ({ row }: { row: any }) => (
+      <div className="flex space-x-2 items-center justify-center">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="translate-y-[2px]"
+        />
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  };
+
+  // Kolom actions, kalau ada handler
+  const actionsColumn: DataTableColumnDef<TData> = {
+    id: "actions",
+    header: ({ column }: { column: any }) => (
+      <div className="flex space-x-2 items-center justify-center">
+        <DataTableColumnHeader column={column} title="Aksi" />
+      </div>
+    ),
+    cell: ({ row }: { row: any }) => (
+      <div className="flex space-x-2 items-center justify-center">
+        <DataTableRowActions
+          name={name ?? ""}
+          row={row}
+          onDetail={onDetail}
+          onUpdateStatus={onUpdateStatus}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
+    ),
+  };
   // Ambil semua key dari columnTitleMap
   const allKeys = Object.keys(columnTitleMap).filter(
     (key) => key !== "id" && key !== "user_id"
   );
 
   const DATE_KEY_REGEX = /(tanggal|tgl|panen|rilis|date)/i;
-
+  const dynamicColumns: DataTableColumnDef<TData>[] = [];
   // Loop melalui semua key dan buat definisi kolom
   allKeys.forEach((key) => {
     let columnDef: DataTableColumnDef<TData>;
@@ -334,9 +341,9 @@ export const generateColumns = <TData,>(
       // Kolom default untuk key lainnya
       columnDef = {
         accessorKey: key,
-        header: ({ column }: { column: any }) => (
+        header: (ctx) => (
           <DataTableColumnHeader
-            column={column}
+            column={ctx.column}
             title={columnTitleMap[key] || key}
             className="flex justify-center"
           />
@@ -363,8 +370,15 @@ export const generateColumns = <TData,>(
     }
 
     // Tambahkan kolom yang baru dibuat ke baseColumns
-    baseColumns.push(columnDef);
+    dynamicColumns.push(columnDef);
   });
 
-  return baseColumns;
-};
+  let columns: DataTableColumnDef<TData>[];
+  if (hasActions) {
+    columns = [actionsColumn, selectColumn, ...dynamicColumns];
+  } else {
+    columns = [selectColumn, ...dynamicColumns];
+  }
+
+  return columns;
+}

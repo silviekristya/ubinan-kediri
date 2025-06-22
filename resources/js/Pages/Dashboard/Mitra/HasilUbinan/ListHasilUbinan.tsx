@@ -164,11 +164,11 @@ export default function HasilUbinanPage() {
   };
 
   // generate base columns
-  const baseColumns = generateColumns<typeof rows[0]>(
-    'mitraHasilUbinan',
-    columnTitleMap,
-    customRender
-  );
+  const baseColumns = generateColumns<typeof rows[0]>({
+    name:'mitraHasilUbinan',
+    columnTitleMap:columnTitleMap,
+    customRender:customRender
+  });
 
   // kolom aksi: Add vs Edit
   const actionColumn: ColumnDef<typeof rows[0]> = {

@@ -1,3 +1,4 @@
+import { VerifyDialog } from '../Components/Dashboard/Components/Pml/Pengecekan/AddVerifikasiDialog';
 export interface User {
     id: number
     email: string
@@ -94,6 +95,7 @@ export interface Pengecekan {
     status_sampel?: 'Eligible' | 'NonEligible' | 'Belum';
     keterangan?: string | null;
     id_sampel_cadangan?: number | null;
+    verif_at?: string | null;
     created_at?: string;
     updated_at?: string;
 

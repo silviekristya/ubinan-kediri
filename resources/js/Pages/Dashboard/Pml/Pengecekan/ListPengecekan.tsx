@@ -11,6 +11,7 @@ import type { PageProps, Sampel, Pengecekan } from '@/types';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Card, CardContent, CardHeader } from '@/Components/ui/card';
+import dayjs from 'dayjs';
 
 type Props = PageProps & {
   samplesUtama:    Array<Sampel & { pengecekan?: Pengecekan; cadanganOptions: { id: number; label: string }[] }>;
@@ -57,6 +58,8 @@ export default function PengecekanPage() {
       tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
       keterangan: s.pengecekan?.keterangan ?? '-',
       status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+      verif_at: s.pengecekan?.verif_at ?? null,
+      updated_at: s.pengecekan?.updated_at ?? null,
     })), [samplesUtama]
   );
 
@@ -70,6 +73,8 @@ export default function PengecekanPage() {
       tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
       keterangan: s.pengecekan?.keterangan ?? '-',
       status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+      verif_at: s.pengecekan?.verif_at ?? null,
+      updated_at: s.pengecekan?.updated_at ?? null,
     })), [samplesVerified]
   );
 
@@ -83,30 +88,55 @@ export default function PengecekanPage() {
       tanggal_panen: s.pengecekan?.tanggal_panen ?? '-',
       keterangan: s.pengecekan?.keterangan ?? '-',
       status_sampel: s.pengecekan?.status_sampel ?? 'Belum',
+      verif_at: s.pengecekan?.verif_at ?? null,
+      updated_at: s.pengecekan?.updated_at ?? null,
     })), [samplesCadangan]
   );
 
   // generate columns default (akses langsung ke field di row)
-  const baseColumns = generateColumns<typeof rowsUtama[0]>(
-    'pmlPengecekan',
-    columnTitleMap
-  );
+  const baseColumns = generateColumns<typeof rowsUtama[0]>({
+    name:'pmlPengecekan',
+    columnTitleMap:columnTitleMap
+  });
 
   // action column untuk verifikasi
   const actionColumn: ColumnDef<typeof rowsUtama[0]> = {
-    id: 'action',
-    header: 'Aksi',
+    id: 'Verifikasi',
+    header: 'Verifikasi',
     cell: ({ row }) => {
       const p = row.original.pengecekan;
-      const incomplete = !!p && (!p?.status_sampel || p?.status_sampel === 'Belum');
+
+      if (!p) return null;
+
+      const status = p?.status_sampel ?? "Belum";
+      const verifAt = p.verif_at ? dayjs(p.verif_at) : null;
+      const updatedAt = p.updated_at ? dayjs(p.updated_at) : null;
+
+      // --- Verifikasi awal ---
+      const isVerifikasiAwal = !status || status === "Belum";
+
+      // --- Verifikasi ulang ---
+      let canVerifUlang = false;
+      if (
+        (status === 'Eligible' || status === 'NonEligible') &&
+        verifAt &&
+        updatedAt &&
+        updatedAt.isAfter(verifAt)
+      ) {
+        canVerifUlang = true;
+      }
+
+      // --- Gabungkan ---
+      const canVerify = isVerifikasiAwal || canVerifUlang;
+
       return (
         <Button
           size="sm"
-          variant={incomplete ? 'default' : 'outline'}
-          disabled={!incomplete}
-          onClick={() => openDialog(row.original as any)}
+          variant={canVerify ? 'default' : 'outline'}
+          disabled={!canVerify}
+          onClick={() => canVerify && openDialog(row.original as any)}
         >
-          {incomplete ? 'Verifikasi' : 'Terverifikasi'}
+          {status === 'Eligible' || status === 'NonEligible' ? 'Terverifikasi' : 'Verifikasi'}
         </Button>
       );
     },

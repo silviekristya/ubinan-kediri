@@ -56,11 +56,13 @@ class PengecekanList extends Controller
         }
 
         // ambil sampel cadangan yang belum dicek sama sekali
-        $backupSamples = Sampel::with('kecamatan')->where('pcl_id', $mitraId)
+        $backupSamples = Sampel::with(['pengecekan', 'kecamatan'])
+            ->where('pcl_id', $mitraId)
             ->where('jenis_sampel', 'Cadangan')
             ->whereDoesntHave('pengecekan')
             ->whereNotIn('id', $usedCadIds)
             ->get();
+
 // dd($mainSamples, $backupSamples, $usedCadIds);
         return Inertia::render('Dashboard/Mitra/Pengecekan/ListPengecekan', [
             'mainSamples'   => $mainSamples->values(),

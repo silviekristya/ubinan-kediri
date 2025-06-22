@@ -137,16 +137,12 @@ const ListTemplatePesan = () => {
     );
   }
 
-  const columns = generateColumns(
-    'templatePesan',
-    columnTitleMap,
-    undefined,
-    undefined,
-    undefined,
-    handleEdit,
-    handleCopy,
-    handleDelete
-  );
+  const columns = generateColumns({
+    name:'templatePesan',
+    columnTitleMap:columnTitleMap,
+    onEdit:handleEdit,
+    onDelete:handleDelete
+  });
 
   return (
     <DashboardLayout>

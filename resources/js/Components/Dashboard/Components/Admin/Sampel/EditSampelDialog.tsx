@@ -1,132 +1,135 @@
-import { useState, FormEventHandler, useMemo, useEffect } from "react"
+import { useState, useEffect, useMemo, FormEventHandler } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/Components/ui/dialog"
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
-import { usePage, useForm } from "@inertiajs/react"
-import { Loader2, Check } from "lucide-react"
-import { Sampel, Segmen, BlokSensus, Sls, SampelFormData, PageProps, JenisSampel, JenisTanaman, JenisKomoditas } from "@/types"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select"
-import axios from "axios"
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { usePage, useForm } from "@inertiajs/react";
+import { Loader2, Check, ChevronsUpDown } from "lucide-react";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
+  Sampel, Segmen, BlokSensus, Sls, SampelFormData, PageProps, JenisSampel, JenisTanaman, JenisKomoditas,
+  Kecamatan,
+  Mitra,
+  Pengecekan,
+  Tim,
+} from "@/types";
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/Components/ui/select";
+import axios from "axios";
+import {
+  Popover, PopoverTrigger, PopoverContent,
 } from "@/Components/ui/popover";
 import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
+  Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
 } from "@/Components/ui/command";
-import { ChevronsUpDown } from "lucide-react";
-import { set } from "nprogress"
 
-interface AddSampelDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (formData: SampelFormData) => Promise<void>
-  provinsiOptions: { id: string; text: string }[]
-  kabKotaOptions: { id: string; text: string }[]
-  kecamatanOptions: { id: string; text: string }[]
-  kelDesaOptions: { id: string; text: string }[]
-  segmenOptions: { id: string; text: string }[]
-  slsOptions: { id: string; text: string }[]
-  blokSensusOptions: { id: string; text: string }[]
-  // slsOptions: Sls[]
+interface EditSampelDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (formData: SampelFormData) => Promise<void>;
+  initialData: SampelFormData;
+  provinsiOptions: { id: string; text: string }[];
+  kabKotaOptions: { id: string; text: string }[];
+  kecamatanOptions: { id: string; text: string }[];
+  kelDesaOptions: { id: string; text: string }[];
+  segmenOptions: { id: string; text: string }[];
+  slsOptions: { id: string; text: string }[];
+  blokSensusOptions: { id: string; text: string }[];
 }
 
-export const AddSampelDialog = ({
-  isOpen,
-  onClose,
-  onSave,
+export const EditSampelDialog = ({
+  isOpen, onClose, onSave, initialData,
   provinsiOptions: provOpts,
   kabKotaOptions: _kabKotaOpts,
   kecamatanOptions: _kecOpts,
-  kelDesaOptions:   _kelDesaOpts,
+  kelDesaOptions: _kelDesaOpts,
   segmenOptions: _segmenOpts,
   blokSensusOptions: _bsOpts,
   slsOptions: _slsOpts,
-}: AddSampelDialogProps) => {
-  const { csrf_token } = usePage<PageProps>().props
+}: EditSampelDialogProps) => {
+  const { csrf_token } = usePage<PageProps>().props;
 
-  // Field teks
-  const [jenisSampel, setJenisSampel] = useState<JenisSampel>("Cadangan")
-  const [jenisTanaman, setJenisTanaman] = useState<JenisTanaman>("Padi")
+  if (!initialData) {
+    return null; 
+  }
+
+  // 1. State initialization dari initialData
+  const [jenisSampel, setJenisSampel] = useState<JenisSampel>(initialData.jenis_sampel);
+  const [jenisTanaman, setJenisTanaman] = useState<JenisTanaman>(initialData.jenis_tanaman);
   const komoditasOptions: JenisKomoditas[] =
     jenisTanaman === "Padi"
       ? ["Padi"]
       : ["Jagung","Kedelai","Kacang Tanah","Ubi Kayu","Ubi Jalar","Lainnya"];
-
   const [jenisKomoditas, setJenisKomoditas] = useState<JenisKomoditas>(
-    komoditasOptions[0]
+    initialData.jenis_komoditas || komoditasOptions[0]
   );
 
   useEffect(() => {
     setJenisKomoditas(komoditasOptions[0]);
-  }, [jenisTanaman, komoditasOptions]);
+  }, [jenisTanaman]);
 
-  const [frameKsa, setFrameKsa] = useState("")
-  const [prov, setProv] = useState('');
-  const [kabKota, setKabKota] = useState('');
-  const [kec, setKec] = useState('');
-  const [kelDesa, setKelDesa] = useState('');
+  const [frameKsa, setFrameKsa] = useState(initialData.frame_ksa || "");
+  const [prov, setProv] = useState(initialData.provinsi_id);
+  const [kabKota, setKabKota] = useState(initialData.kab_kota_id);
+  const [kec, setKec] = useState(initialData.kecamatan_id);
+  const [kelDesa, setKelDesa] = useState(initialData.kel_desa_id || "");
   const [kabKotaOptsState, setKabKotaOptsState] = useState(_kabKotaOpts);
-  const [kecOptsState,   setKecOptsState]       = useState(_kecOpts);
-  const [kelDesaOptsState,  setKelDesaOptsState]      = useState(_kelDesaOpts);
+  const [kecOptsState, setKecOptsState] = useState(_kecOpts);
+  const [kelDesaOptsState, setKelDesaOptsState] = useState(_kelDesaOpts);
   const [segmenOptsState, setSegmenOptsState] = useState(_segmenOpts);
   const [bsOptsState, setBsOptsState] = useState(_bsOpts);
   const [slsOptsState, setSlsOptsState] = useState(_slsOpts);
 
-  // ––– state filter & popover –––
-  const [queryProv, setQueryProv]   = useState('');
-  const [openProv, setOpenProv]     = useState(false);
-  const [queryKabKota, setQueryKabKota]     = useState('');
-  const [openKabKota, setOpenKabKota]       = useState(false);
-  const [queryKec, setQueryKec]     = useState('');
-  const [openKec, setOpenKec]       = useState(false);
-  const [queryKelDesa, setQueryKelDesa]   = useState('');
-  const [openKelDesa, setOpenKelDesa]     = useState(false);
-
+  // filter state & popover
+  const [queryProv, setQueryProv] = useState('');
+  const [openProv, setOpenProv] = useState(false);
+  const [queryKabKota, setQueryKabKota] = useState('');
+  const [openKabKota, setOpenKabKota] = useState(false);
+  const [queryKec, setQueryKec] = useState('');
+  const [openKec, setOpenKec] = useState(false);
+  const [queryKelDesa, setQueryKelDesa] = useState('');
+  const [openKelDesa, setOpenKelDesa] = useState(false);
   const [querySegmen, setQuerySegmen] = useState('');
-  const [openSegmen, setOpenSegmen]   = useState(false);
+  const [openSegmen, setOpenSegmen] = useState(false);
   const [queryBs, setQueryBs] = useState('');
-  const [openBs, setOpenBs]   = useState(false);
+  const [openBs, setOpenBs] = useState(false);
   const [querySls, setQuerySls] = useState('');
-  const [openSls, setOpenSls]   = useState(false);
-  const [slsOptions, setSlsOptions] = useState<Sls[]>([]);
+  const [openSls, setOpenSls] = useState(false);
 
-  const [namaLok, setNamaLok] = useState("")
-  const [subsegmen, setSubsegmen] = useState("")
-  const [namaKrt, setNamaKrt] = useState("")
-  const [strata, setStrata] = useState("")
-  const [bulanListing, setBulanListing] = useState("")
-  const [tahunListing, setTahunListing] = useState("")
-  const [faseTanam, setFaseTanam] = useState("")
-  const [rilis, setRilis] = useState("")
-  const [aRandom, setARandom] = useState("")
-  const [nks, setNks] = useState("")
-  const [longVal, setLongVal] = useState("")
-  const [latVal, setLatVal] = useState("")
-  const [subround, setSubround] = useState("")
-  const [perkiraanMingguPanen, setPerkiraanMingguPanen] = useState("")
-  const [pclId, setPclId] = useState<number | undefined>(undefined)
-  const [timId, setTimId] = useState<number | undefined>(undefined)
+  const [namaLok, setNamaLok] = useState(initialData.nama_lok);
+  const [subsegmen, setSubsegmen] = useState(initialData.subsegmen || "");
+  const [namaKrt, setNamaKrt] = useState(initialData.nama_krt || "");
+  const [strata, setStrata] = useState(initialData.strata || "");
+  const [bulanListing, setBulanListing] = useState(initialData.bulan_listing);
+  const [tahunListing, setTahunListing] = useState(initialData.tahun_listing);
+  const [faseTanam, setFaseTanam] = useState(initialData.fase_tanam || "");
+  const [rilis, setRilis] = useState(initialData.rilis);
+  const [aRandom, setARandom] = useState(initialData.a_random);
+  const [nks, setNks] = useState(initialData.nks);
+  const [longVal, setLongVal] = useState(initialData.long);
+  const [latVal, setLatVal] = useState(initialData.lat);
+  const [subround, setSubround] = useState(initialData.subround);
+  const [perkiraanMingguPanen, setPerkiraanMingguPanen] = useState(initialData.perkiraan_minggu_panen ? String(initialData.perkiraan_minggu_panen) : "");
+  const [pclId, setPclId] = useState(initialData.pcl_id);
+  const [timId, setTimId] = useState(initialData.tim_id);
 
-  // Nilai terpilih untuk dropdown
-  const [selectedSegmen, setSelectedSegmen] = useState<string>("")
-  const [selectedBlokSensus, setSelectedBlokSensus] = useState<{id: string; label: string}>({id: "", label: ""})
-  const [selectedSLS, setSelectedSLS] = useState<{ id: string; label: string }>({ id: "", label: "" });
+  // Segmen/BS/SLS
+  const [selectedSegmen, setSelectedSegmen] = useState(initialData.segmen_id || "");
+  const [selectedBlokSensus, setSelectedBlokSensus] = useState<{ id: string; label: string }>(
+    initialData.segmen_id ? { id: "", label: "" } : { id: _bsOpts?.[0]?.id || "", label: _bsOpts?.[0]?.text || "" }
+  );
+  const [selectedSLS, setSelectedSLS] = useState<{ id: string; label: string }>(
+    initialData.id_sls ? { id: String(initialData.id_sls), label: "" } : { id: "", label: "" }
+  );
 
-  // Filter opsi berdasarkan query menggunakan useMemo
+  // ... Seluruh useEffect dan filteredX
+   // Filter opsi berdasarkan query menggunakan useMemo
   const filteredProvinsi = useMemo(() => {
     const q = queryProv.trim().toLowerCase();
     return !q
@@ -148,16 +151,21 @@ export const AddSampelDialog = ({
     })
     .then(res => {
       setKabKotaOptsState(res.data.kab_kota);
-      setKabKota('');         // reset pilihan kabupaten
-      setKecOptsState([]);    // kosongkan kecamatan & desa
-      setKec('');             
-      setKelDesaOptsState([]);   
+
+      if (initialData && initialData.kab_kota_id) {
+        setKabKota(initialData.kab_kota_id);
+      } else {
+        setKabKota('');
+      }
+      setKecOptsState([]);
+      setKec('');
+      setKelDesaOptsState([]);
       setKelDesa('');
     })
     .catch(() => {
       setKabKotaOptsState([]);
     });
-  }, [prov]);
+  }, [prov, initialData]);
 
   // 3) ketika kabKota berubah → fetch kecamatan
   useEffect(() => {
@@ -167,18 +175,23 @@ export const AddSampelDialog = ({
       return;
     }
     axios.get('/dashboard/admin/option/kecamatan-available-list', {
-      params: { kab_kota: kabKota }
+      params: { kecamatan: kec }
     })
     .then(res => {
       setKecOptsState(res.data.kecamatan);
-      setKec('');
-      setKelDesaOptsState([]);  
+      
+      if (initialData && initialData.kecamatan_id) {
+        setKec(initialData.kecamatan_id);
+      } else {
+        setKec('');
+      }
+      setKelDesaOptsState([]);
       setKelDesa('');
     })
     .catch(() => {
       setKecOptsState([]);
     });
-  }, [kabKota]);
+  }, [kabKota, initialData]);
 
   // 4) ketika kec berubah → fetch desa
   useEffect(() => {
@@ -194,7 +207,12 @@ export const AddSampelDialog = ({
     })
     .then(res => {
       setSegmenOptsState(res.data.segmen || []);
-      setSelectedSegmen("");
+      // Set segmen awal
+      if (initialData && initialData.segmen_id) {
+        setSelectedSegmen(initialData.segmen_id);
+      }
+      else
+        setSelectedSegmen("");
     })
     .catch(() => setSegmenOptsState([]));
     axios.get('/dashboard/admin/option/kel-desa-available-list', {
@@ -202,12 +220,17 @@ export const AddSampelDialog = ({
     })
     .then(res => {
       setKelDesaOptsState(res.data.kel_desa);
-      setKelDesa('');
+      // Set kelurahan/desa awal
+      if (initialData && initialData.kel_desa_id) {
+        setKelDesa(initialData.kel_desa_id);
+      } else {
+        setKelDesa('');
+      }
     })
     .catch(() => {
       setKelDesaOptsState([]);
     });
-  }, [kec]);
+  }, [kec, initialData]);
 
   // ③ fetch blok sensus setiap kali kelurahan/desa berubah
   useEffect(() => {
@@ -221,10 +244,18 @@ export const AddSampelDialog = ({
     })
     .then(res => {
       setBsOptsState(res.data.bs || []);
-      setSelectedBlokSensus({ id: "", label: "" });
+      // Set blok sensus awal
+      if (initialData && initialData.id) {
+        setSelectedBlokSensus({ 
+          id: String(initialData.id),
+          label: String(initialData.id), 
+      });
+      } else {
+        setSelectedBlokSensus({ id: "", label: "" });
+      }
     })
     .catch(() => setBsOptsState([]));
-  }, [kelDesa]);
+  }, [kelDesa, initialData]);
 
   // ④ fetch SLS setiap kali blok sensus berubah (sudah ada)
   useEffect(() => {
@@ -295,123 +326,104 @@ export const AddSampelDialog = ({
     );
   }, [querySls, slsOptsState]);
 
-  
-  const { processing, errors } = useForm<SampelFormData>("addSampelForm", {
-    provinsi_id: "",
-    kab_kota_id: "",
-    kecamatan_id: "",
-    kel_desa_id: "",
-    jenis_sampel: "Cadangan",
-    jenis_tanaman: "Padi",
-    jenis_komoditas: undefined,
-    frame_ksa: "",
-    nama_lok: "",
-    segmen_id: undefined,
-    subsegmen: "",
-    id_sls: undefined,
-    nama_krt: "",
-    strata: "",
-    bulan_listing: "",
-    tahun_listing: "",
-    fase_tanam: "",
-    rilis: "",
-    a_random: "",
-    nks: "",
-    long: "",
-    lat: "",
-    subround: "",
-    perkiraan_minggu_panen: undefined,
-    pcl_id: undefined,
-    tim_id: undefined,
-    _token: csrf_token,
-  })
 
-const handleSubmit: FormEventHandler = async e => {
-  e.preventDefault();
-
-  // common
-  const payload: any = {
-    provinsi_id: prov,
-    kab_kota_id: kabKota,
-    kecamatan_id: kec,
-    nama_lok : namaLok,
-    jenis_sampel: jenisSampel,
-    jenis_tanaman: jenisTanaman,
-    jenis_komoditas: jenisKomoditas,
-    frame_ksa: frameKsa || undefined,
-    bulan_listing: bulanListing,
-    tahun_listing: tahunListing,
-    fase_tanam: faseTanam || undefined,
-    rilis,
-    a_random: aRandom,
-    nks,
-    long: longVal,
-    lat: latVal,
-    subround,
-    pcl_id: pclId || undefined,
-    tim_id: timId || undefined,
+  // State untuk error handling
+  const { processing, errors, setData } = useForm<SampelFormData>("editSampelForm", {
+    ...initialData,  
     _token: csrf_token,
+  });
+
+  useEffect(() => {
+    setData({
+      ...initialData,
+      _token: csrf_token,
+    });
+  }, [initialData]);
+
+
+  // ======== Bagian handleSubmit & validasi ========
+  const handleSubmit: FormEventHandler = async e => {
+    e.preventDefault();
+    const payload: any = {
+      provinsi_id: prov,
+      kab_kota_id: kabKota,
+      kecamatan_id: kec,
+      nama_lok : namaLok,
+      jenis_sampel: jenisSampel,
+      jenis_tanaman: jenisTanaman,
+      jenis_komoditas: jenisKomoditas,
+      frame_ksa: frameKsa || undefined,
+      bulan_listing: bulanListing,
+      tahun_listing: tahunListing,
+      fase_tanam: faseTanam || undefined,
+      rilis,
+      a_random: aRandom,
+      nks,
+      long: longVal,
+      lat: latVal,
+      subround,
+      pcl_id: pclId || undefined,
+      tim_id: timId || undefined,
+      _token: csrf_token,
+    };
+
+    if (jenisTanaman === "Padi") {
+      payload.segmen_id   = selectedSegmen;
+      payload.subsegmen   = subsegmen;
+      payload.strata      = strata;
+    } else {
+      payload.kel_desa_id            = kelDesa;
+      payload.id_sls                 = Number(selectedSLS.id);
+      payload.nama_krt               = namaKrt;
+      payload.perkiraan_minggu_panen = Number(perkiraanMingguPanen);
+    }
+    await onSave(payload);
   };
 
-  if (jenisTanaman === "Padi") {
-    payload.segmen_id   = selectedSegmen;
-    payload.subsegmen   = subsegmen;
-    payload.strata      = strata;
-    // jangan sertakan kel_desa_id, id_sls, nama_krt, perkiraan_minggu_panen
-  } else {
-    payload.kel_desa_id            = kelDesa;
-    payload.id_sls                 = Number(selectedSLS.id);
-    payload.nama_krt               = namaKrt;
-    payload.perkiraan_minggu_panen = Number(perkiraanMingguPanen);
-    // jangan sertakan segmen_id, subsegmen, strata
-  }
+  // ======== Validasi form ========
+    const isFormValid = useMemo(() => {
+    // cek field umum
+    if (!prov || !kabKota || !kec) return false;
+    if (!jenisSampel) return false;
+    if (!jenisTanaman) return false;
+    if (!namaLok) return false;
+    if (!bulanListing || !tahunListing) return false;
+    if (!rilis || !aRandom || !nks || !longVal || !latVal) return false;
+    // cek subround dan format minimal
+    if (subround.length < 1 || subround.length > 2) return false;
 
-  await onSave(payload);
-};
+    if (jenisTanaman === "Padi") {
+      // wajib segmen, subsegmen, strata
+      if (!selectedSegmen) return false;
+      if (!subsegmen) return false;
+      if (!strata) return false;
+    } else {
+      // Palawija: wajib kelDesa (sudah), blokSensus, SLS, namaKrt, perkiraanMingguPanen
+      if (!kelDesa) return false;
+      if (!selectedBlokSensus.id) return false;
+      if (!selectedSLS.id) return false;
+      if (!namaKrt) return false;
+      if (!perkiraanMingguPanen) return false;
+    }
 
-const isFormValid = useMemo(() => {
-  // cek field umum
-  if (!prov || !kabKota || !kec) return false;
-  if (!jenisSampel) return false;
-  if (!jenisTanaman) return false;
-  if (!namaLok) return false;
-  if (!bulanListing || !tahunListing) return false;
-  if (!rilis || !aRandom || !nks || !longVal || !latVal) return false;
-  // cek subround dan format minimal
-  if (subround.length < 1 || subround.length > 2) return false;
-
-  if (jenisTanaman === "Padi") {
-    // wajib segmen, subsegmen, strata
-    if (!selectedSegmen) return false;
-    if (!subsegmen) return false;
-    if (!strata) return false;
-  } else {
-    // Palawija: wajib kelDesa (sudah), blokSensus, SLS, namaKrt, perkiraanMingguPanen
-    if (!kelDesa) return false;
-    if (!selectedBlokSensus.id) return false;
-    if (!selectedSLS.id) return false;
-    if (!namaKrt) return false;
-    if (!perkiraanMingguPanen) return false;
-  }
-
-  return true;
-}, [
-  prov, kabKota, kec, kelDesa,
-  jenisSampel, jenisTanaman, namaLok,
-  bulanListing, tahunListing, rilis,
-  aRandom, nks, longVal, latVal,
-  subround,
-  selectedSegmen, subsegmen, strata,
-  selectedBlokSensus, selectedSLS,
-  namaKrt, perkiraanMingguPanen,
-]);
+    return true;
+  }, [
+    prov, kabKota, kec, kelDesa,
+    jenisSampel, jenisTanaman, namaLok,
+    bulanListing, tahunListing, rilis,
+    aRandom, nks, longVal, latVal,
+    subround,
+    selectedSegmen, subsegmen, strata,
+    selectedBlokSensus, selectedSLS,
+    namaKrt, perkiraanMingguPanen,
+  ]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambah Sampel Baru</DialogTitle>
-          <DialogDescription>Masukkan data sampel baru</DialogDescription>
+          <DialogTitle>Edit Sampel</DialogTitle>
+          <DialogDescription>Ubah data sampel</DialogDescription>
         </DialogHeader>
         <div className="p-2 max-h-[80vh] overflow-y-auto">
           <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -1158,4 +1170,4 @@ const isFormValid = useMemo(() => {
   );
 };
 
-export default AddSampelDialog
+export default EditSampelDialog;

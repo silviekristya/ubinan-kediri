@@ -202,6 +202,7 @@ export interface Sampel {
   tim?: Tim                      // nullable FK
   pcl?: Mitra                   // nullable FK
   id_sls?: number                     // nullable FK
+  sls?: Sls                       // nullable FK
   nama_krt?: string                   // nullable
   pcl_nama?: string               // nullable
   pml_nama?: string               // nullable

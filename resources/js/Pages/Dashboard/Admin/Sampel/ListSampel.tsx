@@ -20,7 +20,7 @@ import {
   AlertDialogTitle
 } from "@/Components/ui/alert-dialog";
 import { AddSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/AddSampelDialog';
-// import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
+import { EditSampelDialog } from '@/Components/Dashboard/Components/Admin/Sampel/EditSampelDialog';
 import { generateColumns } from "@/Components/Dashboard/Components/DataTable/Components/Columns";
 import { PageProps, Sampel, Segmen, BlokSensus, Sls, Tim, SampelFormData } from '@/types';
 import AddAlokasiPmlDialog from '@/Components/Dashboard/Components/Admin/Alokasi/AddAlokasiPmlDialog';
@@ -312,10 +312,13 @@ const SampelPage = () => {
         } else if (columnKey === 'pcl_id') {
           if (!row.pcl_id) {
             return (
-              <Button onClick={() => {
-                console.log("Klik Alokasi PCL untuk row:", row);
-                setSelectedForPcl(row);
-              }}>
+              <Button
+                onClick={() => {
+                  console.log("Klik Alokasi PCL untuk row:", row);
+                  setSelectedForPcl(row);
+                }}
+                disabled={!row.tim_id || !!row.pcl_id}
+              >
                 Alokasi
               </Button>
             );
@@ -448,17 +451,22 @@ const SampelPage = () => {
       />
 
       {/* Dialog Edit Sampel */}
-      {/* {editData && (
+      {editData && (
         <EditSampelDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
-          onSave={(formData: SampelFormData) => handleConfirmUpdate(editData.id, formData)}
-          data={editData}
+          onSave={(formData) => handleConfirmUpdate(editData.id!, formData)}
+          initialData={{ ...editData, _token: (window as any).csrfToken || '' }}
+          provinsiOptions={provinsiOptions}
+          kabKotaOptions={kabKotaOptions}
+          kecamatanOptions={kecamatanOptions}
+          kelDesaOptions={kelDesaOptions}
           segmenOptions={segmenOptions}
           blokSensusOptions={blokSensusOptions}
+          slsOptions={slsOptions}
           // slsOptions tidak dikirim karena dialog akan fetch sendiri
         />
-      )} */}
+      )}
 
       {/* Dialog Konfirmasi Hapus */}
       {isDeleteDialogOpen && deleteData && (

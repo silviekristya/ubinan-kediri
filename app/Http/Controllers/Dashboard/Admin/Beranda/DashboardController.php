@@ -66,7 +66,7 @@ class DashboardController extends Controller
         }
 
         return Inertia::render('Dashboard/Admin/Beranda/Dashboard', [
-            'events'            => $events,
+            // 'events'            => $events,
             'progress'          => [
                 'pengecekan' => [
                     'label' => 'Pengecekan',

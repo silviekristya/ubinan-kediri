@@ -12,6 +12,7 @@ import {
     LuTrendingUp,
     LuMail,
     LuTrees,
+    LuCalendar1,
 } from "react-icons/lu";
 
 import { usePage } from '@inertiajs/react';
@@ -56,6 +57,13 @@ type Group = {
             active: pathname === "/dashboard",
             icon: LuLayoutPanelLeft,
             submenus: []
+          },
+          {
+              href: route('dashboard.kalender'),
+              label: "Kalender",
+              active: pathname.includes("/dashboard/kalender"),
+              icon: LuCalendar1,
+              submenus: []
           },
         //   {
         //     href: route('dashboard.menu1'),

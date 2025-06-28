@@ -1,7 +1,7 @@
 // resources/js/Pages/Dashboard/Admin/Beranda/Dashboard.tsx
 
 import React, { useMemo } from "react";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, usePage, Link } from "@inertiajs/react";
 import { Card, CardHeader, CardContent } from "@/Components/ui/card";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -9,14 +9,14 @@ import isBetween from "dayjs/plugin/isBetween";
 import "dayjs/locale/id";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { PageProps, WithCsrf } from "@/types";
-import { ScheduleCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/ScheduleCalendar";
-import {
-  Tooltip,
-  TooltipProvider,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/Components/ui/tooltip";
-import { TooltipCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/TooltipCalendar";
+// import { ScheduleCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/ScheduleCalendar";
+// import {
+//   Tooltip,
+//   TooltipProvider,
+//   TooltipTrigger,
+//   TooltipContent,
+// } from "@/Components/ui/tooltip";
+// import { TooltipCalendar } from "@/Components/Dashboard/Components/ScheduleCalendar/TooltipCalendar";
 import { Progress } from "@/Components/ui/progress";
 import {
   ResponsiveContainer,
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
 
       <div className="flex flex-col gap-6 w-full">
         {/* Calendar */}
-        <Card className="shadow">
+        {/* <Card className="shadow">
           <CardHeader className="text-center font-semibold text-lg">
             Jadwal Panen
           </CardHeader>
@@ -104,9 +104,17 @@ export default function AdminDashboard() {
               </div>
             </TooltipProvider>
           </CardContent>
-        </Card>
+        </Card> */}
+        <div className="mb-6">
+          <Link
+            href={route('dashboard.kalender')}
+            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Lihat Jadwal Panen
+          </Link>
+        </div>
 
-        {/* 2) Progress bars side-by-side (two columns) */}
+        {/* Progress bars side-by-side (two columns) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries(progress).map(([key, { label, done, total }]) => {
             const percent = total > 0 ? Math.round((done / total) * 100) : 0;

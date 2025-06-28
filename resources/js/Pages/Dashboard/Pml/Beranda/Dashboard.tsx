@@ -1,5 +1,5 @@
 import React from "react";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, usePage, Link } from "@inertiajs/react";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -44,7 +44,7 @@ export default function PmlDashboard() {
             Jadwal Panen
           </CardHeader>
           <CardContent className="p-0 overflow-visible">
-            <TooltipProvider>
+            {/* <TooltipProvider>
               <div className="relative p-4">
                 <ScheduleCalendar
                   events={events}
@@ -57,7 +57,15 @@ export default function PmlDashboard() {
                   }}
                 />
               </div>
-            </TooltipProvider>
+            </TooltipProvider> */}
+            <div className="mb-6 justify-center text-center">
+                  <Link
+                    href={route('dashboard.kalender')}
+                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                  >
+                    Lihat Jadwal Panen
+                  </Link>
+            </div>
           </CardContent>
         </Card>
         {/* …konten lain… */}

@@ -23,7 +23,7 @@ dayjs.extend(utc);
 dayjs.extend(isBetween);
 dayjs.locale('id');
 
-export default function JadwalPanen() {
+export default function KalenderPanenAdmin() {
   interface CustomPageProps extends PageProps {
     events: Array<{ date: string; nama_lok: string; pml: string; pcl: string }>;
   }
@@ -44,22 +44,22 @@ export default function JadwalPanen() {
     <DashboardLayout>
       <Head title="Jadwal Panen" />
 
-      <div className="p-4">
-         <Card className="shadow">
-            <CardHeader className="text-center font-semibold text-lg">
+      <div className="flex flex-col gap-4 w-full">
+         <Card className="w-full shadow-md">
+            <CardHeader className="text-base sm:text-xl font-semibold text-center">
                 Jadwal Panen
             </CardHeader>
             <CardContent className="p-0 overflow-visible relative">
                 <TooltipProvider>
-                <div className="relative px-4 py-2">
+                <div className="relative p4">
                     <ScheduleCalendar
                     events={calendarEvents}
                     tileContent={({ date, view }) => {
                         if (view !== 'month') return null;
-                        const key = dayjs(date).format('YYYY-MM-DD');
-                        const hits = calendarEvents.filter(e => e.date === key);
+                          const key = dayjs(date).format('DD-MM-YYYY');
+                          const hits = calendarEvents.filter(e => e.date === key);
                         if (!hits.length) return null;
-                        return <TooltipCalendar hits={hits} />;
+                          return <TooltipCalendar hits={hits} />;
                     }}
                     />
                 </div>

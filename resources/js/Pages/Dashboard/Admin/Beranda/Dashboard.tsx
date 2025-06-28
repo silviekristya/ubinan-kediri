@@ -84,12 +84,12 @@ export default function AdminDashboard() {
 
       <div className="flex flex-col gap-6 w-full">
         {/* Calendar */}
-        {/* <Card className="shadow">
+        <Card className="shadow">
           <CardHeader className="text-center font-semibold text-lg">
             Jadwal Panen
           </CardHeader>
           <CardContent className="p-0 overflow-visible relative">
-            <TooltipProvider>
+            {/* <TooltipProvider>
               <div className="relative px-4 py-2">
                 <ScheduleCalendar
                   events={calendarEvents}
@@ -102,17 +102,18 @@ export default function AdminDashboard() {
                   }}
                 />
               </div>
-            </TooltipProvider>
+            </TooltipProvider> */}
+            <div className="mb-6 justify-center text-center">
+              <Link
+                href={route('dashboard.kalender')}
+                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              >
+                Lihat Jadwal Panen
+              </Link>
+            </div>
           </CardContent>
-        </Card> */}
-        <div className="mb-6">
-          <Link
-            href={route('dashboard.kalender')}
-            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Lihat Jadwal Panen
-          </Link>
-        </div>
+        </Card>
+        
 
         {/* Progress bars side-by-side (two columns) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

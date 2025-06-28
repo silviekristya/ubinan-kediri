@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard\Admin\Jadwal;
+namespace App\Http\Controllers\Dashboard\Admin\Kalender;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pengecekan;
@@ -9,7 +9,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
 
-class JadwalPanenAdmin extends Controller
+class KalenderPanenAdmin extends Controller
 {
     public function v1(Request $request): Response
     {
@@ -23,13 +23,13 @@ class JadwalPanenAdmin extends Controller
             ])
             ->get()
             ->map(fn($cek) => [
-                'date'     => Carbon::parse($cek->tanggal_panen)->format('DD-MM-YYYY'),
+                'date'     => Carbon::parse($cek->tanggal_panen)->format('d-m-Y'),
                 'nama_lok' => $cek->sampel->nama_lok,
                 'pml'      => $cek->sampel->tim->pml->nama,
                 'pcl'      => $cek->sampel->pcl->nama,
             ]);
 
-        return Inertia::render('Dashboard/Admin/Jadwal/JadwalPanenPage', [
+        return Inertia::render('Dashboard/Admin/Kalender/KalenderAdminPage', [
             'events' => $events,
         ]);
     }

@@ -2,12 +2,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import isBetween from 'dayjs/plugin/isBetween';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { Button } from '@/Components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/Components/ui/card';
 
 dayjs.extend(utc);
 dayjs.extend(isBetween);
 dayjs.locale('id');
+dayjs.extend(customParseFormat);
 
 export interface CalendarEvent {
   date: string;
@@ -182,9 +184,23 @@ export function ScheduleCalendar({ events, tileContent }: ScheduleCalendarProps)
           {/* List View */}
           {viewMode === 'list' && (
             <div className="space-y-2">
-              {events.sort((a,b) => a.date.localeCompare(b.date)).map((ev,i) => (
-                <div key={i} className="bg-white shadow-sm border rounded-lg p-2 flex justify-between"><span>{dayjs(ev.date).format('DD MMM YYYY')}</span><span>{ev.title}</span></div>
-              ))}
+              {events
+                .sort((a, b) =>
+                  dayjs(a.date, 'DD-MM-YYYY').valueOf() -
+                  dayjs(b.date, 'DD-MM-YYYY').valueOf()
+                )
+                .map((ev, i) => {
+                  const d = dayjs(ev.date, 'DD-MM-YYYY');
+                  return (
+                    <div
+                      key={i}
+                      className="bg-white shadow-sm border rounded-lg p-2 flex justify-between"
+                    >
+                      <span>{d.format('DD MMM YYYY')}</span>
+                      <span>{ev.title}</span>
+                    </div>
+                  );
+                })}
             </div>
           )}
         </div>

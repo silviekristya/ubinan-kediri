@@ -74,7 +74,7 @@ use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanStore as HasilUb
 use App\Http\Controllers\Dashboard\Mitra\HasilUbinan\HasilUbinanUpdate as HasilUbinanUpdateMitra;
 use App\Http\Controllers\Dashboard\Admin\Produktivitas\ProduktivitasList as ProduktivitasListAdmin;
 use App\Http\Controllers\Dashboard\Pml\HasilUbinan\HasilUbinanVerifikasi as HasilUbinanVerifikasiPML;
-use App\Http\Controllers\Dashboard\Admin\Jadwal\JadwalPanenAdmin;
+use App\Http\Controllers\Dashboard\Kalender\KalenderPanenController;
 
 
 Route::get('/', [HomeBerandaList::class, 'v1'])->name('beranda.index');
@@ -85,7 +85,7 @@ Route::middleware('auth')
     ->group(function () {
         Route::get('', [DashboardController::class, 'v1'])->name('beranda');
 
-        Route::get('kalender', [JadwalPanenAdmin::class, 'v1'])->name('kalender');
+        Route::get('kalender', [KalenderPanenController::class, 'v1'])->name('kalender');
 
         // Start: Profil
         Route::get('profil', [ProfilController::class, 'index'])->name('profil.index');

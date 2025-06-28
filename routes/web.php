@@ -132,35 +132,30 @@ Route::middleware('auth')
             // End: Tim
 
             // Start: Segmen & Blok Sensus
-            Route::prefix('wilayah')->name('wilayah.')->group(function () {
+            Route::prefix('wilayah')
+            ->name('wilayah.')
+            ->group(function () {
+                Route::get('/', [WilayahController::class, 'provinsi'])->name('index');
+                Route::get('provinsi',   [WilayahController::class, 'provinsi'])->name('provinsi');
+                Route::get('kab-kota',   [WilayahController::class, 'kabKota'])->name('kabkota');
+                Route::get('kecamatan',  [WilayahController::class, 'kecamatan'])->name('kecamatan');
+                Route::get('kel-desa',   [WilayahController::class, 'kelDesa'])->name('keldesa');
 
-                // Tambahkan route index untuk halaman utama
-                Route::get('', [WilayahController::class, 'index'])
-                    ->name('index');
-
-                // Sub-route segmen
-                Route::prefix('segmen')->name('segmen.')->group(function () {
-                    Route::post('store', [SegmenStore::class, 'v1']);
-                    Route::post('import', [SegmenImportController::class, 'v1'])->name('import');
-                    Route::post('update/{segmen}', [SegmenUpdate::class, 'v1']);
-                    Route::delete('delete/{segmen}', [SegmenDelete::class, 'v1'])->name('delete');
-                });
-
-                // Sub-route blok-sensus
-                Route::prefix('blok-sensus')->name('blok-sensus.')->group(function () {
-                    Route::post('store', [BlokSensusStore::class, 'v1']);
-                    Route::post('update/{blokSensus}', [BlokSensusUpdate::class, 'v1']);
-                    Route::delete('delete/{blokSensus}', [BlokSensusDelete::class, 'v1'])->name('delete');
-                });
-
-                // Sub-route nama-sls
-                Route::prefix('nama-sls')->name('nama-sls.')->group(function () {
-                    Route::post('store', [SlsStore::class, 'v1']);
-                    Route::post('update/{sls}', [SlsUpdate::class, 'v1']);
-                    Route::delete('delete/{sls}', [SlsDelete::class, 'v1'])->name('delete');
-                });
+                Route::get('segmen',     [WilayahController::class, 'segmen'])->name('segmen');
+                Route::post('segmen/store', [SegmenStore::class, 'v1'])->name('segmen.store');
+                Route::post('segmen/update/{segmen}', [SegmenUpdate::class, 'v1'])->name('segmen.update');
+                Route::post('segmen/import', [SegmenImportController::class, 'v1'])->name('segmen.import');
+                Route::delete('segmen/delete/{segmen}', [SegmenDelete::class, 'v1'])->name('segmen.delete');
+                Route::get('blok-sensus',[WilayahController::class, 'blokSensus'])->name('bloksensus');
+                Route::post('blok-sensus/store', [BlokSensusStore::class, 'v1'])->name('bloksensus.store');
+                Route::post('blok-sensus/update/{blokSensus}', [BlokSensusUpdate::class, 'v1'])->name('bloksensus.update');
+                Route::delete('blok-sensus/delete/{blokSensus}', [BlokSensusDelete::class, 'v1'])->name('bloksensus.delete');
+                Route::get('sls', [WilayahController::class, 'sls'])->name('sls');
+                Route::post('sls/store', [SlsStore::class, 'v1'])->name('sls.store');
+                Route::post('sls/update/{sls}', [SlsUpdate::class, 'v1'])->name('sls.update');
+                Route::delete('sls/delete/{sls}', [SlsDelete::class, 'v1'])->name('sls.delete');
             });
-             // End: Segmen & Blok Sensus
+                    // End: Segmen & Blok Sensus
 
             // Start: Sampel
             Route::prefix('sampel')->name('sampel.')->group(function () {

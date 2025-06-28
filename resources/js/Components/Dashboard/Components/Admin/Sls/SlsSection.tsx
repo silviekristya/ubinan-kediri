@@ -5,16 +5,17 @@ import { CirclePlus } from 'lucide-react';
 import { Sls } from '@/types';
 import { AddSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/AddSlsDialog';
 import { EditSlsDialog } from '@/Components/Dashboard/Components/Admin/Sls/EditSlsDialog';
+import { TriangleAlert } from 'lucide-react'
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/Components/ui/alert-dialog';
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/Components/ui/alert-dialog'
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { generateColumns } from '@/Components/Dashboard/Components/DataTable/Components/Columns';
@@ -53,7 +54,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
   // Tambah entri baru
   const handleAdd = async (form: { nama_sls: string; bs_id: string }) => {
     try {
-      const { data } = await axios.post('/dashboard/admin/wilayah/nama-sls/store', form);
+      const { data } = await axios.post('/dashboard/admin/wilayah/sls/store', form);
       if (data.status === 'success') {
         setSlsData(prev => [
           ...prev,
@@ -81,7 +82,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
     if (!editItem) return;
     try {
       const { data } = await axios.post(
-        `/dashboard/admin/wilayah/nama-sls/update/${editItem.id}`,
+        `/dashboard/admin/wilayah/sls/update/${editItem.id}`,
         form
       );
       if (data.status === 'success') {
@@ -114,7 +115,7 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
     if (!deleteItem) return;
     try {
       const { data } = await axios.delete(
-        `/dashboard/admin/wilayah/nama-sls/delete/${deleteItem.id}`
+        `/dashboard/admin/wilayah/sls/delete/${deleteItem.id}`
       );
       if (data.status === 'success') {
         setSlsData(prev => prev.filter(s => s.id !== deleteItem.id));
@@ -175,24 +176,28 @@ const NamaSlsSection: React.FC<NamaSlsSectionProps> = ({ slsData, setSlsData, ca
         />
       )}
 
+      { deleteItem && (
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hapus SLS {deleteItem?.nama}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteOpen(false)}>
-              Batal
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
-              Lanjutkan
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <AlertDialogContent>
+              <AlertDialogHeader className="flex flex-col items-center">
+                  <AlertDialogTitle className="text-center">
+                    Hapus SLS {deleteItem.nama}?
+                  </AlertDialogTitle>
+                  <div>
+                    <TriangleAlert className="h-32 w-32 text-red-500" />
+                  </div>
+                  <AlertDialogDescription>
+                    Tindakan ini tidak dapat dibatalkan. Ini akan menghapus SLS {deleteItem.nama} secara permanen.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="mr-2">Batal</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteConfirm}>
+                    Lanjutkan
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+      </AlertDialog>)}
     </>
   );
 };

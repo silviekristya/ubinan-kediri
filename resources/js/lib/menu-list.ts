@@ -24,7 +24,7 @@ type Submenu = {
 };
 
 type Menu = {
-    href: string;
+    href?: string;
     label: string;
     active: boolean;
     icon: React.ElementType;
@@ -71,25 +71,27 @@ type Group = {
           groupLabel: "Admin",
           menus: [
             {
-                href: route('dashboard.admin.user.index'),
-                label: "User",
-                active: pathname.includes("/dashboard/admin/user"),
+                // href: route('dashboard.admin.user.index'),
+                label: "Pengguna",
+                active: pathname.includes("/dashboard/admin/user") || pathname.includes("/dashboard/admin/pegawai") || pathname.includes("/dashboard/admin/mitra"),
                 icon: LuUser,
-                submenus: []
-            },
-            {
-                href: route('dashboard.admin.pegawai.index'),
-                label: "Pegawai",
-                active: pathname.includes("/dashboard/admin/pegawai"),
-                icon: LuUserPlus,
-                submenus: []
-            },
-            {
-                href: route('dashboard.admin.mitra.index'),
-                label: "Mitra",
-                active: pathname.includes("/dashboard/admin/mitra"),
-                icon: LuUserPlus,
-                submenus: []
+                submenus: [
+                  {
+                    href : route('dashboard.admin.user.index'), 
+                    label: "Akun Pengguna", 
+                    iconSubmenu: LuUserPlus, 
+                    active: pathname.includes("/dashboard/admin/user")},
+                  {
+                    href: route('dashboard.admin.pegawai.index'),
+                    label: "Pegawai",
+                    iconSubmenu: LuUserPlus,    
+                    active: pathname.includes("/dashboard/admin/pegawai")},
+                  {
+                    href: route('dashboard.admin.mitra.index'),
+                    label: "Mitra",
+                    active: pathname.includes("/dashboard/admin/mitra"),
+                    iconSubmenu: LuUserPlus},
+                ]
             },
             {
                 href: route('dashboard.admin.tim.index'),
@@ -103,7 +105,50 @@ type Group = {
               active: pathname.includes("/dashboard/admin/wilayah"),
               label: "Wilayah",
               icon: LuMapPin,
-              submenus: []
+              submenus: [
+                {
+                  href: route('dashboard.admin.wilayah.provinsi'),
+                  label: 'Provinsi',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/provinsi'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.kabkota'),
+                  label: 'Kab/Kota',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/kab-kota'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.kecamatan'),
+                  label: 'Kecamatan',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/kecamatan'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.keldesa'),
+                  label: 'Kelurahan/Desa',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/kel-desa'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.segmen'),
+                  label: 'Segmen',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/segmen'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.bloksensus'),
+                  label: 'Blok Sensus',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/blok-sensus'),
+                },
+                {
+                  href: route('dashboard.admin.wilayah.sls'),
+                  label: 'SLS',
+                  iconSubmenu: LuMapPin,
+                  active: pathname.includes('/dashboard/admin/wilayah/sls'),
+                },
+              ]
             },
             {
               href: route('dashboard.admin.sampel.index'),

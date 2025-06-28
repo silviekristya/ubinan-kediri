@@ -4,8 +4,15 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/Components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/Components/ui/collapsible";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/Components/ui/tooltip";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from "@/Components/ui/dropdown-menu";
-import { Link } from '@inertiajs/react'; // Ganti dengan Link dari Inertia.js
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+} from "@/Components/ui/dropdown-menu";
+import { Link } from '@inertiajs/react';
 
 type Submenu = {
   href: string;
@@ -27,8 +34,9 @@ export function CollapseMenuButton({
   label,
   active,
   submenus,
-  isOpen
+  isOpen,
 }: CollapseMenuButtonProps) {
+  // buka otomatis jika ada submenu aktif
   const isSubmenuActive = submenus.some((submenu) => submenu.active);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
 
@@ -44,7 +52,7 @@ export function CollapseMenuButton({
       >
         <Button
           variant={active ? "bpswhite" : "bpsblue"}
-          className="w-full justify-start h-10"
+          className="w-full justify-start h-8 mb-0.5 px-3"
         >
           <div className="w-full items-center flex justify-between">
             <div className="flex items-center">
@@ -71,7 +79,7 @@ export function CollapseMenuButton({
               )}
             >
               <FaChevronDown
-                size={18}
+                size={14}
                 className="transition-transform duration-200"
               />
             </div>
@@ -82,13 +90,13 @@ export function CollapseMenuButton({
         {submenus.map(({ href, label, iconSubmenu: IconSubmenu, active }, index) => (
           <Button
             key={index}
-            variant={active ? "bpswhite" : "bpsblue"}
-            className="w-full justify-start h-10 mb-1"
+            variant={active ? "bpswhite" : "ghost"}
+            className="w-full justify-start h-7 mb-0.5 pl-10 pr-2"
             asChild
           >
-            <Link href={href}>
-              <span className="mr-4 ml-2">
-                <IconSubmenu size={18} />
+            <Link href={href} className="flex items-center w-full space-x-2">
+              <span className={cn(active ? "text-gray-900" : "text-gray-700")}>
+                <IconSubmenu size={14} />
               </span>
               <p
                 className={cn(
@@ -113,7 +121,7 @@ export function CollapseMenuButton({
             <DropdownMenuTrigger asChild>
               <Button
                 variant={active ? "bpswhite" : "bpsblue"}
-                className="w-full justify-start h-10 mb-1"
+                className="w-full justify-start h-8 mb-0.5 px-3"
               >
                 <div className="w-full items-center flex justify-between">
                   <div className="flex items-center">
